@@ -69,6 +69,13 @@ function safe_execute(mysqli_stmt $stmt, array &$data): ?mysqli_result {
     return $result;
 }
 
+function branch_status(float $currSales, float $pct, float $avgBill, float $overallAvg): string {
+    if ($currSales <= 0)                                     return 'no_data';
+    if ($pct <= -15)                                         return 'watch';
+    if ($overallAvg > 0 && $avgBill < $overallAvg * 0.7)   return 'low_avg';
+    return 'normal';
+}
+
 function product_query_candidates(): array {
     return [
         [
@@ -106,7 +113,6 @@ function product_query_candidates(): array {
     ];
 }
 
-// ── Input validation ─────────────────────────────────────────────────────────
 $defaultRange  = default_dashboard_range();
 $today         = date('Y-m-d');
 $dateFrom      = $_GET['date_from'] ?? $defaultRange['date_from'];
@@ -117,7 +123,6 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) $dateFrom = $defaultRange['
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo))   $dateTo   = $defaultRange['date_to'];
 if ($dateFrom > $dateTo) [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
 
-// ── Cache ────────────────────────────────────────────────────────────────────
 $cacheDir  = __DIR__ . '/cache';
 $rangeKey  = preg_replace('/[^0-9]/', '', $dateFrom . $dateTo);
 $cacheFile = $cacheDir . '/hq_' . $rangeKey . '.json';
@@ -131,7 +136,6 @@ if (!$forceRefresh && $cacheTtl > 0 && is_file($cacheFile) && (time() - filemtim
     exit;
 }
 
-// ── Previous period window ───────────────────────────────────────────────────
 $days         = max(1, (int)round((strtotime($dateTo) - strtotime($dateFrom)) / 86400) + 1);
 $previousFrom = date('Y-m-d', strtotime($dateFrom . ' -' . $days . ' days'));
 $previousTo   = date('Y-m-d', strtotime($dateFrom . ' -1 day'));
@@ -143,7 +147,6 @@ $data['meta']['latest_data_date'] = $defaultRange['latest_date'] ?? null;
 try {
     $conn = db_connect();
 
-    // ── 1. Summary KPIs ──────────────────────────────────────────────────────
     $sqlSummary = "
         SELECT
             COALESCE(SUM(sr.ReceiptPayPrice),0) AS sales_total,
@@ -169,7 +172,6 @@ try {
         $stmt->close();
     }
 
-    // ── 2. Branch ranking + previous period (1 query) ────────────────────────
     $sqlRanking = "
         SELECT
             sr.ShopID,
@@ -205,10 +207,7 @@ try {
                 if ($prevSales > 0)       $pct = (($currSales - $prevSales) / $prevSales) * 100;
                 elseif ($currSales > 0)   $pct = 100.0;
 
-                $status = 'normal';
-                if ($currSales <= 0)                                          $status = 'no_data';
-                elseif ($pct <= -15)                                          $status = 'watch';
-                elseif ($overallAvg > 0 && (float)($row['avg_bill'] ?? 0) < ($overallAvg * 0.7)) $status = 'low_avg';
+                $status = branch_status($currSales, $pct, (float)($row['avg_bill'] ?? 0), $overallAvg);
 
                 $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
                 if ($status === 'no_data') $data['alerts'][] = 'สาขา ' . $shopName . ' : ยังไม่มียอดขายในช่วงที่เลือก';
@@ -242,7 +241,6 @@ try {
     }
     $data['alerts'] = array_slice(array_values(array_unique($data['alerts'])), 0, 15);
 
-    // ── 3. Sales trend ───────────────────────────────────────────────────────
     $sqlTrend = "
         SELECT DATE(sr.SaleDate) AS sale_date,
                COALESCE(SUM(sr.ReceiptPayPrice),0) AS sales_total,
@@ -270,7 +268,6 @@ try {
         $stmt->close();
     }
 
-    // ── 4. Payment mix ───────────────────────────────────────────────────────
     $sqlPayment = "
         SELECT COALESCE(NULLIF(sp.PayTypeName,''),CONCAT('PayType ',sp.PayTypeID)) AS pay_type_name,
                COALESCE(SUM(sp.TotalPay),0)  AS total_amount,
@@ -296,7 +293,6 @@ try {
         $stmt->close();
     }
 
-    // ── 5. Top products ──────────────────────────────────────────────────────
     foreach (product_query_candidates() as $candidate) {
         if (!empty($data['top_products'])) break;
         if ($stmt = safe_prepare($conn, $data, $candidate['sql'])) {
