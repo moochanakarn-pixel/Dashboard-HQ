@@ -360,7 +360,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
   .kpi .value{font-size:21px}
   .desktop-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:8px}
   .desktop-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
-  .mobile-tabs,.filter-sheet{display:none!important}
+  .mobile-tabs,.filter-sheet,.panel,.panel.active{display:none!important}
   .desktop-only{display:block}
   .branch-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 }
