@@ -197,19 +197,6 @@ select.control option{background:var(--bg);color:var(--text)}
 
 .chart-shell{height:220px;border-radius:var(--r-sm);padding:8px 4px 2px;position:relative}
 
-.segment{
-  display:flex;gap:0;margin-bottom:16px;
-  background:rgba(255,255,255,.03);border:1px solid var(--line2);
-  padding:3px;border-radius:999px;
-}
-.seg-btn{
-  flex:1;height:32px;border-radius:999px;border:none;
-  background:transparent;color:var(--muted);
-  font-size:11px;font-weight:700;transition:all .2s;letter-spacing:.01em;
-}
-.seg-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 2px 12px var(--primary-glow)}
-.mix-panel{display:none}
-.mix-panel.active{display:block}
 
 .bar-list{display:flex;flex-direction:column;gap:10px}
 .bar-row{display:grid;grid-template-columns:100px 1fr 76px;gap:8px;align-items:center}
@@ -483,19 +470,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
 
   <!-- ── MOBILE PANELS ── -->
   <div id="panel-overview" class="panel active">
-    <!-- Alerts -->
-    <div class="card priority-card gap">
-      <div class="priority-head">
-        <div class="priority-head-title">
-          <h2 id="alertsTitle">แจ้งเตือน / ความผิดปกติ</h2>
-          <div class="desc" id="alertsDesc">สิ่งที่ต้องดูก่อน</div>
-        </div>
-        <span class="priority-count" id="alertCount">0</span>
-      </div>
-      <div class="list" id="alertList"><div class="empty">กำลังโหลด...</div></div>
-    </div>
-
-    <!-- Trend -->
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
@@ -505,21 +479,14 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
       </div>
       <div class="chart-shell"><canvas id="trendCanvas"></canvas></div>
     </div>
-
-    <!-- Revenue Breakdown -->
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
-          <h2 id="mixTitle">สรุปยอดขาย</h2>
-          <div class="desc" id="mixDesc">สลับดูสินค้า ช่องทางชำระ ประเภทการขาย</div>
+          <h2 id="paymentTitle">ช่องทางชำระเงิน</h2>
+          <div class="desc" id="paymentDesc">ประเภทที่ใช้มากสุด</div>
         </div>
       </div>
-      <div class="segment">
-        <button class="seg-btn active" data-mix="products" id="segProducts">สินค้า</button>
-        <button class="seg-btn" data-mix="payment" id="segPayment">ชำระเงิน</button>
-      </div>
-      <div id="mix-products" class="mix-panel active"><div class="product-cards" id="productCards"><div class="empty">กำลังโหลด...</div></div></div>
-      <div id="mix-payment" class="mix-panel"><div class="bar-list" id="paymentBars"><div class="empty">กำลังโหลด...</div></div></div>
+      <div class="bar-list" id="paymentBars"><div class="empty">กำลังโหลด...</div></div>
     </div>
   </div>
 
@@ -720,9 +687,9 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
 
 <script>
 const I18N={
-en:{heroTitle:'HQ Dashboard',heroDesc:'Executive overview across all branches.',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg / Bill',kpiAvgSub:'Average per bill',kpiWatchLabel:'Watch Branch',kpiGuestsLabel:'Total Guests',kpiGuestsSub:'Sum of TotalCustomer',kpiBranchLabel:'Branches',kpiBranchSub:'Within selected range',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'All Branches',branchDesc:'Ranked by revenue.',mixTitle:'Revenue Breakdown',mixDesc:'Switch between products and payment.',paymentTitle:'Payment Mix',paymentDesc:'Top payment types.',productTitle:'Top Products',productDesc:'Products driving revenue.',tabOverview:'Overview',tabBranches:'Branches',tabProducts:'Products',tabAlerts:'Alerts',filterTitle:'Filters',segProducts:'Products',segPayment:'Payment',watch:'Watch',lowAvg:'Low Avg',noData:'No Data',normal:'Normal',sales:'Sales',bills:'Bills',avgBill:'Avg Bill',qty:'Qty',revenue:'Revenue',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noPayment:'No payment data.',noProduct:'No product data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.'},
-th:{heroTitle:'HQ Dashboard',heroDesc:'ภาพรวมยอดขายทุกสาขา เน้นข้อมูลที่ผู้บริหารต้องตัดสินใจ',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ย/บิล',kpiAvgSub:'เฉลี่ยต่อบิล',kpiWatchLabel:'สาขาที่ต้องดู',kpiGuestsLabel:'ลูกค้ารวม',kpiGuestsSub:'รวม TotalCustomer',kpiBranchLabel:'สาขาที่มีข้อมูล',kpiBranchSub:'ในช่วงที่เลือก',alertsTitle:'แจ้งเตือน / ความผิดปกติ',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'สาขาทั้งหมด',branchDesc:'เรียงตามยอดขายสูงสุด',mixTitle:'สรุปยอดขาย',mixDesc:'สลับดูสินค้าและช่องทางชำระ',paymentTitle:'ช่องทางชำระเงิน',paymentDesc:'ประเภทที่ใช้มากสุด',productTitle:'สินค้าขายดี',productDesc:'สินค้าที่ขับยอดขายรวม',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabProducts:'สินค้า',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',segProducts:'สินค้า',segPayment:'ชำระเงิน',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noData:'ไม่มีข้อมูล',normal:'ปกติ',sales:'ยอดขาย',bills:'บิล',avgBill:'Avg Bill',qty:'จำนวน',revenue:'ยอดขาย',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noPayment:'ยังไม่มีข้อมูลการชำระเงิน',noProduct:'ยังไม่มีข้อมูลสินค้า',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป'}};
-const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',accent:localStorage.getItem('hq_accent')||'blue',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[],mix:'products'};
+en:{heroTitle:'HQ Dashboard',heroDesc:'Executive overview across all branches.',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg / Bill',kpiAvgSub:'Average per bill',kpiWatchLabel:'Watch Branch',kpiGuestsLabel:'Total Guests',kpiGuestsSub:'Sum of TotalCustomer',kpiBranchLabel:'Branches',kpiBranchSub:'Within selected range',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'All Branches',branchDesc:'Ranked by revenue.',paymentTitle:'Payment Mix',paymentDesc:'Top payment types.',productTitle:'Top Products',productDesc:'Products driving revenue.',tabOverview:'Overview',tabBranches:'Branches',tabProducts:'Products',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noData:'No Data',normal:'Normal',sales:'Sales',bills:'Bills',avgBill:'Avg Bill',qty:'Qty',revenue:'Revenue',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noPayment:'No payment data.',noProduct:'No product data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.'},
+th:{heroTitle:'HQ Dashboard',heroDesc:'ภาพรวมยอดขายทุกสาขา เน้นข้อมูลที่ผู้บริหารต้องตัดสินใจ',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ย/บิล',kpiAvgSub:'เฉลี่ยต่อบิล',kpiWatchLabel:'สาขาที่ต้องดู',kpiGuestsLabel:'ลูกค้ารวม',kpiGuestsSub:'รวม TotalCustomer',kpiBranchLabel:'สาขาที่มีข้อมูล',kpiBranchSub:'ในช่วงที่เลือก',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'สาขาทั้งหมด',branchDesc:'เรียงตามยอดขายสูงสุด',paymentTitle:'ช่องทางชำระเงิน',paymentDesc:'ประเภทที่ใช้มากสุด',productTitle:'สินค้าขายดี',productDesc:'สินค้าที่ขับยอดขายรวม',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabProducts:'สินค้า',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noData:'ไม่มีข้อมูล',normal:'ปกติ',sales:'ยอดขาย',bills:'บิล',avgBill:'Avg Bill',qty:'จำนวน',revenue:'ยอดขาย',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noPayment:'ยังไม่มีข้อมูลการชำระเงิน',noProduct:'ยังไม่มีข้อมูลสินค้า',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป'}};
+const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',accent:localStorage.getItem('hq_accent')||'blue',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[]};
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),accent:$('accentSelect'),from:$('dateFrom'),to:$('dateTo')};
 const desk={lang:$('langSelectDesktop'),theme:$('themeSelectDesktop'),accent:$('accentSelectDesktop'),from:$('dateFromDesktop'),to:$('dateToDesktop')};
@@ -738,7 +705,7 @@ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;'
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme;g.accent.value=state.accent})}
 function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText()}
 function getCurrentFilters(){return{date_from:mobile.from.value,date_to:mobile.to.value}}
-const LABEL_MAP={heroTitle:'heroTitle',heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle:'alertsTitle',alertsDesc:'alertsDesc',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',mixTitle:'mixTitle',mixDesc:'mixDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverview:'tabOverview',tabBranches:'tabBranches',tabProducts:'tabProducts',tabAlerts:'tabAlerts',segProducts:'segProducts',segPayment:'segPayment'};
+const LABEL_MAP={heroTitle:'heroTitle',heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverview:'tabOverview',tabBranches:'tabBranches',tabProducts:'tabProducts',tabAlerts:'tabAlerts'};
 function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote()}
 function applyPrefs(){document.body.dataset.theme=state.theme;document.body.dataset.accent=state.accent;localStorage.setItem('hq_lang',state.lang);localStorage.setItem('hq_theme',state.theme);localStorage.setItem('hq_accent',state.accent);syncPrefsInputs();applyText();redrawCharts()}
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}
@@ -768,7 +735,7 @@ function renderBranchViews(rows){
 }
 function renderProducts(rows){
   const mobileHtml=(!rows||!rows.length)?`<div class="empty">${t('noProduct')}</div>`:rows.map((r,i)=>`<div class="product-card"><div class="product-rank-badge">${i+1}</div><div class="product-info"><div class="product-name">${escapeHtml(r.product_name||'-')}</div><div class="product-group">${escapeHtml(r.product_group_name||'-')}</div></div><div class="product-right"><div class="product-revenue">${money(r.total_sales)}</div><div class="product-qty">${qtyfmt(r.qty_sold)} ชิ้น</div></div></div>`).join('');
-  ['productCards','productCardsOnly'].forEach(id=>{$(id)&&($(id).innerHTML=mobileHtml)});
+  $('productCardsOnly')&&($('productCardsOnly').innerHTML=mobileHtml);
   if($('productTableBody'))$('productTableBody').innerHTML=(!rows||!rows.length)?`<tr><td colspan="5" class="empty">${t('noProduct')}</td></tr>`:rows.map((r,i)=>`<tr><td class="rank-cell">${i+1}</td><td>${escapeHtml(r.product_name||'-')}</td><td style="color:var(--muted)">${escapeHtml(r.product_group_name||'-')}</td><td>${qtyfmt(r.qty_sold)}</td><td><b>${money(r.total_sales)}</b></td></tr>`).join('')
 }
 function drawTrend(rows,canvasId){
@@ -796,7 +763,6 @@ function drawTrend(rows,canvasId){
   rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;const x=pad.l+stepX*i;ctx.fillText((r.sale_date||'').slice(5),x,h-6)})
 }
 function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
-function setMix(panel){state.mix=panel;document.querySelectorAll('.seg-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.mix===panel));document.querySelectorAll('.mix-panel').forEach(el=>el.classList.toggle('active',el.id===`mix-${panel}`))}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
@@ -810,10 +776,9 @@ $('closeFilterBtn').addEventListener('click',closeSheet);
 $('closeFilterBtn2').addEventListener('click',closeSheet);
 $('sheetBackdrop').addEventListener('click',closeSheet);
 document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>setTab(btn.dataset.panel)));
-document.querySelectorAll('.seg-btn').forEach(btn=>btn.addEventListener('click',()=>setMix(btn.dataset.mix)));
 window.addEventListener('resize',()=>{if(window.innerWidth>=920)closeSheet();redrawCharts()});
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAutoRefresh()}else{loadDashboard(false);startAutoRefresh()}});
-applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('overview');setMix('products');loadDashboard(false);startAutoRefresh();
+applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('overview');loadDashboard(false);startAutoRefresh();
 </script>
 </body>
 </html>
