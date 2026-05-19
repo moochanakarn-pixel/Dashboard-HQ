@@ -340,6 +340,31 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
 .gap{margin-top:8px}
 
 .desktop-only{display:none}
+
+/* ── MOBILE-SPECIFIC ── */
+@media(max-width:919px){
+  .hero{border-radius:0 0 var(--r) var(--r)}
+  .topbar{border-radius:0 0 var(--r) var(--r)}
+  .hero h1{font-size:22px}
+  .hero-sub{display:none}
+  .kpi-grid{gap:6px}
+  .kpi{padding:14px 13px}
+  .kpi .value{font-size:20px}
+  .kpi-icon{width:30px;height:30px;font-size:15px;margin-bottom:9px}
+  .kpi .label{font-size:9px}
+  .kpi .sub{font-size:10px}
+  .section,.priority-card{padding:14px}
+  .section-head{margin-bottom:12px}
+  .priority-head{margin-bottom:12px}
+  .branch-card{padding:12px 13px}
+  .mini-stat .v{font-size:12px}
+  .product-card{padding:10px 12px}
+  .meta-strip{gap:5px}
+  .pill{padding:4px 9px;font-size:10px}
+  .chart-shell{height:190px}
+  .bar-row{grid-template-columns:80px 1fr 64px}
+}
+
 @media(min-width:920px){
   .app{padding-bottom:24px}
   .topbar{position:static;margin:0;padding:0}
@@ -367,7 +392,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
             <span id="apiStatusText">Live</span>
           </div>
           <h1 id="heroTitle">HQ <span>Dashboard</span></h1>
-          <p class="hero-sub" id="heroDesc">ภาพรวมยอดขายทุกสาขา เน้นข้อมูลที่ผู้บริหารต้องตัดสินใจ</p>
+          <p class="hero-sub" id="heroDesc">ภาพรวมยอดขายทุกสาขา</p>
           <div class="meta-strip">
             <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php echo h($range['latest_date']); ?></span></div>
             <div class="pill"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
