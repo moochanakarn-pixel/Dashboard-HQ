@@ -17,18 +17,18 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#020810;
-  --glass:rgba(255,255,255,.055); --glass2:rgba(255,255,255,.025);
+  --bg:#010812;
+  --glass:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.03);
   --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.05);
-  --text:#ddeeff; --muted:#52708f; --muted2:#334a65;
+  --text:#e4efff; --muted:#4e6880; --muted2:#2e4258;
   --primary:#3b82f6; --primary2:#06d6a0;
-  --primary-glow:rgba(59,130,246,.25); --primary2-glow:rgba(6,214,160,.18);
-  --good:#10d9a0; --good-bg:rgba(16,217,160,.08); --good-border:rgba(16,217,160,.2);
-  --warn:#f59e0b; --warn-bg:rgba(245,158,11,.08); --warn-border:rgba(245,158,11,.2);
-  --bad:#f43f5e;  --bad-bg:rgba(244,63,94,.08);   --bad-border:rgba(244,63,94,.22);
-  --shadow:0 16px 48px rgba(0,0,0,.55),0 4px 12px rgba(0,0,0,.3);
-  --shadow-sm:0 4px 20px rgba(0,0,0,.25);
-  --r:18px; --r-sm:12px; --r-xs:8px;
+  --primary-glow:rgba(59,130,246,.28); --primary2-glow:rgba(6,214,160,.2);
+  --good:#10d9a0; --good-bg:rgba(16,217,160,.08); --good-border:rgba(16,217,160,.22);
+  --warn:#f59e0b; --warn-bg:rgba(245,158,11,.09); --warn-border:rgba(245,158,11,.25);
+  --bad:#f43f5e;  --bad-bg:rgba(244,63,94,.09);   --bad-border:rgba(244,63,94,.25);
+  --shadow:0 20px 60px rgba(0,0,0,.6),0 4px 16px rgba(0,0,0,.35);
+  --shadow-sm:0 4px 20px rgba(0,0,0,.3);
+  --r:20px; --r-sm:14px; --r-xs:9px;
 }
 body[data-theme="light"]{
   --bg:#eef4ff;
@@ -53,25 +53,31 @@ body{
   font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;
   background-image:
-    radial-gradient(ellipse 70% 50% at 15% 10%,rgba(59,130,246,.08),transparent),
-    radial-gradient(ellipse 60% 60% at 85% 85%,rgba(6,214,160,.05),transparent);
+    radial-gradient(ellipse 85% 55% at 12% -8%,rgba(59,130,246,.13),transparent),
+    radial-gradient(ellipse 65% 70% at 92% 102%,rgba(6,214,160,.09),transparent),
+    radial-gradient(ellipse 50% 60% at 55% 50%,rgba(120,60,240,.05),transparent);
   background-attachment:fixed;
+}
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px);
+  background-size:30px 30px;
 }
 button,input,select{font:inherit;cursor:pointer;outline:none}
 button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
 
-.app{max-width:1120px;margin:0 auto;padding:12px 12px 104px}
+.app{max-width:1120px;margin:0 auto;padding:12px 12px 104px;position:relative;z-index:1}
 
 .card{
-  background:linear-gradient(145deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.02) 100%);
+  background:linear-gradient(145deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);
   border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--shadow);
-  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
   position:relative;overflow:hidden;
 }
 .card::after{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
-  background:linear-gradient(90deg,transparent 10%,rgba(255,255,255,.16) 50%,transparent 90%);
+  background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.22) 50%,transparent 95%);
   pointer-events:none;
 }
 
@@ -84,10 +90,16 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outli
 .hero{
   padding:20px 22px;
   background:
-    radial-gradient(ellipse 80% 60% at 95% -5%,var(--primary-glow),transparent),
-    radial-gradient(ellipse 55% 75% at -5% 105%,var(--primary2-glow),transparent),
-    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(120,80,255,.04),transparent),
-    linear-gradient(145deg,rgba(255,255,255,.06) 0%,rgba(255,255,255,.01) 100%);
+    radial-gradient(ellipse 90% 70% at 100% -10%,var(--primary-glow),transparent),
+    radial-gradient(ellipse 60% 80% at -8% 110%,var(--primary2-glow),transparent),
+    radial-gradient(ellipse 50% 50% at 50% 50%,rgba(120,80,255,.05),transparent),
+    linear-gradient(145deg,rgba(255,255,255,.07) 0%,rgba(255,255,255,.01) 100%);
+}
+.hero::before{
+  content:'';position:absolute;right:-30px;top:-30px;
+  width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,var(--primary-glow),transparent 70%);
+  pointer-events:none;
 }
 .hero-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
 .hero-badge{
@@ -153,13 +165,24 @@ body[data-theme="light"] input[type="date"].control{color-scheme:light}
 select.control option{background:var(--bg);color:var(--text)}
 
 .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
-.kpi{padding:18px 16px;transition:transform .2s,box-shadow .2s}
+.kpi{padding:18px 16px;transition:transform .22s,box-shadow .22s}
 .kpi::before{
   content:'';position:absolute;top:0;left:0;right:0;height:3px;
   background:linear-gradient(90deg,var(--primary),var(--primary2));
   border-radius:var(--r) var(--r) 0 0;
 }
-.kpi:hover{transform:translateY(-3px);box-shadow:0 24px 64px rgba(0,0,0,.5),0 0 0 1px rgba(59,130,246,.14)}
+.kpi[data-kpi="sales"]::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
+.kpi[data-kpi="bills"]::before{background:linear-gradient(90deg,#06d6a0,#34d399)}
+.kpi[data-kpi="avg"]::before{background:linear-gradient(90deg,#a78bfa,#818cf8)}
+.kpi[data-kpi="watch"]::before{background:linear-gradient(90deg,#f59e0b,#fb923c)}
+.kpi[data-kpi="guests"]::before{background:linear-gradient(90deg,#f472b6,#fb7185)}
+.kpi[data-kpi="branches"]::before{background:linear-gradient(90deg,#22d3ee,#38bdf8)}
+.kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(59,130,246,.18),0 0 36px rgba(59,130,246,.08)}
+.kpi[data-kpi="bills"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(6,214,160,.18),0 0 36px rgba(6,214,160,.08)}
+.kpi[data-kpi="avg"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(167,139,250,.18),0 0 36px rgba(167,139,250,.08)}
+.kpi[data-kpi="watch"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(245,158,11,.18),0 0 36px rgba(245,158,11,.08)}
+.kpi[data-kpi="guests"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(244,114,182,.18),0 0 36px rgba(244,114,182,.08)}
+.kpi[data-kpi="branches"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(34,211,238,.18),0 0 36px rgba(34,211,238,.08)}
 .kpi-icon{
   width:36px;height:36px;border-radius:var(--r-xs);
   background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(6,214,160,.08));
@@ -167,19 +190,35 @@ select.control option{background:var(--bg);color:var(--text)}
   display:flex;align-items:center;justify-content:center;
   font-size:17px;margin-bottom:12px;
 }
+.kpi[data-kpi="sales"] .kpi-icon{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(96,165,250,.07));border-color:rgba(59,130,246,.3)}
+.kpi[data-kpi="bills"] .kpi-icon{background:linear-gradient(135deg,rgba(6,214,160,.2),rgba(52,211,153,.07));border-color:rgba(6,214,160,.3)}
+.kpi[data-kpi="avg"] .kpi-icon{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(129,140,248,.07));border-color:rgba(167,139,250,.3)}
+.kpi[data-kpi="watch"] .kpi-icon{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(251,146,60,.07));border-color:rgba(245,158,11,.3)}
+.kpi[data-kpi="guests"] .kpi-icon{background:linear-gradient(135deg,rgba(244,114,182,.2),rgba(251,113,133,.07));border-color:rgba(244,114,182,.3)}
+.kpi[data-kpi="branches"] .kpi-icon{background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(56,189,248,.07));border-color:rgba(34,211,238,.3)}
 .kpi .label{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
 .kpi .value{font-size:24px;font-weight:900;letter-spacing:-.055em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:10.5px;color:var(--muted);margin-top:7px;line-height:1.4}
 
 .section{padding:18px}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:16px}
-.section-head-left h2{font-size:13.5px;font-weight:800;letter-spacing:-.025em}
-.section-head-left .desc{font-size:10.5px;color:var(--muted);margin-top:3px}
+.section-head-left h2{font-size:13.5px;font-weight:800;letter-spacing:-.025em;position:relative;padding-left:11px}
+.section-head-left h2::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:78%;border-radius:999px;
+  background:linear-gradient(180deg,var(--primary),var(--primary2));
+}
+.section-head-left .desc{font-size:10.5px;color:var(--muted);margin-top:3px;padding-left:11px}
 
 .priority-card{padding:18px}
 .priority-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:16px}
-.priority-head-title h2{font-size:13.5px;font-weight:800;letter-spacing:-.025em}
-.priority-head-title .desc{font-size:10.5px;color:var(--muted);margin-top:3px}
+.priority-head-title h2{font-size:13.5px;font-weight:800;letter-spacing:-.025em;position:relative;padding-left:11px}
+.priority-head-title h2::before{
+  content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+  width:3px;height:78%;border-radius:999px;
+  background:linear-gradient(180deg,var(--bad),var(--warn));
+}
+.priority-head-title .desc{font-size:10.5px;color:var(--muted);margin-top:3px;padding-left:11px}
 .priority-count{
   display:inline-flex;align-items:center;justify-content:center;
   min-width:24px;height:24px;border-radius:999px;
@@ -189,10 +228,12 @@ select.control option{background:var(--bg);color:var(--text)}
 .list{display:flex;flex-direction:column;gap:6px}
 .alert-item{
   display:flex;align-items:flex-start;gap:10px;
-  padding:10px 13px 10px 12px;border-radius:var(--r-sm);
+  padding:11px 14px 11px 13px;border-radius:var(--r-sm);
   border:1px solid var(--bad-border);border-left:3px solid var(--bad);
-  background:var(--bad-bg);color:var(--text);font-size:11.5px;line-height:1.55;
+  background:var(--bad-bg);color:var(--text);font-size:11.5px;line-height:1.6;
+  transition:background .15s;
 }
+.alert-item:hover{background:rgba(244,63,94,.13)}
 .alert-item::before{content:'⚠';flex-shrink:0;margin-top:1px;font-size:13px;color:var(--bad)}
 
 .chart-shell{height:220px;border-radius:var(--r-sm);padding:8px 4px 2px;position:relative}
@@ -202,16 +243,20 @@ select.control option{background:var(--bg);color:var(--text)}
 .bar-row{display:grid;grid-template-columns:100px 1fr 76px;gap:8px;align-items:center}
 .bar-label{font-size:11px;font-weight:600;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
 .bar-value{font-size:11px;font-weight:700;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
-.track{height:5px;background:rgba(255,255,255,.06);border-radius:999px;overflow:hidden}
-.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:width .7s cubic-bezier(.4,0,.2,1)}
+.track{height:6px;background:rgba(255,255,255,.07);border-radius:999px;overflow:hidden}
+.fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));transition:width .7s cubic-bezier(.4,0,.2,1);box-shadow:0 0 8px var(--primary-glow)}
 
 .branch-cards{display:flex;flex-direction:column;gap:8px}
 .branch-card{
   padding:13px 15px;border-radius:var(--r-sm);
   background:rgba(255,255,255,.025);border:1px solid var(--line2);
-  transition:border-color .2s,background .2s,transform .15s;
+  border-left:3px solid transparent;
+  transition:border-color .2s,background .2s,transform .15s,box-shadow .2s;
 }
-.branch-card:hover{background:rgba(255,255,255,.05);border-color:var(--line);transform:translateX(3px)}
+.branch-card:hover{background:rgba(255,255,255,.05);border-color:var(--line);transform:translateX(3px);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.branch-card[data-status="watch"]{border-left-color:var(--warn)}
+.branch-card[data-status="low_avg"]{border-left-color:var(--warn)}
+.branch-card[data-status="no_data"]{border-left-color:var(--bad)}
 .branch-top{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .branch-rank{
   width:26px;height:26px;border-radius:8px;flex-shrink:0;
@@ -247,6 +292,9 @@ select.control option{background:var(--bg);color:var(--text)}
   display:flex;align-items:center;justify-content:center;
   box-shadow:0 3px 10px var(--primary-glow);font-variant-numeric:tabular-nums;
 }
+.product-card:nth-child(1) .product-rank-badge{background:linear-gradient(135deg,#f59e0b,#d97706);box-shadow:0 3px 12px rgba(245,158,11,.45)}
+.product-card:nth-child(2) .product-rank-badge{background:linear-gradient(135deg,#94a3b8,#64748b);box-shadow:0 3px 10px rgba(148,163,184,.35)}
+.product-card:nth-child(3) .product-rank-badge{background:linear-gradient(135deg,#f97316,#ea580c);box-shadow:0 3px 10px rgba(249,115,22,.38)}
 .product-info{flex:1;min-width:0}
 .product-name{font-size:12px;font-weight:700;overflow:hidden;white-space:nowrap;text-overflow:ellipsis;letter-spacing:-.01em}
 .product-group{font-size:10px;color:var(--muted);margin-top:2px;font-weight:500}
@@ -282,25 +330,25 @@ td.rank-cell{font-weight:800;color:var(--muted);width:36px;font-size:11px}
   position:fixed;left:12px;right:12px;z-index:50;
   bottom:max(12px,env(safe-area-inset-bottom));
   padding:5px;border-radius:22px;
-  backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
-  background:rgba(3,10,22,.92);
-  border:1px solid rgba(255,255,255,.1);
-  box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 0 1px rgba(255,255,255,.04) inset;
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  background:rgba(3,10,22,.93);
+  border:1px solid rgba(255,255,255,.12);
+  box-shadow:0 12px 48px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.07) inset;
 }
-body[data-theme="light"] .mobile-tabs{background:rgba(224,236,255,.94);border-color:rgba(30,60,130,.12)}
+body[data-theme="light"] .mobile-tabs{background:rgba(224,236,255,.95);border-color:rgba(30,60,130,.14)}
 .tab-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .tab-btn{
   height:46px;border-radius:18px;border:none;background:transparent;color:var(--muted);
   font-size:10px;font-weight:700;transition:all .2s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;letter-spacing:.02em;
 }
-.tab-btn .tab-icon{font-size:16px;transition:transform .2s;display:block}
-.tab-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 4px 18px var(--primary-glow)}
-.tab-btn.active .tab-icon{transform:scale(1.12)}
+.tab-btn .tab-icon{font-size:17px;transition:transform .22s;display:block}
+.tab-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 4px 20px var(--primary-glow),0 1px 0 rgba(255,255,255,.2) inset}
+.tab-btn.active .tab-icon{transform:scale(1.15)}
 
 .panel{display:none}
-.panel.active{display:block;animation:fadeUp .22s ease}
-@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.panel.active{display:block;animation:fadeUp .24s cubic-bezier(.22,1,.36,1)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 .filter-sheet{position:fixed;inset:0;z-index:60;display:none}
 .filter-sheet.open{display:block}
@@ -430,37 +478,37 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
 
   <!-- ── KPI CARDS ── -->
   <div class="kpi-grid">
-    <div class="card kpi">
+    <div class="card kpi" data-kpi="sales">
       <div class="kpi-icon">💰</div>
       <div class="label" id="kpiSalesLabel">ยอดขายรวม</div>
       <div class="value" id="salesTotal">—</div>
       <div class="sub" id="kpiSalesSub">ช่วงที่เลือก</div>
     </div>
-    <div class="card kpi">
+    <div class="card kpi" data-kpi="bills">
       <div class="kpi-icon">🧾</div>
       <div class="label" id="kpiBillsLabel">จำนวนบิล</div>
       <div class="value" id="billCount">—</div>
       <div class="sub" id="kpiBillsSub">บิลที่ชำระแล้ว</div>
     </div>
-    <div class="card kpi">
+    <div class="card kpi" data-kpi="avg">
       <div class="kpi-icon">📊</div>
       <div class="label" id="kpiAvgLabel">ค่าเฉลี่ย/บิล</div>
       <div class="value" id="avgBill">—</div>
       <div class="sub" id="kpiAvgSub">เฉลี่ยต่อบิล</div>
     </div>
-    <div class="card kpi">
+    <div class="card kpi" data-kpi="watch">
       <div class="kpi-icon">🏆</div>
       <div class="label" id="kpiWatchLabel">สาขาที่ต้องดู</div>
       <div class="value" id="bestWorst" style="font-size:13px">—</div>
       <div class="sub" id="bestWorstSub">—</div>
     </div>
-    <div class="card kpi desktop-only">
+    <div class="card kpi desktop-only" data-kpi="guests">
       <div class="kpi-icon">👥</div>
       <div class="label" id="kpiGuestsLabel">ลูกค้ารวม</div>
       <div class="value" id="guestCount">—</div>
       <div class="sub" id="kpiGuestsSub">รวม TotalCustomer</div>
     </div>
-    <div class="card kpi desktop-only">
+    <div class="card kpi desktop-only" data-kpi="branches">
       <div class="kpi-icon">🏪</div>
       <div class="label" id="kpiBranchLabel">สาขาที่มีข้อมูล</div>
       <div class="value" id="branchCount">—</div>
@@ -720,7 +768,7 @@ function renderBars(el,rows,valueKey,labelKey,formatter,emptyText){if(!el)return
 function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
 function rankClass(rank){if(rank===1)return'top1';if(rank===2)return'top2';if(rank===3)return'top3';return''}
 function renderAlerts(rows){const count=rows?rows.length:0;const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(r=>`<div class="alert-item">${escapeHtml(r)}</div>`).join('');['alertList','alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});['alertCount','alertCountDesktop'].forEach(id=>{$(id)&&($(id).textContent=count)})}
-function branchCardHtml(r){return`<div class="branch-card"><div class="branch-top"><div class="branch-rank ${rankClass(r.rank)}">${r.rank}</div><div class="branch-name">&nbsp;${escapeHtml(r.shop_name||'-')}</div><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></div><div class="mini-grid"><div class="mini-stat"><div class="k">${t('sales')}</div><div class="v">${money(r.sales_total)}</div></div><div class="mini-stat"><div class="k">vs ก่อนหน้า</div><div class="v" style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'}">${pctfmt(r.sales_diff_pct)}%</div></div><div class="mini-stat"><div class="k">${t('bills')}</div><div class="v">${intfmt(r.bill_count)}</div></div><div class="mini-stat"><div class="k">${t('avgBill')}</div><div class="v">${money(r.avg_bill)}</div></div></div></div>`}
+function branchCardHtml(r){return`<div class="branch-card" data-status="${escapeHtml(r.status||'normal')}"><div class="branch-top"><div class="branch-rank ${rankClass(r.rank)}">${r.rank}</div><div class="branch-name">&nbsp;${escapeHtml(r.shop_name||'-')}</div><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></div><div class="mini-grid"><div class="mini-stat"><div class="k">${t('sales')}</div><div class="v">${money(r.sales_total)}</div></div><div class="mini-stat"><div class="k">vs ก่อนหน้า</div><div class="v" style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'}">${pctfmt(r.sales_diff_pct)}%</div></div><div class="mini-stat"><div class="k">${t('bills')}</div><div class="v">${intfmt(r.bill_count)}</div></div><div class="mini-stat"><div class="k">${t('avgBill')}</div><div class="v">${money(r.avg_bill)}</div></div></div></div>`}
 function renderBranchViews(rows){
   if($('branchCards')){
     if(!rows||!rows.length){$('branchCards').innerHTML=`<div class="empty">${t('noBranch')}</div>`}
