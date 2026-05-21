@@ -143,6 +143,8 @@ $previousTo   = date('Y-m-d', strtotime($dateFrom . ' -1 day'));
 $data = api_base_payload();
 $data['filters'] = ['date_from' => $dateFrom, 'date_to' => $dateTo];
 $data['meta']['latest_data_date'] = $defaultRange['latest_date'] ?? null;
+$data['meta']['previous_from']    = $previousFrom;
+$data['meta']['previous_to']      = $previousTo;
 
 try {
     $conn = db_connect();

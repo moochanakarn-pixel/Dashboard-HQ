@@ -793,6 +793,16 @@ const refreshMs=<?php echo (int)$DASHBOARD_REFRESH_MS; ?>;
 function t(k){return(I18N[state.lang]&&I18N[state.lang][k])||k}
 function locale(){return state.lang==='th'?'th-TH':'en-US'}
 function money(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n||0))}
+const THAI_MONTHS=['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+function fmtDateThai(d){if(!d)return'';const[y,m,day]=d.split('-');const yy=(parseInt(y)+543)%100;return`${parseInt(day)} ${THAI_MONTHS[parseInt(m)]} ${yy<10?'0'+yy:yy}`}
+function fmtPeriodThai(from,to){
+  if(!from)return'';if(from===to)return fmtDateThai(from);
+  const[fy,fm,fd]=from.split('-'),[ty,tm,td]=to.split('-');
+  const yy=(parseInt(ty)+543)%100,yys=yy<10?'0'+yy:yy;
+  if(fm===tm&&fy===ty)return`${parseInt(fd)}–${parseInt(td)} ${THAI_MONTHS[parseInt(fm)]} ${yys}`;
+  const fyy=(parseInt(fy)+543)%100,fyys=fyy<10?'0'+fyy:fyy;
+  return`${parseInt(fd)} ${THAI_MONTHS[parseInt(fm)]}${fy!==ty?' '+fyys:''} – ${parseInt(td)} ${THAI_MONTHS[parseInt(tm)]} ${yys}`;
+}
 function compactMoney(n){const v=Number(n||0);if(v>=1e6)return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/1e6)+' M';if(v>=1e3)return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e3)+' K';return money(v)}
 function autoSizeKpi(el){const len=(el.textContent||'').replace(/\s/g,'').length;el.style.fontSize=len<=8?'':''+( len<=10?'20px':len<=12?'17px':'15px')}
 function intfmt(n){return new Intl.NumberFormat(locale(),{maximumFractionDigits:0}).format(Number(n||0))}
@@ -816,8 +826,12 @@ async function fetchText(url,timeout=15000){if(activeController)activeController
 function renderBars(el,rows,valueKey,labelKey,formatter,emptyText){if(!el)return;if(!rows||!rows.length){el.innerHTML=`<div class="empty">${emptyText}</div>`;return}const max=Math.max(...rows.map(r=>Number(r[valueKey]||0)),1);el.innerHTML=rows.map(r=>{const val=Number(r[valueKey]||0),w=Math.max((val/max)*100,3);return`<div class="bar-row"><div class="bar-label">${escapeHtml(r[labelKey]||'-')}</div><div class="track"><div class="fill" style="width:${w}%"></div></div><div class="bar-value">${formatter(val)}</div></div>`}).join('')}
 function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
 function rankClass(rank){if(rank===1)return'top1';if(rank===2)return'top2';if(rank===3)return'top3';return''}
-function renderAlerts(rows){
+function renderAlerts(rows,meta){
   const count=rows?rows.length:0;
+  if(meta&&meta.previous_from){
+    const label='เทียบกับ '+fmtPeriodThai(meta.previous_from,meta.previous_to);
+    ['alertsDesc2','alertsDescDesktop'].forEach(id=>{$(id)&&($(id).textContent=label)});
+  }
   function alertHtml(a){
     if(typeof a==='string')return`<div class="alert-item"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
     const type=a.type||'watch';
@@ -926,7 +940,7 @@ const cmp=data.comparison||{};
     $vp.style.background=pos?'var(--good-bg)':'var(--bad-bg)';
     $vt.textContent=(pos?'▲ +':'▼ ')+Math.abs(pct).toFixed(1)+'% vs เมื่อวาน';
   }else if($vp){$vp.style.display='none'}
-})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
+})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[],data.meta||{});renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
