@@ -70,7 +70,6 @@ function safe_execute(mysqli_stmt $stmt, array &$data): ?mysqli_result {
 }
 
 function branch_status(float $currSales, float $pct, float $avgBill, float $overallAvg): string {
-    if ($currSales <= 0)                                     return 'no_data';
     if ($pct <= -15)                                         return 'watch';
     if ($overallAvg > 0 && $avgBill < $overallAvg * 0.7)   return 'low_avg';
     return 'normal';
@@ -210,8 +209,7 @@ try {
                 $status = branch_status($currSales, $pct, (float)($row['avg_bill'] ?? 0), $overallAvg);
 
                 $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
-                if ($status === 'no_data') $data['alerts'][] = 'สาขา ' . $shopName . ' : ยังไม่มียอดขายในช่วงที่เลือก';
-                elseif ($status === 'watch')   $data['alerts'][] = 'สาขา ' . $shopName . ' : ยอดขายลดลง ' . number_format(abs($pct), 1) . '% เทียบช่วงก่อนหน้า';
+                if ($status === 'watch')   $data['alerts'][] = 'สาขา ' . $shopName . ' : ยอดขายลดลง ' . number_format(abs($pct), 1) . '% เทียบช่วงก่อนหน้า';
                 elseif ($status === 'low_avg') $data['alerts'][] = 'สาขา ' . $shopName . ' : ค่าเฉลี่ยต่อบิลต่ำกว่าภาพรวมมาก';
 
                 $entry = [
@@ -239,6 +237,34 @@ try {
         }
         $stmt->close();
     }
+
+    // Detect branches active in previous period but completely absent this period
+    $sqlMissing = "
+        SELECT pr.ShopID, MAX(pr.ShopName) AS ShopName
+        FROM summary_tranreport pr
+        WHERE pr.SaleDate >= ? AND pr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
+          AND pr.DocType = 8 AND pr.TransactionStatusID = 2
+          AND pr.ShopID NOT IN (
+              SELECT cr.ShopID
+              FROM summary_tranreport cr
+              WHERE cr.SaleDate >= ? AND cr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
+                AND cr.DocType = 8 AND cr.TransactionStatusID = 2
+          )
+        GROUP BY pr.ShopID
+        ORDER BY ShopName ASC
+        LIMIT 20
+    ";
+    if ($stmt = safe_prepare($conn, $data, $sqlMissing)) {
+        $stmt->bind_param('ssss', $previousFrom, $previousTo, $dateFrom, $dateTo);
+        if ($res = safe_execute($stmt, $data)) {
+            while ($row = $res->fetch_assoc()) {
+                $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
+                $data['alerts'][] = 'สาขา ' . $shopName . ' : ไม่มีข้อมูลในช่วงนี้ (มีข้อมูลช่วงก่อนหน้า)';
+            }
+        }
+        $stmt->close();
+    }
+
     $data['alerts'] = array_slice(array_values(array_unique($data['alerts'])), 0, 15);
 
     $sqlTrend = "
