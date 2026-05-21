@@ -191,7 +191,7 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi[data-kpi="guests"] .kpi-icon{background:linear-gradient(135deg,rgba(244,114,182,.2),rgba(251,113,133,.07));border-color:rgba(244,114,182,.3)}
 .kpi[data-kpi="branches"] .kpi-icon{background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(56,189,248,.07));border-color:rgba(34,211,238,.3)}
 .kpi .label{font-size:9.5px;font-weight:400;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
-.kpi .value{font-size:24px;font-weight:600;letter-spacing:-.04em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
+.kpi .value{font-size:24px;font-weight:700;letter-spacing:-.04em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:10.5px;color:var(--muted);margin-top:7px;line-height:1.4;font-weight:400}
 .kpi-cmp{display:flex;flex-direction:column;gap:4px;margin-top:10px}
 .cmp-badge{
@@ -357,9 +357,13 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
 
 .panel{display:none}
 .panel.active{display:block;animation:fadeUp .24s cubic-bezier(.22,1,.36,1)}
+.tab-alert-badge{position:absolute;top:-5px;right:-8px;min-width:15px;height:15px;padding:0 3px;background:var(--bad);color:#fff;border-radius:999px;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;line-height:1;border:1.5px solid var(--bg)}
 .rank-list{display:flex;flex-direction:column;gap:10px}
 .rank-row{display:flex;align-items:flex-start;gap:10px;padding:2px 0}
 .rank-num{width:22px;font-size:10px;font-weight:500;color:var(--muted);text-align:right;padding-top:1px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.rank-num[data-rank="1"]{color:#f59e0b;font-weight:700}
+.rank-num[data-rank="2"]{color:#94a3b8;font-weight:600}
+.rank-num[data-rank="3"]{color:#cd7c3a;font-weight:600}
 .rank-body{flex:1;min-width:0}
 .rank-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
 .rank-name{font-size:11.5px;font-weight:500;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.2}
@@ -725,7 +729,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
       <span class="tab-icon">🛍</span><span>สินค้า</span>
     </button>
     <button class="tab-btn" data-panel="alerts" id="tabAlerts">
-      <span class="tab-icon">⚠️</span><span>แจ้งเตือน</span>
+      <span class="tab-icon" style="position:relative">⚠️<span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span></span><span>แจ้งเตือน</span>
     </button>
   </div>
 </div>
@@ -851,6 +855,7 @@ function renderAlerts(rows,meta){
   const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(alertHtml).join('');
   ['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});
   $('alertCountDesktop')&&($('alertCountDesktop').textContent=count);
+  const badge=$('tabAlertBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'flex':'none'}
 }
 function branchCardHtml(r){return`<div class="branch-card" data-status="${escapeHtml(r.status||'normal')}"><div class="branch-top"><div class="branch-rank ${rankClass(r.rank)}">${r.rank}</div><div class="branch-name">&nbsp;${escapeHtml(r.shop_name||'-')}</div><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></div><div class="mini-grid"><div class="mini-stat"><div class="k">${t('sales')}</div><div class="v">${compactMoney(r.sales_total)}</div></div><div class="mini-stat"><div class="k">vs ก่อนหน้า</div><div class="v" style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'}">${pctfmt(r.sales_diff_pct)}%</div></div><div class="mini-stat"><div class="k">${t('bills')}</div><div class="v">${intfmt(r.bill_count)}</div></div><div class="mini-stat"><div class="k">${t('avgBill')}</div><div class="v">${compactMoney(r.avg_bill)}</div></div></div></div>`}
 function renderBranchViews(rows){
@@ -863,7 +868,7 @@ function renderBranchViews(rows){
       $('branchCards').innerHTML=html;
     }
   }
-  if($('branchTableBody'))$('branchTableBody').innerHTML=(!rows||!rows.length)?`<tr><td colspan="7" class="empty">${t('noBranch')}</td></tr>`:rows.map(r=>`<tr><td class="rank-cell">${intfmt(r.rank)}</td><td><b>${escapeHtml(r.shop_name||'-')}</b></td><td>${compactMoney(r.sales_total)}</td><td style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'};font-weight:700">${pctfmt(r.sales_diff_pct)}%</td><td>${intfmt(r.bill_count)}</td><td>${compactMoney(r.avg_bill)}</td><td><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></td></tr>`).join('')
+  if($('branchTableBody'))$('branchTableBody').innerHTML=(!rows||!rows.length)?`<tr><td colspan="7" class="empty">${t('noBranch')}</td></tr>`:rows.map(r=>`<tr><td class="rank-cell">${intfmt(r.rank)}</td><td><b>${escapeHtml(r.shop_name||'-')}</b></td><td>${compactMoney(r.sales_total)}</td><td style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'};font-weight:700">${Number(r.sales_diff_pct)>=0?'+':''}${pctfmt(r.sales_diff_pct)}%</td><td>${intfmt(r.bill_count)}</td><td>${compactMoney(r.avg_bill)}</td><td><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></td></tr>`).join('')
 }
 function renderProducts(rows){
   const mobileHtml=(!rows||!rows.length)?`<div class="empty">${t('noProduct')}</div>`:rows.map((r,i)=>`<div class="product-card"><div class="product-rank-badge">${i+1}</div><div class="product-info"><div class="product-name">${escapeHtml(r.product_name||'-')}</div><div class="product-group">${escapeHtml(r.product_group_name||'-')}</div></div><div class="product-right"><div class="product-revenue">${money(r.total_sales)}</div><div class="product-qty">${qtyfmt(r.qty_sold)} ชิ้น</div></div></div>`).join('');
@@ -902,7 +907,7 @@ function renderRankingBar(rows,containerId){
   el.innerHTML='<div class="rank-list">'+items.map((r,i)=>{
     const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
     const isAlert=r.status==='watch'||r.status==='low_avg';
-    return `<div class="rank-row"><div class="rank-num">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name">${escapeHtml(r.shop_name||'-')}</div><div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
+    return `<div class="rank-row"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name">${escapeHtml(r.shop_name||'-')}</div><div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
   }).join('')+'</div>';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
@@ -910,7 +915,7 @@ function renderRankingBar(rows,containerId){
 }
 function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);['salesTotal','billCount','avgBill','guestCount','branchCount'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));['salesTotal','billCount','avgBill','guestCount','branchCount'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
   const $sc=$('salesCmp'),$vp=$('verdictPill'),$vt=$('verdictText');
