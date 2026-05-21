@@ -18,7 +18,7 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <style>
 :root{
   --bg:#010812;
-  --glass:rgba(255,255,255,.06); --glass2:rgba(255,255,255,.03);
+  --glass:rgba(255,255,255,.06);
   --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.05);
   --text:#e4efff; --muted:#4e6880; --muted2:#2e4258;
   --primary:#3b82f6; --primary2:#06d6a0;
@@ -27,12 +27,12 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
   --warn:#f59e0b; --warn-bg:rgba(245,158,11,.09); --warn-border:rgba(245,158,11,.25);
   --bad:#f43f5e;  --bad-bg:rgba(244,63,94,.09);   --bad-border:rgba(244,63,94,.25);
   --shadow:0 20px 60px rgba(0,0,0,.6),0 4px 16px rgba(0,0,0,.35);
-  --shadow-sm:0 4px 20px rgba(0,0,0,.3);
+  --shadow-sm:0 4px 20px rgba(0,0,0,.3);  /* used by card hover states */
   --r:20px; --r-sm:14px; --r-xs:9px;
 }
 body[data-theme="light"]{
   --bg:#eef4ff;
-  --glass:rgba(255,255,255,.82); --glass2:rgba(255,255,255,.55);
+  --glass:rgba(255,255,255,.82);
   --line:rgba(30,60,130,.1); --line2:rgba(30,60,130,.06);
   --text:#0f1c35; --muted:#5a6e91; --muted2:#8fa0bc;
   --primary:#2563eb; --primary2:#0d9488;
@@ -61,7 +61,7 @@ body{
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
   background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px);
-  background-size:30px 30px;
+  background-size:30px 30px;will-change:transform;
 }
 button,input,select{font:inherit;cursor:pointer;outline:none}
 button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outline-offset:2px}
@@ -166,11 +166,7 @@ select.control option{background:var(--bg);color:var(--text)}
 
 .kpi-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
 .kpi{padding:18px 16px;transition:transform .22s,box-shadow .22s}
-.kpi::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:3px;
-  background:linear-gradient(90deg,var(--primary),var(--primary2));
-  border-radius:var(--r) var(--r) 0 0;
-}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
 .kpi[data-kpi="sales"]::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
 .kpi[data-kpi="bills"]::before{background:linear-gradient(90deg,#06d6a0,#34d399)}
 .kpi[data-kpi="avg"]::before{background:linear-gradient(90deg,#a78bfa,#818cf8)}
@@ -183,13 +179,7 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi[data-kpi="watch"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(245,158,11,.18),0 0 36px rgba(245,158,11,.08)}
 .kpi[data-kpi="guests"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(244,114,182,.18),0 0 36px rgba(244,114,182,.08)}
 .kpi[data-kpi="branches"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(34,211,238,.18),0 0 36px rgba(34,211,238,.08)}
-.kpi-icon{
-  width:36px;height:36px;border-radius:var(--r-xs);
-  background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(6,214,160,.08));
-  border:1px solid rgba(59,130,246,.22);
-  display:flex;align-items:center;justify-content:center;
-  font-size:17px;margin-bottom:12px;
-}
+.kpi-icon{width:36px;height:36px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px}
 .kpi[data-kpi="sales"] .kpi-icon{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(96,165,250,.07));border-color:rgba(59,130,246,.3)}
 .kpi[data-kpi="bills"] .kpi-icon{background:linear-gradient(135deg,rgba(6,214,160,.2),rgba(52,211,153,.07));border-color:rgba(6,214,160,.3)}
 .kpi[data-kpi="avg"] .kpi-icon{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(129,140,248,.07));border-color:rgba(167,139,250,.3)}
@@ -253,7 +243,7 @@ select.control option{background:var(--bg);color:var(--text)}
   border-left:3px solid transparent;
   transition:border-color .2s,background .2s,transform .15s,box-shadow .2s;
 }
-.branch-card:hover{background:rgba(255,255,255,.05);border-color:var(--line);transform:translateX(3px);box-shadow:0 4px 20px rgba(0,0,0,.25)}
+.branch-card:hover{background:rgba(255,255,255,.05);border-color:var(--line);transform:translateX(3px);box-shadow:var(--shadow-sm)}
 .branch-card[data-status="watch"]{border-left-color:var(--warn)}
 .branch-card[data-status="low_avg"]{border-left-color:var(--warn)}
 .branch-card[data-status="no_data"]{border-left-color:var(--bad)}
@@ -284,7 +274,7 @@ select.control option{background:var(--bg);color:var(--text)}
   display:flex;align-items:center;gap:12px;
   transition:background .15s,transform .15s;
 }
-.product-card:hover{background:rgba(255,255,255,.05);transform:translateX(3px)}
+.product-card:hover{background:rgba(255,255,255,.05);transform:translateX(3px);box-shadow:var(--shadow-sm)}
 .product-rank-badge{
   width:28px;height:28px;border-radius:9px;flex-shrink:0;
   background:linear-gradient(135deg,var(--primary),var(--primary2));
@@ -409,12 +399,14 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
   .desktop-grid{display:grid;grid-template-columns:1.2fr .8fr;gap:8px}
   .desktop-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:8px}
   .mobile-tabs,.filter-sheet,.panel,.panel.active{display:none!important}
+  #openFilterBtn{display:none}
   .desktop-only{display:block}
   .branch-cards{display:grid;grid-template-columns:1fr 1fr;gap:8px}
 }
 </style>
 </head>
 <body data-theme="dark" data-accent="blue">
+<script>(function(){var t=localStorage.getItem('hq_theme'),a=localStorage.getItem('hq_accent');if(t)document.body.dataset.theme=t;if(a)document.body.dataset.accent=a;})()</script>
 <div class="app">
 
   <!-- ── TOPBAR ── -->
@@ -635,7 +627,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
       </div>
     </div>
 
-    <div class="desktop-grid gap">
+    <div class="gap">
       <div class="card section">
         <div class="section-head">
           <div class="section-head-left">
@@ -767,7 +759,7 @@ async function fetchText(url,timeout=15000){if(activeController)activeController
 function renderBars(el,rows,valueKey,labelKey,formatter,emptyText){if(!el)return;if(!rows||!rows.length){el.innerHTML=`<div class="empty">${emptyText}</div>`;return}const max=Math.max(...rows.map(r=>Number(r[valueKey]||0)),1);el.innerHTML=rows.map(r=>{const val=Number(r[valueKey]||0),w=Math.max((val/max)*100,3);return`<div class="bar-row"><div class="bar-label">${escapeHtml(r[labelKey]||'-')}</div><div class="track"><div class="fill" style="width:${w}%"></div></div><div class="bar-value">${formatter(val)}</div></div>`}).join('')}
 function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
 function rankClass(rank){if(rank===1)return'top1';if(rank===2)return'top2';if(rank===3)return'top3';return''}
-function renderAlerts(rows){const count=rows?rows.length:0;const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(r=>`<div class="alert-item">${escapeHtml(r)}</div>`).join('');['alertList','alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});['alertCount','alertCountDesktop'].forEach(id=>{$(id)&&($(id).textContent=count)})}
+function renderAlerts(rows){const count=rows?rows.length:0;const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(r=>`<div class="alert-item">${escapeHtml(r)}</div>`).join('');['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});$('alertCountDesktop')&&($('alertCountDesktop').textContent=count)}
 function branchCardHtml(r){return`<div class="branch-card" data-status="${escapeHtml(r.status||'normal')}"><div class="branch-top"><div class="branch-rank ${rankClass(r.rank)}">${r.rank}</div><div class="branch-name">&nbsp;${escapeHtml(r.shop_name||'-')}</div><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></div><div class="mini-grid"><div class="mini-stat"><div class="k">${t('sales')}</div><div class="v">${money(r.sales_total)}</div></div><div class="mini-stat"><div class="k">vs ก่อนหน้า</div><div class="v" style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'}">${pctfmt(r.sales_diff_pct)}%</div></div><div class="mini-stat"><div class="k">${t('bills')}</div><div class="v">${intfmt(r.bill_count)}</div></div><div class="mini-stat"><div class="k">${t('avgBill')}</div><div class="v">${money(r.avg_bill)}</div></div></div></div>`}
 function renderBranchViews(rows){
   if($('branchCards')){
@@ -787,7 +779,7 @@ function renderProducts(rows){
   if($('productTableBody'))$('productTableBody').innerHTML=(!rows||!rows.length)?`<tr><td colspan="5" class="empty">${t('noProduct')}</td></tr>`:rows.map((r,i)=>`<tr><td class="rank-cell">${i+1}</td><td>${escapeHtml(r.product_name||'-')}</td><td style="color:var(--muted)">${escapeHtml(r.product_group_name||'-')}</td><td>${qtyfmt(r.qty_sold)}</td><td><b>${money(r.total_sales)}</b></td></tr>`).join('')
 }
 function drawTrend(rows,canvasId){
-  const canvas=$(canvasId);if(!canvas)return;
+  const canvas=$(canvasId);if(!canvas||canvas.offsetParent===null)return;
   const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1,w=Math.max(parent.clientWidth-20,200),h=Math.max(parent.clientHeight-20,140);
   canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   if(!rows||!rows.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted');ctx.font='11px Inter,sans-serif';ctx.fillText(t('noTrend'),12,20);return}
@@ -812,20 +804,24 @@ function drawTrend(rows,canvasId){
 }
 function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;updateFooterNote()}}
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
+function goLatest(){syncDateInputs(state.latestDate,state.latestDate);closeSheet();loadDashboard(true);startAutoRefresh()}
 function goMtd(){const d=state.latestDate,from=new Date(new Date(d).getFullYear(),new Date(d).getMonth(),1).toISOString().slice(0,10);syncDateInputs(from,d);closeSheet();loadDashboard(true);startAutoRefresh()}
-['latestBtn','latestBtnDesktop','mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goMtd)});
+['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goLatest)});
+['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goMtd)});
 ['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{const d=new Date(state.latestDate),from=new Date(d);from.setDate(d.getDate()-6);syncDateInputs(from.toISOString().slice(0,10),state.latestDate);closeSheet();loadDashboard(true);startAutoRefresh()})});
 $('openFilterBtn').addEventListener('click',openSheet);
 $('closeFilterBtn').addEventListener('click',closeSheet);
 $('closeFilterBtn2').addEventListener('click',closeSheet);
 $('sheetBackdrop').addEventListener('click',closeSheet);
 document.querySelectorAll('.tab-btn').forEach(btn=>btn.addEventListener('click',()=>setTab(btn.dataset.panel)));
-window.addEventListener('resize',()=>{if(window.innerWidth>=920)closeSheet();redrawCharts()});
-document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAutoRefresh()}else{loadDashboard(false);startAutoRefresh()}});
+let _resizeTimer;
+window.addEventListener('resize',()=>{if(window.innerWidth>=920)closeSheet();clearTimeout(_resizeTimer);_resizeTimer=setTimeout(redrawCharts,150)});
+let _lastFetchAt=0;
+document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAutoRefresh()}else{loadDashboard(Date.now()-_lastFetchAt>=refreshMs);startAutoRefresh()}});
 applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('overview');loadDashboard(false);startAutoRefresh();
 </script>
 </body>
