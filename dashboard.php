@@ -351,7 +351,16 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
 
 .panel{display:none}
 .panel.active{display:block;animation:fadeUp .24s cubic-bezier(.22,1,.36,1)}
-.ranking-shell{overflow:hidden;padding:4px 0 2px}
+.rank-list{display:flex;flex-direction:column;gap:10px}
+.rank-row{display:flex;align-items:flex-start;gap:10px;padding:2px 0}
+.rank-num{width:22px;font-size:10px;font-weight:500;color:var(--muted);text-align:right;padding-top:1px;flex-shrink:0;font-variant-numeric:tabular-nums}
+.rank-body{flex:1;min-width:0}
+.rank-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+.rank-name{font-size:11.5px;font-weight:500;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.2}
+.rank-val{font-size:11px;font-weight:600;color:var(--text);flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.rank-track{height:5px;background:var(--line);border-radius:999px;overflow:hidden}
+.rank-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));box-shadow:0 0 6px var(--primary-glow);transition:width .7s cubic-bezier(.22,1,.36,1);width:0}
+.rank-fill-alert{background:linear-gradient(90deg,#f59e0b,#fb923c);box-shadow:0 0 6px rgba(245,158,11,.3)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 .filter-sheet{position:fixed;inset:0;z-index:60;display:none}
@@ -557,7 +566,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <div class="desc">ยอดขายเปรียบเทียบรายสาขา</div>
         </div>
       </div>
-      <div class="ranking-shell"><canvas id="rankingCanvas"></canvas></div>
+      <div id="rankingBars"><div class="empty">กำลังโหลด...</div></div>
     </div>
     <div class="card section gap">
       <div class="section-head">
@@ -627,7 +636,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
             <div class="desc">ยอดขายเปรียบเทียบรายสาขา</div>
           </div>
         </div>
-        <div class="ranking-shell"><canvas id="rankingCanvasDesktop"></canvas></div>
+        <div id="rankingBarsDesktop"><div class="empty">กำลังโหลด...</div></div>
       </div>
     </div>
 
@@ -843,42 +852,21 @@ function drawTrend(rows,canvasId){
   ctx.textAlign='center';const skip=rows.length>10?Math.ceil(rows.length/8):1;
   rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;const x=pad.l+stepX*i;ctx.fillText((r.sale_date||'').slice(5),x,h-6)})
 }
-function drawRankingBar(rows,canvasId){
-  const canvas=$(canvasId);if(!canvas||canvas.offsetParent===null)return;
+function renderRankingBar(rows,containerId){
+  const el=$(containerId);if(!el)return;
   const TOP=12,items=(rows||[]).slice(0,TOP);
-  const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1;
-  const BAR_H=22,GAP=7,PAD={l:148,r:80,t:8,b:8};
-  const w=Math.max(parent.clientWidth-20,240);
-  const h=PAD.t+(items.length||1)*(BAR_H+GAP)-GAP+PAD.b;
-  canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';
-  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-  const cs=getComputedStyle(document.body),isDark=document.body.dataset.theme!=='light';
-  const textC=cs.getPropertyValue('--text').trim(),mutedC=cs.getPropertyValue('--muted').trim();
-  if(!items.length){ctx.fillStyle=mutedC;ctx.font='11px Inter,sans-serif';ctx.textBaseline='top';ctx.fillText(t('noBranch'),8,10);return}
+  if(!items.length){el.innerHTML=`<div class="empty">${t('noBranch')}</div>`;return}
   const maxVal=Math.max(...items.map(r=>Number(r.sales_total||0)),1);
-  const barW=w-PAD.l-PAD.r;
-  const maxNameW=PAD.l-28;
-  items.forEach((r,i)=>{
-    const y=PAD.t+i*(BAR_H+GAP),val=Number(r.sales_total||0),bw=Math.max((val/maxVal)*barW,4);
+  el.innerHTML='<div class="rank-list">'+items.map((r,i)=>{
+    const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
     const isAlert=r.status==='watch'||r.status==='low_avg';
-    ctx.fillStyle=isDark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
-    ctx.fillRect(PAD.l,y,barW,BAR_H);
-    const grad=ctx.createLinearGradient(PAD.l,0,PAD.l+bw,0);
-    if(isAlert){grad.addColorStop(0,'rgba(245,158,11,.78)');grad.addColorStop(1,'rgba(251,146,60,.32)')}
-    else{grad.addColorStop(0,'rgba(59,130,246,.82)');grad.addColorStop(1,'rgba(96,165,250,.36)')}
-    ctx.fillStyle=grad;ctx.fillRect(PAD.l,y,bw,BAR_H);
-    ctx.fillStyle=mutedC;ctx.font='500 9.5px Inter,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';
-    ctx.fillText('#'+(r.rank||i+1),18,y+BAR_H/2);
-    ctx.fillStyle=textC;ctx.font='500 11px Inter,sans-serif';ctx.textAlign='left';
-    let name=r.shop_name||'-';
-    while(ctx.measureText(name).width>maxNameW&&name.length>2)name=name.slice(0,-1);
-    if(name.length<(r.shop_name||'').length)name=name.trimEnd()+'…';
-    ctx.fillText(name,22,y+BAR_H/2);
-    ctx.fillStyle=textC;ctx.font='600 10px Inter,sans-serif';ctx.textAlign='left';
-    ctx.fillText(compactMoney(val),PAD.l+bw+6,y+BAR_H/2);
-  });
+    return `<div class="rank-row"><div class="rank-num">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name">${escapeHtml(r.shop_name||'-')}</div><div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
+  }).join('')+'</div>';
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
+  }));
 }
-function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop');drawRankingBar(state.rankingRows,'rankingCanvas');drawRankingBar(state.rankingRows,'rankingCanvasDesktop')}
+function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=compactMoney(data.summary.sales_total);$('kpiSalesSub').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=compactMoney(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
@@ -910,7 +898,7 @@ const cmp=data.comparison||{};
     $vp.style.background=pos?'var(--good-bg)':'var(--bad-bg)';
     $vt.textContent=(pos?'▲ +':'▼ ')+Math.abs(pct).toFixed(1)+'% vs เมื่อวาน';
   }else if($vp){$vp.style.display='none'}
-})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
+})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
