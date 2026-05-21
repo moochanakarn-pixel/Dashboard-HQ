@@ -240,9 +240,27 @@ try {
 
                 $status = branch_status($currSales, $pct, (float)($row['avg_bill'] ?? 0), $overallAvg);
 
-                $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
-                if ($status === 'watch')   $data['alerts'][] = 'สาขา ' . $shopName . ' : ยอดขายลดลง ' . number_format(abs($pct), 1) . '% เทียบช่วงก่อนหน้า';
-                elseif ($status === 'low_avg') $data['alerts'][] = 'สาขา ' . $shopName . ' : ค่าเฉลี่ยต่อบิลต่ำกว่าภาพรวมมาก';
+                $shopName  = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
+                $shopId    = (int)($row['ShopID'] ?? 0);
+                $branchAvg = (float)($row['avg_bill'] ?? 0);
+                if ($status === 'watch') {
+                    $data['alerts'][] = [
+                        'type'       => 'watch',
+                        'shop_name'  => $shopName,
+                        'pct'        => round($pct, 1),
+                        'curr_sales' => round($currSales, 2),
+                        'prev_sales' => round($prevSales, 2),
+                    ];
+                } elseif ($status === 'low_avg') {
+                    $pctBelow = $overallAvg > 0 ? round((($overallAvg - $branchAvg) / $overallAvg) * 100, 1) : 0;
+                    $data['alerts'][] = [
+                        'type'        => 'low_avg',
+                        'shop_name'   => $shopName,
+                        'avg_bill'    => round($branchAvg, 2),
+                        'overall_avg' => round($overallAvg, 2),
+                        'pct_below'   => $pctBelow,
+                    ];
+                }
 
                 $entry = [
                     'rank'           => ++$idx,
@@ -291,13 +309,21 @@ try {
         if ($res = safe_execute($stmt, $data)) {
             while ($row = $res->fetch_assoc()) {
                 $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
-                $data['alerts'][] = 'สาขา ' . $shopName . ' : ไม่มีข้อมูลในช่วงนี้ (มีข้อมูลช่วงก่อนหน้า)';
+                $data['alerts'][] = [
+                    'type'      => 'missing',
+                    'shop_name' => $shopName,
+                ];
             }
         }
         $stmt->close();
     }
 
-    $data['alerts'] = array_slice(array_values(array_unique($data['alerts'])), 0, 15);
+    $seen = []; $unique = [];
+    foreach ($data['alerts'] as $a) {
+        $key = ($a['type'] ?? '') . '|' . ($a['shop_name'] ?? '');
+        if (!isset($seen[$key])) { $seen[$key] = true; $unique[] = $a; }
+    }
+    $data['alerts'] = array_slice($unique, 0, 15);
 
     $sqlTrend = "
         SELECT DATE(sr.SaleDate) AS sale_date,

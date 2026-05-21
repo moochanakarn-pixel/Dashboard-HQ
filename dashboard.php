@@ -233,11 +233,17 @@ select.control option{background:var(--bg);color:var(--text)}
   display:flex;align-items:flex-start;gap:10px;
   padding:11px 14px 11px 13px;border-radius:var(--r-sm);
   border:1px solid var(--bad-border);border-left:3px solid var(--bad);
-  background:var(--bad-bg);color:var(--text);font-size:11.5px;line-height:1.6;
+  background:var(--bad-bg);color:var(--text);
   transition:background .15s;
 }
-.alert-item:hover{background:rgba(244,63,94,.13)}
-.alert-item::before{content:'⚠';flex-shrink:0;margin-top:1px;font-size:13px;color:var(--bad)}
+.alert-item[data-type="low_avg"]{border-left-color:var(--warn);border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
+.alert-item[data-type="missing"]{border-left-color:var(--muted);border-color:var(--line);background:rgba(255,255,255,.02)}
+.alert-item:hover{filter:brightness(1.08)}
+.alert-icon{font-size:15px;flex-shrink:0;line-height:1;margin-top:1px}
+.alert-body{flex:1;min-width:0}
+.alert-name{font-size:12px;font-weight:600;color:var(--text);line-height:1.3}
+.alert-detail{font-size:10.5px;color:var(--muted);margin-top:4px;line-height:1.5}
+.alert-detail b{color:var(--text);font-weight:600}
 
 .chart-shell{height:220px;border-radius:var(--r-sm);padding:8px 4px 2px;position:relative}
 
@@ -810,7 +816,28 @@ async function fetchText(url,timeout=15000){if(activeController)activeController
 function renderBars(el,rows,valueKey,labelKey,formatter,emptyText){if(!el)return;if(!rows||!rows.length){el.innerHTML=`<div class="empty">${emptyText}</div>`;return}const max=Math.max(...rows.map(r=>Number(r[valueKey]||0)),1);el.innerHTML=rows.map(r=>{const val=Number(r[valueKey]||0),w=Math.max((val/max)*100,3);return`<div class="bar-row"><div class="bar-label">${escapeHtml(r[labelKey]||'-')}</div><div class="track"><div class="fill" style="width:${w}%"></div></div><div class="bar-value">${formatter(val)}</div></div>`}).join('')}
 function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
 function rankClass(rank){if(rank===1)return'top1';if(rank===2)return'top2';if(rank===3)return'top3';return''}
-function renderAlerts(rows){const count=rows?rows.length:0;const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(r=>`<div class="alert-item">${escapeHtml(r)}</div>`).join('');['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});$('alertCountDesktop')&&($('alertCountDesktop').textContent=count)}
+function renderAlerts(rows){
+  const count=rows?rows.length:0;
+  function alertHtml(a){
+    if(typeof a==='string')return`<div class="alert-item"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
+    const type=a.type||'watch';
+    const icons={watch:'📉',low_avg:'📊',missing:'❔'};
+    const icon=icons[type]||'⚠';
+    let detail='';
+    if(type==='watch'){
+      const dir=Number(a.pct)<0?'▼ ลดลง':'▲ เพิ่มขึ้น';
+      detail=`${dir} <b>${Math.abs(Number(a.pct)).toFixed(1)}%</b> &nbsp;|&nbsp; ช่วงนี้ <b>${compactMoney(a.curr_sales)}</b> &nbsp;vs&nbsp; ก่อนหน้า <b>${compactMoney(a.prev_sales)}</b>`;
+    } else if(type==='low_avg'){
+      detail=`avg/บิล <b>${compactMoney(a.avg_bill)}</b> &nbsp;|&nbsp; ค่าเฉลี่ยรวม <b>${compactMoney(a.overall_avg)}</b> &nbsp;(ต่ำกว่า <b>${Number(a.pct_below).toFixed(1)}%</b>)`;
+    } else if(type==='missing'){
+      detail='ไม่มีข้อมูลในช่วงที่เลือก &nbsp;|&nbsp; มีข้อมูลในช่วงก่อนหน้า';
+    }
+    return`<div class="alert-item" data-type="${escapeHtml(type)}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-name">${escapeHtml(a.shop_name||'-')}</div>${detail?`<div class="alert-detail">${detail}</div>`:''}</div></div>`;
+  }
+  const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(alertHtml).join('');
+  ['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});
+  $('alertCountDesktop')&&($('alertCountDesktop').textContent=count);
+}
 function branchCardHtml(r){return`<div class="branch-card" data-status="${escapeHtml(r.status||'normal')}"><div class="branch-top"><div class="branch-rank ${rankClass(r.rank)}">${r.rank}</div><div class="branch-name">&nbsp;${escapeHtml(r.shop_name||'-')}</div><span class="badge status-${escapeHtml(r.status||'normal')}">${escapeHtml(statusLabel(r.status))}</span></div><div class="mini-grid"><div class="mini-stat"><div class="k">${t('sales')}</div><div class="v">${compactMoney(r.sales_total)}</div></div><div class="mini-stat"><div class="k">vs ก่อนหน้า</div><div class="v" style="color:${Number(r.sales_diff_pct)<0?'var(--warn)':'var(--good)'}">${pctfmt(r.sales_diff_pct)}%</div></div><div class="mini-stat"><div class="k">${t('bills')}</div><div class="v">${intfmt(r.bill_count)}</div></div><div class="mini-stat"><div class="k">${t('avgBill')}</div><div class="v">${compactMoney(r.avg_bill)}</div></div></div></div>`}
 function renderBranchViews(rows){
   if($('branchCards')){
