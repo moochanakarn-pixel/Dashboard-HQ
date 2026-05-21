@@ -151,8 +151,8 @@ if (!function_exists('default_dashboard_range')) {
     function default_dashboard_range(): array {
         $latest = latest_sale_date('summary_tranreport', 'SaleDate') ?: date('Y-m-d');
         return [
-            'date_from' => date('Y-m-01', strtotime($latest)),
-            'date_to' => $latest,
+            'date_from'   => $latest,
+            'date_to'     => $latest,
             'latest_date' => $latest,
         ];
     }

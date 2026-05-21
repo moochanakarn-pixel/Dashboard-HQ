@@ -26,6 +26,7 @@ if (!function_exists('api_base_payload')) {
             'payment_mix'    => [],
             'top_products'   => [],
             'alerts'         => [],
+            'comparison'     => ['is_single_day' => false],
             'meta'           => ['latest_data_date' => null, 'product_source' => null],
             'error'          => null,
         ];
@@ -169,6 +170,37 @@ try {
             $data['summary']['avg_bill']     = $billCount > 0 ? $salesTotal / $billCount : 0;
         }
         $stmt->close();
+    }
+
+    $data['comparison']['is_single_day'] = ($dateFrom === $dateTo);
+    if ($dateFrom === $dateTo) {
+        $yDay    = date('Y-m-d', strtotime($dateFrom . ' -1 day'));
+        $wAgo    = date('Y-m-d', strtotime($dateFrom . ' -7 days'));
+        $sqlComp = "
+            SELECT COALESCE(SUM(ReceiptPayPrice),0) AS sales_total,
+                   COALESCE(SUM(TotalBill),0)       AS bill_count
+            FROM summary_tranreport
+            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
+              AND DocType = 8 AND TransactionStatusID = 2
+        ";
+        $currSales = (float)$data['summary']['sales_total'];
+        foreach ([['yesterday', $yDay], ['last_week', $wAgo]] as [$key, $cmpDate]) {
+            if ($stmt = safe_prepare($conn, $data, $sqlComp)) {
+                $stmt->bind_param('ss', $cmpDate, $cmpDate);
+                if ($res = safe_execute($stmt, $data)) {
+                    $row      = $res->fetch_assoc() ?: [];
+                    $cmpSales = (float)($row['sales_total'] ?? 0);
+                    $pct      = $cmpSales > 0 ? round((($currSales - $cmpSales) / $cmpSales) * 100, 1) : null;
+                    $data['comparison'][$key] = [
+                        'date'        => $cmpDate,
+                        'sales_total' => $cmpSales,
+                        'bill_count'  => (int)($row['bill_count'] ?? 0),
+                        'pct'         => $pct,
+                    ];
+                }
+                $stmt->close();
+            }
+        }
     }
 
     $sqlRanking = "

@@ -193,6 +193,15 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi .label{font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;margin-bottom:5px}
 .kpi .value{font-size:24px;font-weight:900;letter-spacing:-.055em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:10.5px;color:var(--muted);margin-top:7px;line-height:1.4}
+.kpi-cmp{display:flex;flex-direction:column;gap:4px;margin-top:10px}
+.cmp-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  padding:3px 9px;border-radius:999px;font-size:9px;font-weight:700;
+  letter-spacing:.02em;white-space:nowrap;width:fit-content;
+}
+.cmp-up{background:var(--good-bg);color:var(--good);border:1px solid var(--good-border)}
+.cmp-down{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-border)}
+.cmp-flat{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--line2)}
 
 .section{padding:18px}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:16px}
@@ -427,6 +436,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <div class="meta-strip">
             <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php echo h($range['latest_date']); ?></span></div>
             <div class="pill"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
+            <div class="pill" id="verdictPill" style="display:none"><span id="verdictText"></span></div>
           </div>
         </div>
         <div class="hero-actions">
@@ -479,6 +489,10 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
       <div class="label" id="kpiSalesLabel">ยอดขายรวม</div>
       <div class="value" id="salesTotal">—</div>
       <div class="sub" id="kpiSalesSub">ช่วงที่เลือก</div>
+      <div class="kpi-cmp" id="salesCmp" style="display:none">
+        <span id="cmpYday" class="cmp-badge cmp-flat"></span>
+        <span id="cmpWeek" class="cmp-badge cmp-flat"></span>
+      </div>
     </div>
     <div class="card kpi" data-kpi="bills">
       <div class="kpi-icon">🧾</div>
@@ -808,7 +822,37 @@ function drawTrend(rows,canvasId){
 }
 function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;
+const cmp=data.comparison||{};
+(function renderComparison(){
+  const $sc=$('salesCmp'),$vp=$('verdictPill'),$vt=$('verdictText');
+  if(!$sc)return;
+  if(!cmp.is_single_day){$sc.style.display='none';if($vp)$vp.style.display='none';return}
+  $sc.style.display='';
+  function badge(elId,cmpData,label){
+    const el=$(elId);if(!el)return;
+    if(!cmpData){el.textContent='';el.style.display='none';return}
+    el.style.display='';
+    if(cmpData.pct===null||cmpData.pct===undefined){
+      el.className='cmp-badge cmp-flat';
+      el.textContent='— '+label+': ไม่มีข้อมูล';
+    }else{
+      const pos=cmpData.pct>=0;
+      el.className='cmp-badge '+(pos?'cmp-up':'cmp-down');
+      el.textContent=(pos?'▲ +':'▼ ')+Math.abs(cmpData.pct).toFixed(1)+'% '+label;
+    }
+  }
+  badge('cmpYday',cmp.yesterday,'vs เมื่อวาน');
+  badge('cmpWeek',cmp.last_week,'vs 7 วันที่แล้ว');
+  if($vp&&$vt&&cmp.yesterday&&cmp.yesterday.pct!==null&&cmp.yesterday.pct!==undefined){
+    const pct=cmp.yesterday.pct,pos=pct>=0;
+    $vp.style.display='';
+    $vp.style.borderColor=pos?'var(--good-border)':'var(--bad-border)';
+    $vp.style.color=pos?'var(--good)':'var(--bad)';
+    $vp.style.background=pos?'var(--good-bg)':'var(--bad-bg)';
+    $vt.textContent=(pos?'▲ +':'▼ ')+Math.abs(pct).toFixed(1)+'% vs เมื่อวาน';
+  }else if($vp){$vp.style.display='none'}
+})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
