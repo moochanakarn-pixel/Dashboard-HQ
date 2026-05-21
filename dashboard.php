@@ -113,7 +113,7 @@ body[data-theme="light"] .card{
   font-size:9.5px;font-weight:700;color:var(--primary);
   margin-bottom:10px;letter-spacing:.07em;text-transform:uppercase;
 }
-.hero h1{font-size:26px;font-weight:900;letter-spacing:-.055em;line-height:1.05}
+.hero h1{font-size:26px;font-weight:600;letter-spacing:-.04em;line-height:1.05}
 .hero h1 span{
   background:linear-gradient(135deg,var(--primary) 20%,var(--primary2) 100%);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
@@ -191,7 +191,7 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi[data-kpi="guests"] .kpi-icon{background:linear-gradient(135deg,rgba(244,114,182,.2),rgba(251,113,133,.07));border-color:rgba(244,114,182,.3)}
 .kpi[data-kpi="branches"] .kpi-icon{background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(56,189,248,.07));border-color:rgba(34,211,238,.3)}
 .kpi .label{font-size:9.5px;font-weight:400;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;margin-bottom:5px}
-.kpi .value{font-size:24px;font-weight:800;letter-spacing:-.055em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
+.kpi .value{font-size:24px;font-weight:600;letter-spacing:-.04em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:10.5px;color:var(--muted);margin-top:7px;line-height:1.4;font-weight:400}
 .kpi-cmp{display:flex;flex-direction:column;gap:4px;margin-top:10px}
 .cmp-badge{
@@ -205,7 +205,7 @@ select.control option{background:var(--bg);color:var(--text)}
 
 .section{padding:18px}
 .section-head{display:flex;justify-content:space-between;align-items:flex-end;gap:8px;margin-bottom:16px}
-.section-head-left h2{font-size:13.5px;font-weight:800;letter-spacing:-.025em;position:relative;padding-left:11px}
+.section-head-left h2{font-size:13.5px;font-weight:600;letter-spacing:-.02em;position:relative;padding-left:11px}
 .section-head-left h2::before{
   content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
   width:3px;height:78%;border-radius:999px;
@@ -215,7 +215,7 @@ select.control option{background:var(--bg);color:var(--text)}
 
 .priority-card{padding:18px}
 .priority-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:16px}
-.priority-head-title h2{font-size:13.5px;font-weight:800;letter-spacing:-.025em;position:relative;padding-left:11px}
+.priority-head-title h2{font-size:13.5px;font-weight:600;letter-spacing:-.02em;position:relative;padding-left:11px}
 .priority-head-title h2::before{
   content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
   width:3px;height:78%;border-radius:999px;
@@ -278,7 +278,7 @@ select.control option{background:var(--bg);color:var(--text)}
 .mini-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;margin-top:11px;border-radius:var(--r-xs);overflow:hidden;background:var(--line2)}
 .mini-stat{padding:8px 10px;background:rgba(255,255,255,.02)}
 .mini-stat .k{font-size:9px;color:var(--muted);font-weight:400;margin-bottom:3px;text-transform:uppercase;letter-spacing:.04em}
-.mini-stat .v{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
+.mini-stat .v{font-size:12.5px;font-weight:600;font-variant-numeric:tabular-nums}
 
 .product-cards{display:flex;flex-direction:column;gap:7px}
 .product-card{
@@ -756,6 +756,7 @@ const refreshMs=<?php echo (int)$DASHBOARD_REFRESH_MS; ?>;
 function t(k){return(I18N[state.lang]&&I18N[state.lang][k])||k}
 function locale(){return state.lang==='th'?'th-TH':'en-US'}
 function money(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(Number(n||0))}
+function compactMoney(n){const v=Number(n||0);if(v>=1e6)return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/1e6)+(state.lang==='th'?' ล.':' M');if(v>=1e3)return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e3)+(state.lang==='th'?' พัน':' K');return money(v)}
 function intfmt(n){return new Intl.NumberFormat(locale(),{maximumFractionDigits:0}).format(Number(n||0))}
 function qtyfmt(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(n||0))}
 function pctfmt(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(Number(n||0))}
@@ -822,7 +823,7 @@ function drawTrend(rows,canvasId){
 }
 function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=compactMoney(data.summary.sales_total);$('kpiSalesSub').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=compactMoney(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
   const $sc=$('salesCmp'),$vp=$('verdictPill'),$vt=$('verdictText');
