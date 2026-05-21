@@ -17,31 +17,31 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
-  --bg:#010812;
-  --glass:rgba(255,255,255,.06);
-  --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.05);
-  --text:#e4efff; --muted:#4e6880; --muted2:#2e4258;
+  --bg:#070f20;
+  --glass:rgba(255,255,255,.055);
+  --line:rgba(255,255,255,.08); --line2:rgba(255,255,255,.045);
+  --text:#c8d8ee; --muted:#5e7a94; --muted2:#344d68;
   --primary:#3b82f6; --primary2:#06d6a0;
-  --primary-glow:rgba(59,130,246,.28); --primary2-glow:rgba(6,214,160,.2);
-  --good:#10d9a0; --good-bg:rgba(16,217,160,.08); --good-border:rgba(16,217,160,.22);
-  --warn:#f59e0b; --warn-bg:rgba(245,158,11,.09); --warn-border:rgba(245,158,11,.25);
-  --bad:#f43f5e;  --bad-bg:rgba(244,63,94,.09);   --bad-border:rgba(244,63,94,.25);
-  --shadow:0 20px 60px rgba(0,0,0,.6),0 4px 16px rgba(0,0,0,.35);
-  --shadow-sm:0 4px 20px rgba(0,0,0,.3);  /* used by card hover states */
+  --primary-glow:rgba(59,130,246,.24); --primary2-glow:rgba(6,214,160,.17);
+  --good:#10d9a0; --good-bg:rgba(16,217,160,.07); --good-border:rgba(16,217,160,.2);
+  --warn:#f59e0b; --warn-bg:rgba(245,158,11,.08); --warn-border:rgba(245,158,11,.22);
+  --bad:#f43f5e;  --bad-bg:rgba(244,63,94,.08);   --bad-border:rgba(244,63,94,.22);
+  --shadow:0 16px 48px rgba(0,0,0,.45),0 4px 14px rgba(0,0,0,.25);
+  --shadow-sm:0 4px 18px rgba(0,0,0,.25);  /* used by card hover states */
   --r:20px; --r-sm:14px; --r-xs:9px;
 }
 body[data-theme="light"]{
-  --bg:#eef4ff;
-  --glass:rgba(255,255,255,.82);
-  --line:rgba(30,60,130,.1); --line2:rgba(30,60,130,.06);
-  --text:#0f1c35; --muted:#5a6e91; --muted2:#8fa0bc;
+  --bg:#f0f4fa;
+  --glass:rgba(255,255,255,.76);
+  --line:rgba(30,60,130,.08); --line2:rgba(30,60,130,.05);
+  --text:#1c2f4a; --muted:#607288; --muted2:#9aaec6;
   --primary:#2563eb; --primary2:#0d9488;
-  --primary-glow:rgba(37,99,235,.18); --primary2-glow:rgba(13,148,136,.14);
-  --good:#0d9488; --good-bg:rgba(13,148,136,.08); --good-border:rgba(13,148,136,.2);
-  --warn:#d97706; --warn-bg:rgba(217,119,6,.08);  --warn-border:rgba(217,119,6,.2);
-  --bad:#e11d48;  --bad-bg:rgba(225,29,72,.08);   --bad-border:rgba(225,29,72,.2);
-  --shadow:0 4px 24px rgba(0,0,0,.1),0 1px 6px rgba(0,0,0,.06);
-  --shadow-sm:0 2px 12px rgba(0,0,0,.07);
+  --primary-glow:rgba(37,99,235,.16); --primary2-glow:rgba(13,148,136,.12);
+  --good:#0d9488; --good-bg:rgba(13,148,136,.07); --good-border:rgba(13,148,136,.18);
+  --warn:#d97706; --warn-bg:rgba(217,119,6,.07);  --warn-border:rgba(217,119,6,.18);
+  --bad:#e11d48;  --bad-bg:rgba(225,29,72,.07);   --bad-border:rgba(225,29,72,.18);
+  --shadow:0 2px 16px rgba(30,50,100,.08),0 1px 4px rgba(30,50,100,.05);
+  --shadow-sm:0 2px 10px rgba(30,50,100,.07);
 }
 body[data-accent="violet"]{--primary:#7c3aed;--primary2:#a78bfa;--primary-glow:rgba(124,58,237,.25);--primary2-glow:rgba(167,139,250,.18)}
 body[data-accent="green"]{--primary:#16a34a;--primary2:#06b6d4;--primary-glow:rgba(22,163,74,.22);--primary2-glow:rgba(6,182,212,.16)}
@@ -53,14 +53,14 @@ body{
   font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;
   background-image:
-    radial-gradient(ellipse 85% 55% at 12% -8%,rgba(59,130,246,.13),transparent),
-    radial-gradient(ellipse 65% 70% at 92% 102%,rgba(6,214,160,.09),transparent),
-    radial-gradient(ellipse 50% 60% at 55% 50%,rgba(120,60,240,.05),transparent);
+    radial-gradient(ellipse 85% 55% at 12% -8%,rgba(59,130,246,.09),transparent),
+    radial-gradient(ellipse 65% 70% at 92% 102%,rgba(6,214,160,.06),transparent),
+    radial-gradient(ellipse 50% 60% at 55% 50%,rgba(120,60,240,.04),transparent);
   background-attachment:fixed;
 }
 body::before{
   content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
-  background-image:radial-gradient(rgba(255,255,255,.028) 1px,transparent 1px);
+  background-image:radial-gradient(rgba(255,255,255,.022) 1px,transparent 1px);
   background-size:30px 30px;will-change:transform;
 }
 button,input,select{font:inherit;cursor:pointer;outline:none}
@@ -69,11 +69,15 @@ button:focus-visible,select:focus-visible{outline:2px solid var(--primary);outli
 .app{max-width:1120px;margin:0 auto;padding:12px 12px 104px;position:relative;z-index:1}
 
 .card{
-  background:linear-gradient(145deg,rgba(255,255,255,.08) 0%,rgba(255,255,255,.02) 100%);
+  background:linear-gradient(145deg,rgba(255,255,255,.065) 0%,rgba(255,255,255,.015) 100%);
   border:1px solid var(--line);border-radius:var(--r);
   box-shadow:var(--shadow);
   backdrop-filter:blur(28px);-webkit-backdrop-filter:blur(28px);
   position:relative;overflow:hidden;
+}
+body[data-theme="light"] .card{
+  background:linear-gradient(145deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.65) 100%);
+  box-shadow:0 2px 16px rgba(30,50,100,.08),0 1px 4px rgba(30,50,100,.05);
 }
 .card::after{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
@@ -292,18 +296,18 @@ select.control option{background:var(--bg);color:var(--text)}
 .product-revenue{font-size:12.5px;font-weight:800;font-variant-numeric:tabular-nums}
 .product-qty{font-size:10px;color:var(--muted);margin-top:2px;font-weight:500}
 
-.table-wrap{overflow:auto;border-radius:var(--r-sm);border:1px solid var(--line2)}
-table{width:100%;border-collapse:collapse}
+.table-wrap{overflow:hidden;border-radius:var(--r-sm);border:1px solid var(--line2)}
+table{width:100%;border-collapse:collapse;table-layout:fixed}
 th{
-  padding:10px 13px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap;
-  font-size:9.5px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;
-  background:rgba(255,255,255,.03);position:sticky;top:0;
+  padding:9px 11px;border-bottom:1px solid var(--line);text-align:left;
+  font-size:9px;font-weight:700;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;
+  background:rgba(255,255,255,.03);position:sticky;top:0;white-space:nowrap;overflow:hidden;
 }
-td{padding:9px 13px;border-bottom:1px solid var(--line2);font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+td{padding:8px 11px;border-bottom:1px solid var(--line2);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
 tr:last-child td{border-bottom:none}
 tr:nth-child(even) td{background:rgba(255,255,255,.015)}
 tr:hover td{background:rgba(59,130,246,.07)!important}
-td.rank-cell{font-weight:800;color:var(--muted);width:36px;font-size:11px}
+td.rank-cell{font-weight:800;color:var(--muted);width:34px;font-size:10.5px}
 
 .empty{
   padding:20px;border-radius:var(--r-sm);background:rgba(255,255,255,.02);
@@ -325,7 +329,7 @@ td.rank-cell{font-weight:800;color:var(--muted);width:36px;font-size:11px}
   border:1px solid rgba(255,255,255,.12);
   box-shadow:0 12px 48px rgba(0,0,0,.55),0 1px 0 rgba(255,255,255,.07) inset;
 }
-body[data-theme="light"] .mobile-tabs{background:rgba(224,236,255,.95);border-color:rgba(30,60,130,.14)}
+body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-color:rgba(30,60,130,.1)}
 .tab-row{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
 .tab-btn{
   height:46px;border-radius:18px;border:none;background:transparent;color:var(--muted);
@@ -350,7 +354,7 @@ body[data-theme="light"] .mobile-tabs{background:rgba(224,236,255,.95);border-co
   box-shadow:0 -32px 80px rgba(0,0,0,.6),inset 0 1px 0 rgba(255,255,255,.06);
   padding:0 16px calc(20px + env(safe-area-inset-bottom));
 }
-body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,248,255,.98),rgba(224,236,255,.99))}
+body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,247,254,.99),rgba(234,241,252,.99))}
 .sheet-handle{width:44px;height:4px;background:rgba(255,255,255,.15);border-radius:999px;margin:14px auto 18px}
 .sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
 .sheet-head h3{font-size:16px;font-weight:800;letter-spacing:-.025em}
@@ -603,13 +607,13 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(240,
           <table>
             <thead>
               <tr>
-                <th style="width:40px">#</th>
+                <th style="width:34px">#</th>
                 <th id="thBranch">สาขา</th>
-                <th id="thSales">ยอดขาย</th>
-                <th id="thDiff">% vs ก่อนหน้า</th>
-                <th id="thBills">บิล</th>
-                <th id="thAvg">Avg Bill</th>
-                <th id="thStatus">สถานะ</th>
+                <th id="thSales" style="width:96px">ยอดขาย</th>
+                <th id="thDiff" style="width:80px">เทียบเดิม</th>
+                <th id="thBills" style="width:54px">บิล</th>
+                <th id="thAvg" style="width:84px">Avg Bill</th>
+                <th id="thStatus" style="width:72px">สถานะ</th>
               </tr>
             </thead>
             <tbody id="branchTableBody"><tr><td colspan="7" class="empty">กำลังโหลด...</td></tr></tbody>
