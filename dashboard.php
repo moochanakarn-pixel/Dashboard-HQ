@@ -351,6 +351,7 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
 
 .panel{display:none}
 .panel.active{display:block;animation:fadeUp .24s cubic-bezier(.22,1,.36,1)}
+.ranking-shell{overflow:hidden;padding:4px 0 2px}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 .filter-sheet{position:fixed;inset:0;z-index:60;display:none}
@@ -552,6 +553,15 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
+          <h2>อันดับสาขา Top 12</h2>
+          <div class="desc">ยอดขายเปรียบเทียบรายสาขา</div>
+        </div>
+      </div>
+      <div class="ranking-shell"><canvas id="rankingCanvas"></canvas></div>
+    </div>
+    <div class="card section gap">
+      <div class="section-head">
+        <div class="section-head-left">
           <h2 id="branchTitle">สาขาทั้งหมด</h2>
           <div class="desc" id="branchDesc">เรียงตามยอดขายสูงสุด</div>
         </div>
@@ -606,6 +616,18 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <span class="priority-count" id="alertCountDesktop">0</span>
         </div>
         <div class="list" id="alertListDesktop"><div class="empty">กำลังโหลด...</div></div>
+      </div>
+    </div>
+
+    <div class="gap">
+      <div class="card section">
+        <div class="section-head">
+          <div class="section-head-left">
+            <h2>อันดับสาขา Top 12</h2>
+            <div class="desc">ยอดขายเปรียบเทียบรายสาขา</div>
+          </div>
+        </div>
+        <div class="ranking-shell"><canvas id="rankingCanvasDesktop"></canvas></div>
       </div>
     </div>
 
@@ -747,7 +769,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 const I18N={
 en:{heroTitle:'HQ Dashboard',heroDesc:'Executive overview across all branches.',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg / Bill',kpiAvgSub:'Average per bill',kpiWatchLabel:'Watch Branch',kpiGuestsLabel:'Total Guests',kpiGuestsSub:'Sum of TotalCustomer',kpiBranchLabel:'Branches',kpiBranchSub:'Within selected range',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'All Branches',branchDesc:'Ranked by revenue.',paymentTitle:'Payment Mix',paymentDesc:'Top payment types.',productTitle:'Top Products',productDesc:'Products driving revenue.',tabOverview:'Overview',tabBranches:'Branches',tabProducts:'Products',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noData:'No Data',normal:'Normal',sales:'Sales',bills:'Bills',avgBill:'Avg Bill',qty:'Qty',revenue:'Revenue',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noPayment:'No payment data.',noProduct:'No product data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.'},
 th:{heroTitle:'HQ Dashboard',heroDesc:'ภาพรวมยอดขายทุกสาขา เน้นข้อมูลที่ผู้บริหารต้องตัดสินใจ',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ย/บิล',kpiAvgSub:'เฉลี่ยต่อบิล',kpiWatchLabel:'สาขาที่ต้องดู',kpiGuestsLabel:'ลูกค้ารวม',kpiGuestsSub:'รวม TotalCustomer',kpiBranchLabel:'สาขาที่มีข้อมูล',kpiBranchSub:'ในช่วงที่เลือก',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'สาขาทั้งหมด',branchDesc:'เรียงตามยอดขายสูงสุด',paymentTitle:'ช่องทางชำระเงิน',paymentDesc:'ประเภทที่ใช้มากสุด',productTitle:'สินค้าขายดี',productDesc:'สินค้าที่ขับยอดขายรวม',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabProducts:'สินค้า',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noData:'ไม่มีข้อมูล',normal:'ปกติ',sales:'ยอดขาย',bills:'บิล',avgBill:'Avg Bill',qty:'จำนวน',revenue:'ยอดขาย',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noPayment:'ยังไม่มีข้อมูลการชำระเงิน',noProduct:'ยังไม่มีข้อมูลสินค้า',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป'}};
-const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',accent:localStorage.getItem('hq_accent')||'blue',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[]};
+const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',accent:localStorage.getItem('hq_accent')||'blue',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[],rankingRows:[]};
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),accent:$('accentSelect'),from:$('dateFrom'),to:$('dateTo')};
 const desk={lang:$('langSelectDesktop'),theme:$('themeSelectDesktop'),accent:$('accentSelectDesktop'),from:$('dateFromDesktop'),to:$('dateToDesktop')};
@@ -821,7 +843,42 @@ function drawTrend(rows,canvasId){
   ctx.textAlign='center';const skip=rows.length>10?Math.ceil(rows.length/8):1;
   rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;const x=pad.l+stepX*i;ctx.fillText((r.sale_date||'').slice(5),x,h-6)})
 }
-function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
+function drawRankingBar(rows,canvasId){
+  const canvas=$(canvasId);if(!canvas||canvas.offsetParent===null)return;
+  const TOP=12,items=(rows||[]).slice(0,TOP);
+  const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1;
+  const BAR_H=22,GAP=7,PAD={l:148,r:80,t:8,b:8};
+  const w=Math.max(parent.clientWidth-20,240);
+  const h=PAD.t+(items.length||1)*(BAR_H+GAP)-GAP+PAD.b;
+  canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';
+  ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  const cs=getComputedStyle(document.body),isDark=document.body.dataset.theme!=='light';
+  const textC=cs.getPropertyValue('--text').trim(),mutedC=cs.getPropertyValue('--muted').trim();
+  if(!items.length){ctx.fillStyle=mutedC;ctx.font='11px Inter,sans-serif';ctx.textBaseline='top';ctx.fillText(t('noBranch'),8,10);return}
+  const maxVal=Math.max(...items.map(r=>Number(r.sales_total||0)),1);
+  const barW=w-PAD.l-PAD.r;
+  const maxNameW=PAD.l-28;
+  items.forEach((r,i)=>{
+    const y=PAD.t+i*(BAR_H+GAP),val=Number(r.sales_total||0),bw=Math.max((val/maxVal)*barW,4);
+    const isAlert=r.status==='watch'||r.status==='low_avg';
+    ctx.fillStyle=isDark?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.05)';
+    ctx.fillRect(PAD.l,y,barW,BAR_H);
+    const grad=ctx.createLinearGradient(PAD.l,0,PAD.l+bw,0);
+    if(isAlert){grad.addColorStop(0,'rgba(245,158,11,.78)');grad.addColorStop(1,'rgba(251,146,60,.32)')}
+    else{grad.addColorStop(0,'rgba(59,130,246,.82)');grad.addColorStop(1,'rgba(96,165,250,.36)')}
+    ctx.fillStyle=grad;ctx.fillRect(PAD.l,y,bw,BAR_H);
+    ctx.fillStyle=mutedC;ctx.font='500 9.5px Inter,sans-serif';ctx.textAlign='right';ctx.textBaseline='middle';
+    ctx.fillText('#'+(r.rank||i+1),18,y+BAR_H/2);
+    ctx.fillStyle=textC;ctx.font='500 11px Inter,sans-serif';ctx.textAlign='left';
+    let name=r.shop_name||'-';
+    while(ctx.measureText(name).width>maxNameW&&name.length>2)name=name.slice(0,-1);
+    if(name.length<(r.shop_name||'').length)name=name.trimEnd()+'…';
+    ctx.fillText(name,22,y+BAR_H/2);
+    ctx.fillStyle=textC;ctx.font='600 10px Inter,sans-serif';ctx.textAlign='left';
+    ctx.fillText(compactMoney(val),PAD.l+bw+6,y+BAR_H/2);
+  });
+}
+function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop');drawRankingBar(state.rankingRows,'rankingCanvas');drawRankingBar(state.rankingRows,'rankingCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=compactMoney(data.summary.sales_total);$('kpiSalesSub').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=compactMoney(data.summary.avg_bill);$('guestCount')&&($('guestCount').textContent=intfmt(data.summary.guest_count));$('branchCount')&&($('branchCount').textContent=intfmt(data.summary.branch_count));$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${money(data.summary.best_branch_sales)} | ${t('lowest')} ${money(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
@@ -853,7 +910,7 @@ const cmp=data.comparison||{};
     $vp.style.background=pos?'var(--good-bg)':'var(--bad-bg)';
     $vt.textContent=(pos?'▲ +':'▼ ')+Math.abs(pct).toFixed(1)+'% vs เมื่อวาน';
   }else if($vp){$vp.style.display='none'}
-})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
+})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[]);renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
