@@ -420,6 +420,38 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 #installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
 .gap{margin-top:8px}
 
+/* ── VERDICT BANNER ── */
+#verdictBanner{
+  margin-top:10px;padding:10px 14px;border-radius:var(--r-sm);
+  display:none;align-items:center;gap:10px;
+  font-size:12px;font-weight:700;line-height:1.4;
+}
+#verdictBanner.vb-good{background:var(--good-bg);border:1px solid var(--good-border);color:var(--good)}
+#verdictBanner.vb-warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn)}
+#verdictBanner.vb-bad{background:var(--bad-bg);border:1px solid var(--bad-border);color:var(--bad)}
+#verdictBanner .vb-icon{font-size:18px;flex-shrink:0}
+#verdictBanner .vb-text{flex:1;min-width:0}
+#verdictBanner .vb-sub{font-size:10px;font-weight:500;opacity:.8;margin-top:2px}
+
+/* ── ALERT TAB GLOW ── */
+@keyframes tab-alert-glow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}55%{box-shadow:0 0 0 7px rgba(244,63,94,0)}}
+.tab-btn-alert:not(.active){color:var(--bad)!important;animation:tab-alert-glow 2s ease-in-out infinite}
+
+/* ── PRINT ── */
+@media print{
+  .mobile-tabs,.filter-sheet,#installBanner,.footer-note,.hero-actions,
+  .desktop-only .filter-grid,#reloadBtnDesktop,#latestBtnDesktop,#mtdBtnDesktop,#d7BtnDesktop,
+  #accentSelectDesktop,#langSelectDesktop,#themeSelectDesktop,#dateFromDesktop,#dateToDesktop,
+  .filter-label{display:none!important}
+  body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  body::before{display:none!important}
+  .app{max-width:100%!important;padding:8px!important}
+  .card{box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .panel{display:block!important}
+  .kpi-grid{grid-template-columns:repeat(3,1fr)!important}
+  .desktop-only{display:block!important}
+}
+
 .desktop-only{display:none}
 
 /* ── MOBILE-SPECIFIC ── */
@@ -483,7 +515,15 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           </div>
         </div>
         <div class="hero-actions">
+          <button class="icon-btn" id="printBtn" title="พิมพ์ / Export PDF" style="font-size:14px">🖨️</button>
           <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
+        </div>
+      </div>
+      <div id="verdictBanner">
+        <span class="vb-icon" id="verdictIcon"></span>
+        <div class="vb-text">
+          <div id="verdictMain"></div>
+          <div class="vb-sub" id="verdictSub"></div>
         </div>
       </div>
 
@@ -853,11 +893,43 @@ async function fetchText(url,timeout=15000){if(activeController)activeController
 function renderBars(el,rows,valueKey,labelKey,formatter,emptyText){if(!el)return;if(!rows||!rows.length){el.innerHTML=`<div class="empty">${emptyText}</div>`;return}const max=Math.max(...rows.map(r=>Number(r[valueKey]||0)),1);el.innerHTML=rows.map(r=>{const val=Number(r[valueKey]||0),w=Math.max((val/max)*100,3);return`<div class="bar-row"><div class="bar-label">${escapeHtml(r[labelKey]||'-')}</div><div class="track"><div class="fill" style="width:${w}%"></div></div><div class="bar-value">${formatter(val)}</div></div>`}).join('')}
 function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
 function rankClass(rank){if(rank===1)return'top1';if(rank===2)return'top2';if(rank===3)return'top3';return''}
-function renderAlerts(rows,meta){
+function renderAlerts(rows,meta,summary){
   const count=rows?rows.length:0;
   if(meta&&meta.previous_from){
     const label='เทียบกับ '+fmtPeriodThai(meta.previous_from,meta.previous_to);
     ['alertsDesc2','alertsDescDesktop'].forEach(id=>{$(id)&&($(id).textContent=label)});
+  }
+  // Alert tab glow
+  const alertTabBtn=document.querySelector('.tab-btn[data-panel="alerts"]');
+  if(alertTabBtn)alertTabBtn.classList.toggle('tab-btn-alert',count>0);
+  // Verdict banner
+  const vb=$('verdictBanner'),vi=$('verdictIcon'),vm=$('verdictMain'),vs=$('verdictSub');
+  if(vb&&vi&&vm&&vs){
+    const cmp=state._lastCmp||{};
+    const yday=cmp.yesterday;
+    const hasCmp=cmp.is_single_day&&yday&&yday.pct!==null&&yday.pct!==undefined;
+    const pct=hasCmp?yday.pct:null;
+    vb.className='';
+    if(count>0){
+      vb.style.display='flex';
+      vb.classList.add(count>=3?'vb-bad':'vb-warn');
+      vi.textContent=count>=3?'🚨':'⚠️';
+      vm.textContent=`มี ${count} สาขาที่ต้องติดตาม`;
+      vs.textContent=hasCmp?(pct>=0?`ยอดรวม ▲ +${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`ยอดรวม ▼ ${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`):(summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'');
+    }else if(hasCmp){
+      vb.style.display='flex';
+      const pos=pct>=0;
+      vb.classList.add(pos?'vb-good':'vb-warn');
+      vi.textContent=pos?'✅':'📉';
+      vm.textContent=(pos?'▲ ดีขึ้น +':'▼ ลดลง ')+Math.abs(pct).toFixed(1)+'% เทียบเมื่อวาน';
+      vs.textContent=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
+    }else{
+      vb.style.display='flex';
+      vb.classList.add('vb-good');
+      vi.textContent='✅';
+      vm.textContent='ภาพรวมปกติ';
+      vs.textContent=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
+    }
   }
   function alertHtml(a){
     if(typeof a==='string')return`<div class="alert-item"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
@@ -960,15 +1032,10 @@ const cmp=data.comparison||{};
   }
   badge('cmpYday',cmp.yesterday,'vs เมื่อวาน');
   badge('cmpWeek',cmp.last_week,'vs 7 วันที่แล้ว');
-  if($vp&&$vt&&cmp.yesterday&&cmp.yesterday.pct!==null&&cmp.yesterday.pct!==undefined){
-    const pct=cmp.yesterday.pct,pos=pct>=0;
-    $vp.style.display='';
-    $vp.style.borderColor=pos?'var(--good-border)':'var(--bad-border)';
-    $vp.style.color=pos?'var(--good)':'var(--bad)';
-    $vp.style.background=pos?'var(--good-bg)':'var(--bad-bg)';
-    $vt.textContent=(pos?'▲ +':'▼ ')+Math.abs(pct).toFixed(1)+'% vs เมื่อวาน';
-  }else if($vp){$vp.style.display='none'}
-})();const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[],data.meta||{});renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
+  if($vp){$vp.style.display='none'}
+})();
+state._lastCmp=cmp;
+const ps=data.meta?.product_source?`Source: ${data.meta.product_source}`:'';$('productSource').textContent=ps;$('productSourceDesktop')&&($('productSourceDesktop').textContent=ps);renderAlerts(data.alerts||[],data.meta||{},data.summary||{});renderBranchViews(data.branch_ranking||[]);renderProducts(data.top_products||[]);renderBars($('paymentBars'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));renderBars($('paymentBarsDesktop'),data.payment_mix||[],'total_amount','pay_type_name',v=>money(v),t('noPayment'));state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.accent.addEventListener('change',()=>{state.accent=group.accent.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
@@ -977,6 +1044,7 @@ function goMtd(){const d=state.latestDate,from=new Date(new Date(d).getFullYear(
 ['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goLatest)});
 ['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goMtd)});
 ['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{const d=new Date(state.latestDate),from=new Date(d);from.setDate(d.getDate()-6);syncDateInputs(from.toISOString().slice(0,10),state.latestDate);closeSheet();loadDashboard(true);startAutoRefresh()})});
+$('printBtn')?.addEventListener('click',()=>window.print());
 $('openFilterBtn').addEventListener('click',openSheet);
 $('closeFilterBtn').addEventListener('click',closeSheet);
 $('closeFilterBtn2').addEventListener('click',closeSheet);
