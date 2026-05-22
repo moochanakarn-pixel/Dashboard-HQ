@@ -330,7 +330,7 @@ td{padding:8px 11px;border-bottom:1px solid var(--line2);font-size:11px;white-sp
 tr:last-child td{border-bottom:none}
 tr:nth-child(even) td{background:rgba(255,255,255,.015)}
 tr:hover td{background:rgba(59,130,246,.07)!important}
-td.rank-cell{font-weight:800;color:var(--muted);width:34px;font-size:10.5px}
+td.rank-cell{font-weight:800;color:var(--muted);width:46px;font-size:10.5px;text-align:center}
 
 .empty{
   padding:20px;border-radius:var(--r-sm);background:rgba(255,255,255,.02);
@@ -698,7 +698,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <table>
             <thead>
               <tr>
-                <th style="width:34px">#</th>
+                <th style="width:46px;text-align:center">#</th>
                 <th id="thBranch">สาขา</th>
                 <th id="thSales" style="width:96px">ยอดขาย</th>
                 <th id="thDiff" style="width:80px">เทียบเดิม</th>
@@ -748,7 +748,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <table>
             <thead>
               <tr>
-                <th style="width:32px">#</th>
+                <th style="width:46px;text-align:center">#</th>
                 <th id="thProduct">สินค้า</th>
                 <th id="thGroup">กลุ่ม</th>
                 <th id="thQty">จำนวน</th>
