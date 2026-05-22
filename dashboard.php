@@ -686,26 +686,14 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 
   <!-- ── DESKTOP LAYOUT ── -->
   <div class="desktop-only">
-    <div class="desktop-grid gap">
-      <div class="card section">
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2 id="trendTitleDesktop">แนวโน้มยอดขาย</h2>
-            <div class="desc" id="trendDescDesktop">ยอดขายรายวันตามช่วงที่เลือก</div>
-          </div>
+    <div class="card section gap">
+      <div class="section-head">
+        <div class="section-head-left">
+          <h2 id="trendTitleDesktop">แนวโน้มยอดขาย</h2>
+          <div class="desc" id="trendDescDesktop">ยอดขายรายวันตามช่วงที่เลือก</div>
         </div>
-        <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas></div>
       </div>
-      <div class="card priority-card">
-        <div class="priority-head">
-          <div class="priority-head-title">
-            <h2 id="alertsTitleDesktop">แจ้งเตือน</h2>
-            <div class="desc" id="alertsDescDesktop">สิ่งที่ HQ ต้องดูทันที</div>
-          </div>
-          <span class="priority-count" id="alertCountDesktop">0</span>
-        </div>
-        <div class="list" id="alertListDesktop"><div class="empty">กำลังโหลด...</div></div>
-      </div>
+      <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas></div>
     </div>
 
     <div class="gap">
@@ -745,14 +733,26 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           </table>
         </div>
       </div>
-      <div class="card section">
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2 id="paymentTitleDesktop">ช่องทางชำระเงิน</h2>
-            <div class="desc" id="paymentDescDesktop">ประเภทที่ใช้มากสุด</div>
+      <div style="display:flex;flex-direction:column;gap:8px">
+        <div class="card priority-card" style="flex:1">
+          <div class="priority-head">
+            <div class="priority-head-title">
+              <h2 id="alertsTitleDesktop">แจ้งเตือน</h2>
+              <div class="desc" id="alertsDescDesktop">สิ่งที่ HQ ต้องดูทันที</div>
+            </div>
+            <span class="priority-count" id="alertCountDesktop">0</span>
           </div>
+          <div class="list" id="alertListDesktop"><div class="empty">กำลังโหลด...</div></div>
         </div>
-        <div class="bar-list" id="paymentBarsDesktop"><div class="empty">กำลังโหลด...</div></div>
+        <div class="card section">
+          <div class="section-head">
+            <div class="section-head-left">
+              <h2 id="paymentTitleDesktop">ช่องทางชำระเงิน</h2>
+              <div class="desc" id="paymentDescDesktop">ประเภทที่ใช้มากสุด</div>
+            </div>
+          </div>
+          <div class="bar-list" id="paymentBarsDesktop"><div class="empty">กำลังโหลด...</div></div>
+        </div>
       </div>
     </div>
 
