@@ -12,6 +12,14 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>HQ Dashboard</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#070f20" id="metaThemeColor">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="HQ Dashboard">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
@@ -395,6 +403,21 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 .sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;padding-top:16px;border-top:1px solid var(--line2)}
 
 .footer-note{margin-top:12px;font-size:10px;color:var(--muted2);text-align:center;padding-bottom:4px;font-weight:500}
+#installBanner{
+  display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,rgba(15,25,50,.97),rgba(8,16,36,.98));
+  border:1px solid var(--line);border-radius:18px;
+  padding:12px 16px;gap:12px;align-items:center;z-index:50;
+  box-shadow:0 16px 48px rgba(0,0,0,.6),0 0 0 1px rgba(59,130,246,.15);
+  max-width:320px;width:calc(100% - 32px);backdrop-filter:blur(16px);
+}
+@media(min-width:920px){#installBanner{bottom:24px}}
+#installBanner .ib-icon{width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0}
+#installBanner .ib-text{flex:1;min-width:0}
+#installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
+#installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+#installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;white-space:nowrap;flex-shrink:0}
+#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
 .gap{margin-top:8px}
 
 .desktop-only{display:none}
@@ -964,6 +987,41 @@ window.addEventListener('resize',()=>{if(window.innerWidth>=920)closeSheet();cle
 let _lastFetchAt=0;
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAutoRefresh()}else{loadDashboard(Date.now()-_lastFetchAt>=refreshMs);startAutoRefresh()}});
 applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('overview');loadDashboard(false);startAutoRefresh();
+
+// ── PWA Install ──
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('sw.js').catch(()=>{});
+}
+let _deferredInstall=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault();_deferredInstall=e;
+  const b=$('installBanner');if(b)b.style.display='flex';
+});
+window.addEventListener('appinstalled',()=>{
+  _deferredInstall=null;const b=$('installBanner');if(b)b.style.display='none';
+});
+document.getElementById('installBtn')?.addEventListener('click',async()=>{
+  if(!_deferredInstall)return;
+  _deferredInstall.prompt();
+  await _deferredInstall.userChoice;
+  _deferredInstall=null;
+  $('installBanner').style.display='none';
+});
+document.getElementById('installDismiss')?.addEventListener('click',()=>{
+  $('installBanner').style.display='none';
+});
+// Update theme-color meta when theme changes
+const _origApplyPrefs=applyPrefs;
 </script>
+
+<div id="installBanner">
+  <img class="ib-icon" src="icons/icon-192.png" alt="">
+  <div class="ib-text">
+    <div class="ib-title">HQ Dashboard</div>
+    <div class="ib-sub">เพิ่มลงหน้าจอหลัก</div>
+  </div>
+  <button class="ib-btn" id="installBtn">ติดตั้ง</button>
+  <button class="ib-close" id="installDismiss" aria-label="ปิด">✕</button>
+</div>
 </body>
 </html>
