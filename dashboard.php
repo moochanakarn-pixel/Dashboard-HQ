@@ -444,20 +444,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 @keyframes tab-alert-glow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}55%{box-shadow:0 0 0 7px rgba(244,63,94,0)}}
 .tab-btn-alert:not(.active){color:var(--bad)!important;animation:tab-alert-glow 2s ease-in-out infinite}
 
-/* ── PRINT ── */
-@media print{
-  .mobile-tabs,.filter-sheet,#installBanner,.footer-note,.hero-actions,
-  .desktop-only .filter-grid,#reloadBtnDesktop,#latestBtnDesktop,#mtdBtnDesktop,#d7BtnDesktop,
-  #accentSelectDesktop,#langSelectDesktop,#themeSelectDesktop,#dateFromDesktop,#dateToDesktop,
-  .filter-label{display:none!important}
-  body{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
-  body::before{display:none!important}
-  .app{max-width:100%!important;padding:8px!important}
-  .card{box-shadow:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
-  .panel{display:block!important}
-  .kpi-grid{grid-template-columns:repeat(3,1fr)!important}
-  .desktop-only{display:block!important}
-}
 
 .desktop-only{display:none}
 
@@ -522,8 +508,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           </div>
         </div>
         <div class="hero-actions">
-          <button class="icon-btn" id="printBtn" title="พิมพ์ / Export PDF" style="font-size:14px">🖨️</button>
-          <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
+<button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
         </div>
       </div>
       <div id="verdictBanner">
@@ -1051,7 +1036,6 @@ function goMtd(){const d=state.latestDate,from=new Date(new Date(d).getFullYear(
 ['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goLatest)});
 ['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',goMtd)});
 ['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{const d=new Date(state.latestDate),from=new Date(d);from.setDate(d.getDate()-6);syncDateInputs(from.toISOString().slice(0,10),state.latestDate);closeSheet();loadDashboard(true);startAutoRefresh()})});
-$('printBtn')?.addEventListener('click',()=>window.print());
 $('openFilterBtn').addEventListener('click',openSheet);
 $('closeFilterBtn').addEventListener('click',closeSheet);
 $('closeFilterBtn2').addEventListener('click',closeSheet);
