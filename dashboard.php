@@ -337,6 +337,13 @@ td.rank-cell{font-weight:800;color:var(--muted);width:34px;font-size:10.5px}
   color:var(--muted2);text-align:center;border:1px dashed var(--line2);
   font-size:11px;font-weight:500;
 }
+.no-alerts-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:28px 16px;gap:6px;
+}
+.no-alerts-icon{font-size:36px;line-height:1}
+.no-alerts-title{font-size:14px;font-weight:700;color:var(--good);margin-top:4px}
+.no-alerts-sub{font-size:11px;color:var(--muted);text-align:center;line-height:1.5}
 .error-box{
   display:none;margin-top:8px;padding:12px 15px;border-radius:var(--r-sm);
   border:1px solid var(--bad-border);border-left:3px solid var(--bad);
@@ -411,7 +418,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   box-shadow:0 16px 48px rgba(0,0,0,.6),0 0 0 1px rgba(59,130,246,.15);
   max-width:320px;width:calc(100% - 32px);backdrop-filter:blur(16px);
 }
-@media(min-width:920px){#installBanner{bottom:24px}}
+@media(min-width:920px){#installBanner{display:none!important}}
 #installBanner .ib-icon{width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0}
 #installBanner .ib-text{flex:1;min-width:0}
 #installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
@@ -947,7 +954,7 @@ function renderAlerts(rows,meta,summary){
     }
     return`<div class="alert-item" data-type="${escapeHtml(type)}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-name">${escapeHtml(a.shop_name||'-')}</div>${detail?`<div class="alert-detail">${detail}</div>`:''}</div></div>`;
   }
-  const html=(!rows||!rows.length)?`<div class="empty">${t('noAlerts')}</div>`:rows.map(alertHtml).join('');
+  const html=(!rows||!rows.length)?`<div class="no-alerts-state"><div class="no-alerts-icon">✅</div><div class="no-alerts-title">${state.lang==='th'?'ทุกสาขาปกติ':'All Clear'}</div><div class="no-alerts-sub">${t('noAlerts')}</div></div>`:rows.map(alertHtml).join('');
   ['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});
   $('alertCountDesktop')&&($('alertCountDesktop').textContent=count);
   const badge=$('tabAlertBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'flex':'none'}
