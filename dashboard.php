@@ -22,7 +22,7 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#070f20;
@@ -56,7 +56,7 @@ body[data-theme="light"]{
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;
   background-image:
     radial-gradient(ellipse 85% 55% at 12% -8%,rgba(59,130,246,.09),transparent),
