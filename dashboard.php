@@ -252,6 +252,16 @@ select.control option{background:var(--bg);color:var(--text)}
 .alert-detail b{color:var(--text);font-weight:600}
 
 .chart-shell{height:220px;border-radius:var(--r-sm);padding:8px 4px 2px;position:relative}
+.chart-tip{
+  position:absolute;display:none;pointer-events:none;z-index:10;
+  background:rgba(6,14,32,.96);border:1px solid var(--line);border-radius:var(--r-xs);
+  padding:9px 13px;box-shadow:0 10px 32px rgba(0,0,0,.5);backdrop-filter:blur(12px);
+  min-width:140px;
+}
+.chart-tip .ct-date{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
+.chart-tip .ct-val{font-size:15px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1}
+.chart-tip .ct-sub{font-size:10px;color:var(--muted);margin-top:4px;font-weight:500}
+body[data-theme="light"] .chart-tip{background:rgba(245,249,255,.97)}
 
 
 .bar-list{display:flex;flex-direction:column;gap:10px}
@@ -594,7 +604,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <div class="desc" id="trendDesc">ยอดขายรายวันตามช่วงที่เลือก</div>
         </div>
       </div>
-      <div class="chart-shell"><canvas id="trendCanvas"></canvas></div>
+      <div class="chart-shell"><canvas id="trendCanvas"></canvas><div class="chart-tip" id="tipMobile"></div></div>
     </div>
     <div class="card section gap">
       <div class="section-head">
@@ -663,7 +673,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <div class="desc" id="trendDescDesktop">ยอดขายรายวันตามช่วงที่เลือก</div>
         </div>
       </div>
-      <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas></div>
+      <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas><div class="chart-tip" id="tipDesktop"></div></div>
     </div>
 
     <div class="gap">
@@ -944,25 +954,53 @@ function drawTrend(rows,canvasId){
   const canvas=$(canvasId);if(!canvas||canvas.offsetParent===null)return;
   const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1,w=Math.max(parent.clientWidth-20,200),h=Math.max(parent.clientHeight-20,140);
   canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-  if(!rows||!rows.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted');ctx.font='11px Inter,sans-serif';ctx.fillText(t('noTrend'),12,20);return}
-  const cs=getComputedStyle(document.body),pad={l:48,r:14,t:14,b:26},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b,values=rows.map(r=>Number(r.sales_total||0)),max=Math.max(...values,1),stepX=rows.length>1?cw/(rows.length-1):0;
-  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  if(!rows||!rows.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted');ctx.font='11px Inter,sans-serif';ctx.fillText(t('noTrend'),12,20);canvas._chart=null;return}
+  const cs=getComputedStyle(document.body),pad={l:54,r:16,t:26,b:26},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const values=rows.map(r=>Number(r.sales_total||0)),max=Math.max(...values,1),stepX=rows.length>1?cw/(rows.length-1):0;
+  const pts=rows.map((r,i)=>({x:pad.l+stepX*i,y:pad.t+ch-(Number(r.sales_total||0)/max)*ch}));
+  canvas._chart={pts,rows,values,pad,w,h};
+  // grid lines
+  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
   for(let i=0;i<=4;i++){const y=pad.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+  // bezier curve helper
+  function curve(p){ctx.moveTo(p[0].x,p[0].y);for(let i=0;i<p.length-1;i++){const mx=(p[i].x+p[i+1].x)/2;ctx.bezierCurveTo(mx,p[i].y,mx,p[i+1].y,p[i+1].x,p[i+1].y)}}
+  // gradient fill
   const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
-  grad.addColorStop(0,'rgba(79,142,255,.25)');grad.addColorStop(1,'rgba(79,142,255,0)');
-  ctx.beginPath();
-  rows.forEach((r,i)=>{const x=pad.l+stepX*i,y=pad.t+ch-((Number(r.sales_total||0)/max)*ch);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
-  ctx.lineTo(pad.l+stepX*(rows.length-1),pad.t+ch);ctx.lineTo(pad.l,pad.t+ch);ctx.closePath();
-  ctx.fillStyle=grad;ctx.fill();
-  ctx.strokeStyle=cs.getPropertyValue('--primary');ctx.lineWidth=2;ctx.lineJoin='round';ctx.beginPath();
-  rows.forEach((r,i)=>{const x=pad.l+stepX*i,y=pad.t+ch-((Number(r.sales_total||0)/max)*ch);if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y)});
-  ctx.stroke();
-  ctx.fillStyle=cs.getPropertyValue('--primary');
-  rows.forEach((r,i)=>{const x=pad.l+stepX*i,y=pad.t+ch-((Number(r.sales_total||0)/max)*ch);ctx.beginPath();ctx.arc(x,y,3,0,Math.PI*2);ctx.fill()});
-  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px Inter,sans-serif';ctx.textAlign='right';
-  for(let i=0;i<=4;i++){const val=(max/4)*(4-i),y=pad.t+(ch/4)*i+3;ctx.fillText(intfmt(val),pad.l-6,y)}
+  grad.addColorStop(0,'rgba(59,130,246,.34)');grad.addColorStop(.5,'rgba(59,130,246,.09)');grad.addColorStop(1,'rgba(59,130,246,0)');
+  ctx.beginPath();curve(pts);ctx.lineTo(pts[pts.length-1].x,pad.t+ch);ctx.lineTo(pts[0].x,pad.t+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  // line
+  ctx.strokeStyle=cs.getPropertyValue('--primary');ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(pts);ctx.stroke();
+  // peak
+  const peakIdx=values.indexOf(Math.max(...values)),pk=pts[peakIdx];
+  // regular dots
+  pts.forEach((p,i)=>{if(i===peakIdx)return;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary');ctx.fill()});
+  // peak dot (gold) + label
+  ctx.beginPath();ctx.arc(pk.x,pk.y,6,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();
+  ctx.beginPath();ctx.arc(pk.x,pk.y,3.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+  ctx.fillStyle='#f59e0b';ctx.font='700 9px "Plus Jakarta Sans",Inter,sans-serif';ctx.textAlign='center';
+  const pkLabel=compactMoney(values[peakIdx]);const pkY=pk.y-13;
+  ctx.fillText(pkLabel,pk.x,pkY);
+  // y labels
+  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",Inter,sans-serif';ctx.textAlign='right';
+  for(let i=0;i<=4;i++){const val=(max/4)*(4-i),y=pad.t+(ch/4)*i+3;ctx.fillText(compactMoney(val),pad.l-6,y)}
+  // x labels
   ctx.textAlign='center';const skip=rows.length>10?Math.ceil(rows.length/8):1;
-  rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;const x=pad.l+stepX*i;ctx.fillText((r.sale_date||'').slice(5),x,h-6)})
+  rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;ctx.fillText((r.sale_date||'').slice(5),pts[i].x,h-6)})
+}
+function initChartTooltip(canvasId,tipId){
+  const canvas=$(canvasId),tip=$(tipId);if(!canvas||!tip)return;
+  canvas.addEventListener('mousemove',e=>{
+    const chart=canvas._chart;if(!chart)return;
+    const rect=canvas.getBoundingClientRect(),mx=e.clientX-rect.left;
+    let ni=0,md=Infinity;
+    chart.pts.forEach((p,i)=>{const d=Math.abs(p.x-mx);if(d<md){md=d;ni=i}});
+    const p=chart.pts[ni],r=chart.rows[ni],cw=parseFloat(canvas.style.width);
+    let left=p.x+12;if(left+150>cw)left=p.x-162;
+    let top=Math.max(p.y-36,4);
+    tip.style.cssText=`display:block;left:${left}px;top:${top}px`;
+    tip.innerHTML=`<div class="ct-date">${fmtDateThai(r.sale_date)}</div><div class="ct-val">${money(Number(r.sales_total||0))}</div><div class="ct-sub">${intfmt(r.bill_count)} บิล &nbsp;·&nbsp; avg ${compactMoney(r.avg_bill||0)}</div>`;
+  });
+  canvas.addEventListener('mouseleave',()=>{tip.style.display='none'});
 }
 function renderRankingBar(rows,containerId){
   const el=$(containerId);if(!el)return;
@@ -1024,6 +1062,8 @@ window.addEventListener('resize',()=>{if(window.innerWidth>=920)closeSheet();cle
 let _lastFetchAt=0;
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAutoRefresh()}else{loadDashboard(Date.now()-_lastFetchAt>=refreshMs);startAutoRefresh()}});
 applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('overview');loadDashboard(false);startAutoRefresh();
+initChartTooltip('trendCanvas','tipMobile');
+initChartTooltip('trendCanvasDesktop','tipDesktop');
 
 // ── PWA Install ──
 if('serviceWorker' in navigator){
