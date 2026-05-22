@@ -427,18 +427,18 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 #installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
 .gap{margin-top:8px}
 
-/* ── VERDICT BANNER ── */
-#verdictBanner{
-  margin-top:10px;padding:10px 14px;border-radius:var(--r-sm);
-  display:none;align-items:center;gap:10px;
-  font-size:12px;font-weight:700;line-height:1.4;
+/* ── ALERT VERDICT SUMMARY ── */
+.alert-verdict{
+  margin-top:10px;padding:8px 11px;border-radius:var(--r-xs);
+  display:none;align-items:center;gap:8px;
+  font-size:11.5px;font-weight:700;line-height:1.4;
 }
-#verdictBanner.vb-good{background:var(--good-bg);border:1px solid var(--good-border);color:var(--good)}
-#verdictBanner.vb-warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn)}
-#verdictBanner.vb-bad{background:var(--bad-bg);border:1px solid var(--bad-border);color:var(--bad)}
-#verdictBanner .vb-icon{font-size:18px;flex-shrink:0}
-#verdictBanner .vb-text{flex:1;min-width:0}
-#verdictBanner .vb-sub{font-size:10px;font-weight:500;opacity:.8;margin-top:2px}
+.alert-verdict.av-good{background:var(--good-bg);border:1px solid var(--good-border);color:var(--good)}
+.alert-verdict.av-warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn)}
+.alert-verdict.av-bad{background:var(--bad-bg);border:1px solid var(--bad-border);color:var(--bad)}
+.alert-verdict .av-icon{font-size:15px;flex-shrink:0}
+.alert-verdict .av-body{flex:1;min-width:0}
+.alert-verdict .av-sub{font-size:10px;font-weight:500;opacity:.8;margin-top:2px}
 
 /* ── ALERT TAB GLOW ── */
 @keyframes tab-alert-glow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}55%{box-shadow:0 0 0 7px rgba(244,63,94,0)}}
@@ -511,14 +511,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
         </div>
       </div>
-      <div id="verdictBanner">
-        <span class="vb-icon" id="verdictIcon"></span>
-        <div class="vb-text">
-          <div id="verdictMain"></div>
-          <div class="vb-sub" id="verdictSub"></div>
-        </div>
-      </div>
-
       <!-- desktop inline filter -->
       <div class="desktop-only" style="margin-top:18px">
         <div class="filter-grid">
@@ -663,6 +655,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
         <div class="priority-head-title">
           <h2 id="alertsTitle2">แจ้งเตือน / ความผิดปกติ</h2>
           <div class="desc" id="alertsDesc2">สาขาและสัญญาณที่ควรติดตาม</div>
+          <div class="alert-verdict" id="alertVerdictMobile"><span class="av-icon" id="alertVerdictIconM"></span><div class="av-body"><div id="alertVerdictMainM"></div><div class="av-sub" id="alertVerdictSubM"></div></div></div>
         </div>
       </div>
       <div class="list" id="alertListOnly"><div class="empty">กำลังโหลด...</div></div>
@@ -724,6 +717,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
             <div class="priority-head-title">
               <h2 id="alertsTitleDesktop">แจ้งเตือน</h2>
               <div class="desc" id="alertsDescDesktop">สิ่งที่ HQ ต้องดูทันที</div>
+              <div class="alert-verdict" id="alertVerdictDesktop"><span class="av-icon" id="alertVerdictIconD"></span><div class="av-body"><div id="alertVerdictMainD"></div><div class="av-sub" id="alertVerdictSubD"></div></div></div>
             </div>
             <span class="priority-count" id="alertCountDesktop">0</span>
           </div>
@@ -894,35 +888,36 @@ function renderAlerts(rows,meta,summary){
   // Alert tab glow
   const alertTabBtn=document.querySelector('.tab-btn[data-panel="alerts"]');
   if(alertTabBtn)alertTabBtn.classList.toggle('tab-btn-alert',count>0);
-  // Verdict banner
-  const vb=$('verdictBanner'),vi=$('verdictIcon'),vm=$('verdictMain'),vs=$('verdictSub');
-  if(vb&&vi&&vm&&vs){
+  // Verdict inside alert cards
+  (function(){
     const cmp=state._lastCmp||{};
     const yday=cmp.yesterday;
     const hasCmp=cmp.is_single_day&&yday&&yday.pct!==null&&yday.pct!==undefined;
     const pct=hasCmp?yday.pct:null;
-    vb.className='';
+    let cls,icon,main,sub;
     if(count>0){
-      vb.style.display='flex';
-      vb.classList.add(count>=3?'vb-bad':'vb-warn');
-      vi.textContent=count>=3?'🚨':'⚠️';
-      vm.textContent=`มี ${count} สาขาที่ต้องติดตาม`;
-      vs.textContent=hasCmp?(pct>=0?`ยอดรวม ▲ +${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`ยอดรวม ▼ ${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`):(summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'');
+      cls='alert-verdict '+(count>=3?'av-bad':'av-warn');
+      icon=count>=3?'🚨':'⚠️';
+      main=`มี ${count} สาขาที่ต้องติดตาม`;
+      sub=hasCmp?(pct>=0?`ยอดรวม ▲ +${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`ยอดรวม ▼ ${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`):(summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'');
     }else if(hasCmp){
-      vb.style.display='flex';
       const pos=pct>=0;
-      vb.classList.add(pos?'vb-good':'vb-warn');
-      vi.textContent=pos?'✅':'📉';
-      vm.textContent=(pos?'▲ ดีขึ้น +':'▼ ลดลง ')+Math.abs(pct).toFixed(1)+'% เทียบเมื่อวาน';
-      vs.textContent=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
+      cls='alert-verdict '+(pos?'av-good':'av-warn');
+      icon=pos?'✅':'📉';
+      main=(pos?'▲ ดีขึ้น +':'▼ ลดลง ')+Math.abs(pct).toFixed(1)+'% เทียบเมื่อวาน';
+      sub=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
     }else{
-      vb.style.display='flex';
-      vb.classList.add('vb-good');
-      vi.textContent='✅';
-      vm.textContent='ภาพรวมปกติ';
-      vs.textContent=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
+      cls='alert-verdict av-good';
+      icon='✅';main='ภาพรวมปกติ';
+      sub=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
     }
-  }
+    [['alertVerdictMobile','alertVerdictIconM','alertVerdictMainM','alertVerdictSubM'],
+     ['alertVerdictDesktop','alertVerdictIconD','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,iId,mId,sId])=>{
+      const w=$(wId);if(!w)return;
+      w.className=cls;w.style.display='flex';
+      $(iId).textContent=icon;$(mId).textContent=main;$(sId).textContent=sub;
+    });
+  })();
   function alertHtml(a){
     if(typeof a==='string')return`<div class="alert-item"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
     const type=a.type||'watch';
