@@ -451,7 +451,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           </div>
         </div>
         <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
-<a href="realtime.php" class="icon-btn" title="ยอดขาย Real-time" style="font-size:13px;text-decoration:none;display:flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Real-time</a>
+<a href="realtime.php" title="ยอดขาย Real-time" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:12px;border:1px solid rgba(16,217,160,.35);background:rgba(16,217,160,.08);color:var(--good);font-size:12px;font-weight:700;letter-spacing:.02em;transition:background .15s,border-color .15s" onmouseover="this.style.background='rgba(16,217,160,.16)';this.style.borderColor='rgba(16,217,160,.6)'" onmouseout="this.style.background='rgba(16,217,160,.08)';this.style.borderColor='rgba(16,217,160,.35)'"><span style="width:7px;height:7px;border-radius:50%;background:var(--good);flex-shrink:0;animation:pulse-dot 2.5s ease-in-out infinite"></span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Real-time</a>
 <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
         </div>
       </div>
