@@ -9,204 +9,247 @@
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── Design tokens ── */
 :root{
-  --bg:      #070f20;
-  --bg2:     #0e1a31;
-  --bg3:     #132040;
-  --bg-row1: #0b1628;
-  --bg-row2: #0e1a31;
-  --bg-today:#1a2d4a;
-  --line:    rgba(255,255,255,.07);
-  --line2:   rgba(255,255,255,.13);
-  --text:    #e8edf5;
-  --muted:   #7b90b2;
-  --muted2:  #4a607f;
-  --accent:  #3b82f6;
-  --accent-g:rgba(59,130,246,.14);
-  --green:   #22c55e;
-  --green-g: rgba(34,197,94,.12);
-  --yellow:  #f59e0b;
-  --yellow-g:rgba(245,158,11,.12);
-  --red:     #ef4444;
-  --red-g:   rgba(239,68,68,.12);
-  --r:       10px;
+  --bg:      #060e1c;
+  --bg2:     #0b1728;
+  --bg3:     #101e35;
+  --bg-row1: #08112a;
+  --bg-row2: #0b1728;
+  --bg-today:#11203a;
+  --line:    rgba(255,255,255,.055);
+  --line2:   rgba(255,255,255,.10);
+  --text:    #ecf0f8;
+  --text2:   #b8c6de;
+  --muted:   #6882a5;
+  --muted2:  #374f6a;
+  --accent:  #4f86f7;
+  --accent-g:rgba(79,134,247,.11);
+  --gold:    #f5a623;
+  --gold-g:  rgba(245,166,35,.09);
+  --green:   #23c75b;
+  --green-g: rgba(35,199,91,.09);
+  --violet:  #9472f8;
+  --violet-g:rgba(148,114,248,.09);
+  --red:     #f04343;
+  --red-g:   rgba(240,67,67,.09);
+  /* legacy alias so existing JS t('fresh') badge CSS works */
+  --yellow:  #f5a623;
+  --yellow-g:rgba(245,166,35,.09);
+  --r:  10px;
+  --r2:  7px;
   --font:'Plus Jakarta Sans','Inter',system-ui,sans-serif;
-  --hh:56px;
-  --shadow:0 2px 16px rgba(0,0,0,.35);
+  --hh: 56px;
 }
 [data-theme="light"]{
-  --bg:      #f0f4fb;
+  --bg:      #edf2fa;
   --bg2:     #ffffff;
-  --bg3:     #e8eef8;
-  --bg-row1: #f7f9fd;
+  --bg3:     #e3ecf6;
+  --bg-row1: #f4f7fd;
   --bg-row2: #ffffff;
-  --bg-today:#e8f0fc;
-  --line:    rgba(0,0,0,.07);
-  --line2:   rgba(0,0,0,.13);
-  --text:    #0f1b30;
-  --muted:   #4a607f;
-  --muted2:  #8299bb;
-  --shadow:0 2px 12px rgba(30,50,100,.08);
+  --bg-today:#e5effd;
+  --line:    rgba(0,0,0,.06);
+  --line2:   rgba(0,0,0,.10);
+  --text:    #0e1929;
+  --text2:   #2a3d5a;
+  --muted:   #4a6080;
+  --muted2:  #7890b5;
+  --gold:    #b45309;
+  --gold-g:  rgba(180,83,9,.07);
+  --green:   #16a34a;
+  --green-g: rgba(22,163,74,.07);
+  --violet:  #7c3aed;
+  --violet-g:rgba(124,58,237,.07);
+  --red:     #dc2626;
+  --red-g:   rgba(220,38,38,.07);
+  --yellow:  #b45309;
+  --yellow-g:rgba(180,83,9,.07);
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;-webkit-font-smoothing:antialiased}
+
+html,body{
+  height:100%;background:var(--bg);color:var(--text);
+  font-family:var(--font);font-size:14px;
+  -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
+}
 
 /* ── Header ── */
 .rt-hd{
   position:sticky;top:0;z-index:50;height:var(--hh);
-  display:flex;align-items:center;gap:10px;padding:0 14px;
-  background:rgba(7,15,32,.96);backdrop-filter:blur(14px);
+  display:flex;align-items:center;gap:10px;padding:0 16px;
+  background:rgba(6,14,28,.97);
+  backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);
   border-bottom:1px solid var(--line);
 }
-[data-theme="light"] .rt-hd{background:rgba(240,244,251,.96)}
+[data-theme="light"] .rt-hd{background:rgba(237,242,250,.97)}
 .back-btn{
   display:flex;align-items:center;gap:5px;
   color:var(--muted);text-decoration:none;font-size:12.5px;font-weight:500;
-  padding:5px 9px;border-radius:7px;transition:all .15s;white-space:nowrap;
+  padding:5px 9px;border-radius:var(--r2);transition:all .15s;white-space:nowrap;
 }
 .back-btn:hover{background:var(--bg2);color:var(--text)}
 .rt-title-wrap{flex:1;min-width:0}
-.rt-title{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap}
+.rt-title{font-size:15px;font-weight:700;color:var(--text);white-space:nowrap;letter-spacing:-.01em}
 .live-pill{
-  display:inline-flex;align-items:center;gap:5px;
-  background:var(--green-g);border:1px solid rgba(34,197,94,.25);
-  border-radius:999px;padding:2px 8px;font-size:10.5px;font-weight:600;color:var(--green);
-  margin-left:8px;
+  display:inline-flex;align-items:center;gap:4px;
+  background:rgba(35,199,91,.09);border:1px solid rgba(35,199,91,.22);
+  border-radius:999px;padding:2px 8px;
+  font-size:10px;font-weight:700;letter-spacing:.03em;text-transform:uppercase;
+  color:var(--green);margin-left:8px;
 }
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse-dot 2s ease-in-out infinite}
-@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.25}}
+@keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.2}}
 @media(prefers-reduced-motion:reduce){.live-dot{animation:none}}
-.hd-meta{font-size:11px;color:var(--muted2);margin-top:1px}
-.hd-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.hd-meta{font-size:10.5px;color:var(--muted2);margin-top:2px;letter-spacing:.01em}
+.hd-right{display:flex;align-items:center;gap:5px;flex-shrink:0}
 .icon-btn{
   display:flex;align-items:center;justify-content:center;
-  width:34px;height:34px;border-radius:8px;border:1px solid var(--line2);
-  background:var(--bg2);color:var(--muted);cursor:pointer;transition:all .15s;
+  width:33px;height:33px;border-radius:var(--r2);
+  border:1px solid var(--line2);background:transparent;
+  color:var(--muted);cursor:pointer;transition:all .15s;
 }
-.icon-btn:hover{background:var(--bg3);color:var(--text)}
+.icon-btn:hover{background:var(--bg2);color:var(--text)}
 .btn-lang{
-  display:flex;align-items:center;gap:5px;
-  height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);
-  background:var(--bg2);color:var(--muted);cursor:pointer;
-  font-size:12px;font-weight:700;font-family:var(--font);
-  transition:all .15s;letter-spacing:.02em;
+  display:flex;align-items:center;gap:4px;height:33px;padding:0 11px;
+  border-radius:var(--r2);border:1px solid var(--line2);background:transparent;
+  color:var(--muted);cursor:pointer;font-size:11.5px;font-weight:700;
+  font-family:var(--font);transition:all .15s;letter-spacing:.03em;
 }
-.btn-lang:hover{background:var(--bg3);color:var(--text)}
+.btn-lang:hover{background:var(--bg2);color:var(--text)}
+/* Refresh stands out from the other buttons */
 .btn-refresh{
-  display:flex;align-items:center;gap:5px;
-  height:34px;padding:0 12px;border-radius:8px;border:1px solid var(--line2);
-  background:var(--bg2);color:var(--muted);cursor:pointer;
-  font-size:12px;font-weight:600;font-family:var(--font);transition:all .15s;
+  display:flex;align-items:center;gap:5px;height:33px;padding:0 13px;
+  border-radius:var(--r2);
+  border:1px solid rgba(79,134,247,.4);background:rgba(79,134,247,.08);
+  color:var(--accent);cursor:pointer;font-size:12px;font-weight:600;
+  font-family:var(--font);transition:all .15s;
 }
-.btn-refresh:hover{background:var(--bg3);color:var(--text)}
+.btn-refresh:hover{background:rgba(79,134,247,.16);color:var(--text)}
 .btn-refresh.spinning svg{animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
 /* ── Controls ── */
 .rt-ctrl{
   display:flex;align-items:center;gap:8px;flex-wrap:wrap;
-  padding:10px 14px;border-bottom:1px solid var(--line);background:var(--bg);
+  padding:8px 14px;border-bottom:1px solid var(--line);background:var(--bg);
 }
-.search-box{
-  position:relative;flex:1;min-width:160px;max-width:300px;
-}
-.search-box svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);opacity:.35;pointer-events:none}
+.search-box{position:relative;flex:1;min-width:160px;max-width:300px}
+.search-box svg{position:absolute;left:9px;top:50%;transform:translateY(-50%);opacity:.3;pointer-events:none}
 #searchInput{
-  width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:8px;
-  padding:7px 10px 7px 30px;color:var(--text);font-family:var(--font);font-size:13px;outline:none;
-  transition:border-color .15s;
+  width:100%;background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r2);
+  padding:7px 10px 7px 30px;color:var(--text);font-family:var(--font);font-size:13px;
+  outline:none;transition:border-color .15s,box-shadow .15s;
 }
-#searchInput:focus{border-color:var(--accent)}
+#searchInput:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(79,134,247,.11)}
 #searchInput::placeholder{color:var(--muted2)}
-.seg{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:8px;overflow:hidden}
-.seg-btn{
-  padding:6px 11px;font-size:12px;font-weight:600;cursor:pointer;
-  color:var(--muted);border:none;background:none;transition:all .15s;font-family:var(--font);
-}
+.seg{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r2);overflow:hidden}
+.seg-btn{padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .15s;font-family:var(--font)}
 .seg-btn.active{background:var(--accent-g);color:var(--accent)}
 .ctrl-right{margin-left:auto;display:flex;gap:6px}
-/* view toggle hidden on mobile */
 @media(max-width:640px){.ctrl-right{display:none}}
 
-/* ── Summary strip ── */
+/* ── KPI strip — each tile gets a distinct color accent ── */
 .rt-sum{display:flex;gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
-.sum-item{flex:1;background:var(--bg-row1);padding:10px 14px;min-width:0}
-.sum-lbl{font-size:10px;font-weight:600;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.sum-val{font-size:17px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
-.sum-val.gold{color:var(--yellow)}
-.sum-sub{font-size:11px;color:var(--muted);margin-top:2px}
+.sum-item{
+  flex:1;background:var(--bg-row1);padding:11px 15px;min-width:0;
+  position:relative;
+}
+.sum-item::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+}
+.si-gold::before  {background:linear-gradient(90deg,var(--gold) 0%,rgba(245,166,35,.25) 100%)}
+.si-blue::before  {background:linear-gradient(90deg,var(--accent) 0%,rgba(79,134,247,.25) 100%)}
+.si-violet::before{background:linear-gradient(90deg,var(--violet) 0%,rgba(148,114,248,.25) 100%)}
+.si-muted::before {background:var(--muted2);opacity:.5}
+.si-gold{background:rgba(245,166,35,.025)!important}
+[data-theme="light"] .si-gold{background:rgba(180,83,9,.025)!important}
+.sum-lbl{font-size:9.5px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.sum-val{font-size:19px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.sum-val.gold{color:var(--gold)}
+.sum-sub{font-size:11px;color:var(--muted);margin-top:3px}
 @media(max-width:560px){.rt-sum{flex-wrap:wrap}.sum-item{min-width:50%}}
 
-/* ── State ── */
+/* ── Loading / Error / Empty ── */
 .rt-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px 16px;color:var(--muted);font-size:14px}
 .rt-loading svg{animation:spin .8s linear infinite}
-.rt-error{margin:16px;padding:14px 16px;background:var(--red-g);border:1px solid var(--red);border-radius:var(--r);color:var(--red);font-size:13px}
-.rt-empty{padding:40px 16px;text-align:center;color:var(--muted2);font-size:13px}
+.rt-error{margin:16px;padding:13px 16px;background:var(--red-g);border:1px solid rgba(240,67,67,.3);border-radius:var(--r);color:var(--red);font-size:13px;line-height:1.5}
+.rt-empty{padding:48px 16px;text-align:center;color:var(--muted2);font-size:13px}
 
 /* ━━━━━━━━━━━ TABLE ━━━━━━━━━━━ */
-/*
-  overflow-x:auto implicitly computes overflow-y as auto too (CSS spec).
-  This makes .tbl-wrap a scroll container, which BREAKS position:sticky on thead.
-  Fix: bound the height explicitly so the container scrolls vertically inside itself
-  (height set dynamically by JS after render to fill remaining viewport).
-*/
+/* overflow:auto + bounded height (set by JS) keeps thead sticky */
 .tbl-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
 .rt-tbl{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12.5px}
 .rt-tbl th,.rt-tbl td{padding:0;border-bottom:1px solid var(--line)}
 
-/* sticky header — works only when .tbl-wrap has bounded height (set by JS) */
+/* thead */
 .rt-tbl thead th{
   position:sticky;top:0;z-index:20;
-  background:#0a1525;border-bottom:2px solid var(--line2);
+  background:#060f1e;border-bottom:2px solid var(--line2);
   font-size:10.5px;font-weight:700;color:var(--muted);
-  text-transform:uppercase;letter-spacing:.04em;
+  text-transform:uppercase;letter-spacing:.05em;
   white-space:nowrap;text-align:right;padding:9px 10px;
   cursor:pointer;user-select:none;transition:color .15s;
 }
-[data-theme="light"] .rt-tbl thead th{background:#dde5f2}
+[data-theme="light"] .rt-tbl thead th{background:#d6e2f0}
 .rt-tbl thead th:hover{color:var(--text)}
-.rt-tbl thead th.sort-asc::after{content:' ↑'}
-.rt-tbl thead th.sort-desc::after{content:' ↓'}
+.rt-tbl thead th.sort-asc::after {content:' ↑';color:var(--accent)}
+.rt-tbl thead th.sort-desc::after{content:' ↓';color:var(--accent)}
 
-/* sticky first two cols */
+/* sticky cols */
 .rt-tbl th.c-rank,.rt-tbl td.c-rank{position:sticky;left:0;z-index:10;width:40px;min-width:40px;max-width:40px;text-align:center!important}
 .rt-tbl th.c-name,.rt-tbl td.c-name{position:sticky;left:40px;z-index:10;min-width:160px;width:160px;max-width:160px;text-align:left!important}
 .rt-tbl thead th.c-rank,.rt-tbl thead th.c-name{z-index:30}
 
-/* column widths */
+/* col widths */
 .c-date {min-width:88px;width:88px}
 .c-today{min-width:100px;width:100px}
 .c-month{min-width:108px;width:108px}
 .c-upd  {min-width:70px;width:70px;text-align:center!important;cursor:default!important}
-.c-today{background:var(--bg-today)!important}
-.rt-tbl thead th.c-today{background:#182d49!important;color:var(--yellow)!important}
-/* light-theme overrides for today column (hardcoded darks above don't work in light) */
-[data-theme="light"] .rt-tbl thead th.c-today{background:#c8d9f8!important;color:#1d40af!important}
-[data-theme="light"] .rt-tbl tbody tr td.c-today{background:#dbeafe!important}
-[data-theme="light"] .rt-tbl tbody tr:nth-child(even) td.c-today{background:#e8f0fe!important}
-[data-theme="light"] .rt-tbl tbody tr.tr-tot td.c-today{background:#bfdbfe!important;color:#1d40af!important}
 
-/* rows */
+/* Today column: amber left accent + tinted bg */
+.c-today{background:var(--bg-today)!important;box-shadow:inset 2px 0 0 rgba(245,166,35,.22)}
+.rt-tbl thead th.c-today{background:#0e2040!important;color:var(--gold)!important;box-shadow:inset 2px 0 0 rgba(245,166,35,.55)!important}
+[data-theme="light"] .rt-tbl thead th.c-today{background:#c0d5f5!important;color:#92400e!important;box-shadow:inset 2px 0 0 rgba(180,83,9,.45)!important}
+[data-theme="light"] .rt-tbl tbody tr td.c-today{background:#dbeafe!important}
+[data-theme="light"] .rt-tbl tbody tr:nth-child(even) td.c-today{background:#e3f0fe!important}
+[data-theme="light"] .rt-tbl tbody tr.tr-tot td.c-today{background:#bfdbfe!important;color:#92400e!important}
+
+/* row stripes */
 .rt-tbl tbody tr:nth-child(odd)  td{background:var(--bg-row1)}
 .rt-tbl tbody tr:nth-child(even) td{background:var(--bg-row2)}
 .rt-tbl tbody tr:nth-child(odd)  td.c-rank,.rt-tbl tbody tr:nth-child(odd)  td.c-name{background:var(--bg-row1)!important}
 .rt-tbl tbody tr:nth-child(even) td.c-rank,.rt-tbl tbody tr:nth-child(even) td.c-name{background:var(--bg-row2)!important}
 .rt-tbl tbody tr:nth-child(odd)  td.c-today{background:var(--bg-today)!important}
-.rt-tbl tbody tr:nth-child(even) td.c-today{background:#1e3555!important}
+.rt-tbl tbody tr:nth-child(even) td.c-today{background:#0f1f38!important}
+
+/* row hover — no !important so sticky !important cells are unaffected */
+.rt-tbl tbody tr:not(.tr-tot):hover td{background:rgba(255,255,255,.022)}
+/* today col hover needs !important to beat .c-today !important */
+.rt-tbl tbody tr:not(.tr-tot):hover td.c-today{background:rgba(245,166,35,.07)!important}
+[data-theme="light"] .rt-tbl tbody tr:not(.tr-tot):hover td{background:rgba(0,0,0,.025)}
 
 .rt-tbl tbody td{padding:7.5px 10px;text-align:right;font-variant-numeric:tabular-nums}
 .rt-tbl tbody td.c-rank{font-size:11px;color:var(--muted2);padding:7.5px 6px}
 .rt-tbl tbody td.c-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:12px}
 .rt-tbl .zero{color:var(--muted2)}
-.rt-tbl .today-val{color:var(--yellow);font-weight:700}
+.rt-tbl .today-val{color:var(--gold);font-weight:700}
 
-/* total row — full selector chain to beat .rt-tbl tbody tr:nth-child() !important at (0,3,3) */
-.rt-tbl tbody tr.tr-tot td{background:var(--bg3)!important;font-weight:700;font-size:12.5px;border-bottom:2px solid var(--line2);padding:8px 10px}
+/* rank top-3 colors */
+.rank-gold  {color:var(--gold)!important;font-weight:700!important}
+.rank-silver{color:#8a9db8!important;font-weight:700!important}
+.rank-bronze{color:#b07845!important;font-weight:700!important}
+
+/* total row — (0,3,3) beats nth-child (0,3,3) by declaration order */
+.rt-tbl tbody tr.tr-tot td{background:var(--bg3)!important;font-weight:700;font-size:12.5px;border-top:1px solid var(--line2);border-bottom:2px solid var(--line2);padding:8px 10px}
 .rt-tbl tbody tr.tr-tot td.c-name{padding-left:12px;background:var(--bg3)!important}
-.rt-tbl tbody tr.tr-tot td.c-today{background:#223a58!important;color:var(--yellow)!important}
+.rt-tbl tbody tr.tr-tot td.c-today{background:#122540!important;color:var(--gold)!important}
 .rt-tbl tbody tr.tr-tot td.c-rank{background:var(--bg3)!important}
 
 /* ━━━━━━━━━━━ CARDS ━━━━━━━━━━━ */
-.card-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;padding:12px 12px max(80px,calc(80px + env(safe-area-inset-bottom)))}
+.card-grid{
+  display:none;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
+  gap:10px;padding:12px 12px max(80px,calc(80px + env(safe-area-inset-bottom)));
+}
 @media(max-width:640px){
   .card-grid{display:grid}
   .tbl-wrap{display:none}
@@ -214,30 +257,66 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 }
 .bc{
   background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);
-  padding:13px 14px;display:flex;flex-direction:column;gap:10px;
+  padding:14px 14px 12px;display:flex;flex-direction:column;gap:11px;
+  position:relative;overflow:hidden;
+  transition:border-color .2s,box-shadow .2s;
 }
-.bc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.bc-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.bc-code{font-size:10.5px;color:var(--muted2);margin-top:2px}
-.bc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-.bc-rank{font-size:11px;color:var(--muted2);font-weight:600}
-.bc-nums{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.bc-kpi .k-l{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
-.bc-kpi .k-v{font-size:15px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
-.bc-kpi .k-v.today-v{color:var(--yellow)}
-.bc-kpi .k-s{font-size:10.5px;color:var(--muted);margin-top:2px}
-.spark-row{height:28px}
+/* Subtle gold accent line at top of every card */
+.bc::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
+  background:linear-gradient(90deg,rgba(245,166,35,.45) 0%,transparent 65%);
+}
+.bc:hover{border-color:var(--line2);box-shadow:0 4px 20px rgba(0,0,0,.28)}
+[data-theme="light"] .bc:hover{box-shadow:0 4px 20px rgba(30,50,100,.10)}
 
-/* ━━━━━━━━━━━ badges ━━━━━━━━━━━ */
-.upd{display:inline-flex;align-items:center;gap:3px;font-size:10.5px;font-weight:600;border-radius:5px;padding:2px 6px}
+.bc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+.bc-name{
+  font-size:13.5px;font-weight:700;color:var(--text);line-height:1.3;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+}
+.bc-code{
+  display:inline-block;margin-top:3px;
+  font-size:9.5px;font-weight:700;color:var(--muted2);letter-spacing:.07em;text-transform:uppercase;
+}
+.bc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
+.bc-rank{font-size:11.5px;color:var(--muted2);font-weight:600}
+.bc-rank.rank-gold  {color:var(--gold)}
+.bc-rank.rank-silver{color:#8a9db8}
+.bc-rank.rank-bronze{color:#b07845}
+
+.bc-nums{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+/* KPI boxes inside card */
+.bc-kpi{background:var(--bg3);border-radius:var(--r2);padding:9px 10px}
+/* Today KPI gets warm amber tint */
+.bc-kpi.kpi-today{
+  background:rgba(245,166,35,.07);
+  border:1px solid rgba(245,166,35,.14);
+}
+[data-theme="light"] .bc-kpi.kpi-today{background:rgba(180,83,9,.06);border-color:rgba(180,83,9,.14)}
+.bc-kpi .k-l{font-size:9.5px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
+.bc-kpi .k-v{font-size:16px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
+.bc-kpi .k-v.today-v{color:var(--gold)}
+.bc-kpi .k-s{font-size:10.5px;color:var(--muted);margin-top:3px}
+.spark-row{height:26px;margin-top:2px;opacity:.8}
+
+/* ━━━━━━━━━━━ Badges — pill with status dot ━━━━━━━━━━━ */
+.upd{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:10.5px;font-weight:600;border-radius:999px;padding:2px 8px 2px 5px;
+}
+.upd::before{content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0}
 .upd-fresh  {background:var(--green-g);color:var(--green)}
-.upd-stale  {background:var(--yellow-g);color:var(--yellow)}
+.upd-fresh::before  {background:var(--green)}
+.upd-stale  {background:var(--gold-g);color:var(--gold)}
+.upd-stale::before  {background:var(--gold)}
 .upd-offline{background:var(--red-g);color:var(--red)}
-.upd-no_data{background:rgba(255,255,255,.05);color:var(--muted2)}
-[data-theme="light"] .upd-no_data{background:rgba(0,0,0,.05)}
+.upd-offline::before{background:var(--red)}
+.upd-no_data{background:rgba(255,255,255,.04);color:var(--muted2)}
+.upd-no_data::before{background:var(--muted2)}
+[data-theme="light"] .upd-no_data{background:rgba(0,0,0,.04)}
 
 /* countdown */
-#cdWrap{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:5px}
+#cdWrap{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:4px}
 </style>
 </head>
 <body>
@@ -303,21 +382,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 <!-- ── Summary strip ── -->
 <div class="rt-sum" id="sumBar" style="display:none">
-  <div class="sum-item">
+  <div class="sum-item si-gold">
     <div class="sum-lbl" data-i="sumToday">ยอดรวมวันนี้</div>
     <div class="sum-val gold" id="sv1">—</div>
     <div class="sum-sub" id="sv1sub"></div>
   </div>
-  <div class="sum-item">
+  <div class="sum-item si-blue">
     <div class="sum-lbl" data-i="sumBranches">สาขา (วันนี้)</div>
     <div class="sum-val" id="sv2">—</div>
     <div class="sum-sub" data-i="sumBranchesSub">สาขาที่มีข้อมูล</div>
   </div>
-  <div class="sum-item">
+  <div class="sum-item si-violet">
     <div class="sum-lbl" id="sv3lbl">เดือนนี้ (MTD)</div>
     <div class="sum-val" id="sv3">—</div>
   </div>
-  <div class="sum-item">
+  <div class="sum-item si-muted">
     <div class="sum-lbl" id="sv4lbl">เดือนก่อน</div>
     <div class="sum-val" id="sv4">—</div>
     <div class="sum-sub" id="sv4sub"></div>
@@ -445,7 +524,7 @@ function sparkline(vals, today_idx) {
   vals.forEach((v,i) => {
     const h = Math.max(2, Math.round(v/max*H));
     const x = i*(W+G);
-    const fill = i===today_idx ? 'rgba(245,158,11,.9)' : 'rgba(59,130,246,.45)';
+    const fill = i===today_idx ? 'rgba(245,166,35,.92)' : 'rgba(79,134,247,.42)';
     s += `<rect x="${x}" y="${H-h}" width="${W}" height="${h}" rx="2" fill="${fill}"/>`;
   });
   const tw = vals.length*(W+G)-G;
@@ -658,8 +737,9 @@ function renderTable() {
   // --- branch rows ---
   let rows = tot;
   branches.forEach((b, i) => {
+    const rankCls = i===0?' rank-gold':i===1?' rank-silver':i===2?' rank-bronze':'';
     rows += '<tr>';
-    rows += `<td class="c-rank">${i+1}</td>`;
+    rows += `<td class="c-rank${rankCls}">${i+1}</td>`;
     rows += `<td class="c-name" title="${esc(b.name)}">${esc(b.name)}</td>`;
     cols.forEach(c => {
       const v = b.daily?.[c] || 0;
@@ -705,6 +785,7 @@ function renderCards() {
       : '';
     const sparkVals = last7cols.map(c => b.daily?.[c] || 0);
 
+    const rankCls = i===0?' rank-gold':i===1?' rank-silver':i===2?' rank-bronze':'';
     return `<div class="bc">
       <div class="bc-head">
         <div>
@@ -712,12 +793,12 @@ function renderCards() {
           ${b.code ? `<div class="bc-code">${esc(b.code)}</div>` : ''}
         </div>
         <div class="bc-right">
-          <span class="bc-rank">#${i+1}</span>
+          <span class="bc-rank${rankCls}">#${i+1}</span>
           ${updBadge(b.update_status, b.last_update)}
         </div>
       </div>
       <div class="bc-nums">
-        <div class="bc-kpi">
+        <div class="bc-kpi kpi-today">
           <div class="k-l">${t('today')}</div>
           <div class="k-v today-v">${todaySales ? fmtN(todaySales) : '—'}</div>
         </div>
