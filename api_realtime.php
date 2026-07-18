@@ -28,12 +28,13 @@ try {
     $conn = db_connect();
 
     $today      = date('Y-m-d');
-    $dateFrom   = date('Y-m-d', strtotime("-{$days} days", strtotime($today)));
+    $dateFrom   = date('Y-m-d', strtotime('-' . ($days - 1) . ' days', strtotime($today)));
     $thisMonthStart = date('Y-m-01');
     $lastMonthStart = date('Y-m-01', strtotime('-1 month'));
     $lastMonthEnd   = date('Y-m-t', strtotime('-1 month'));
 
     // --- 1. Daily sales + last UpdateDate per branch per day ---
+    $dateTo = $today . ' 23:59:59';
     $sqlDaily = "
         SELECT
             ProductLevelID,
@@ -41,13 +42,13 @@ try {
             SUM(TotalPrice)     AS total_price,
             MAX(UpdateDate)     AS last_update
         FROM summarysalebydate
-        WHERE DATE(SaleDate) >= ?
-          AND DATE(SaleDate) <= ?
+        WHERE SaleDate >= ?
+          AND SaleDate <= ?
         GROUP BY ProductLevelID, DATE(SaleDate)
         ORDER BY ProductLevelID, sale_date
     ";
     $stmt = $conn->prepare($sqlDaily);
-    $stmt->bind_param('ss', $dateFrom, $today);
+    $stmt->bind_param('ss', $dateFrom, $dateTo);
     $stmt->execute();
     $res = $stmt->get_result();
 
@@ -99,17 +100,18 @@ try {
     }
 
     // --- 3. Monthly totals ---
+    $lastMonthEndFull = $lastMonthEnd . ' 23:59:59';
     $sqlMonthly = "
         SELECT
             ProductLevelID,
-            SUM(CASE WHEN DATE(SaleDate) >= ? THEN TotalPrice ELSE 0 END) AS this_month,
-            SUM(CASE WHEN DATE(SaleDate) >= ? AND DATE(SaleDate) <= ? THEN TotalPrice ELSE 0 END) AS last_month
+            SUM(CASE WHEN SaleDate >= ? THEN TotalPrice ELSE 0 END)                        AS this_month,
+            SUM(CASE WHEN SaleDate >= ? AND SaleDate <= ? THEN TotalPrice ELSE 0 END) AS last_month
         FROM summarysalebydate
-        WHERE DATE(SaleDate) >= ?
+        WHERE SaleDate >= ?
         GROUP BY ProductLevelID
     ";
     $stmt = $conn->prepare($sqlMonthly);
-    $stmt->bind_param('ssss', $thisMonthStart, $lastMonthStart, $lastMonthEnd, $lastMonthStart);
+    $stmt->bind_param('ssss', $thisMonthStart, $lastMonthStart, $lastMonthEndFull, $lastMonthStart);
     $stmt->execute();
     $res = $stmt->get_result();
     $monthlyMap = [];

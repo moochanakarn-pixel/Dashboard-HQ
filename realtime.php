@@ -387,8 +387,14 @@ const t = k => (I18N[S.lang] && I18N[S.lang][k]) || k;
 const fmtN  = n => Number(n||0).toLocaleString(S.lang==='th'?'th-TH':'en-US',{maximumFractionDigits:0});
 const fmtS  = n => { n=Number(n||0); if(n>=1e6)return(n/1e6).toFixed(1).replace(/\.0$/,'')+'M'; if(n>=1e3)return Math.round(n/1e3)+'K'; return fmtN(n); };
 
+function parseLocalDate(s) {
+  // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone offset shifting the day
+  const [y, m, d] = s.split('-').map(Number);
+  return new Date(y, m - 1, d);
+}
+
 function fmtDateCol(d) {
-  const dt = new Date(d);
+  const dt  = parseLocalDate(d);
   const days = t('days_th');
   const mos  = t('months_th');
   const dd  = dt.getDate();
@@ -405,9 +411,9 @@ function fmtTime(ts) {
 
 function fmtThaiDate(ds) {
   if (!ds) return '';
-  const dt = new Date(ds);
+  const dt  = parseLocalDate(ds);
   const mos = t('months_th');
-  const y = S.lang==='th' ? dt.getFullYear()+543 : dt.getFullYear();
+  const y   = S.lang==='th' ? dt.getFullYear()+543 : dt.getFullYear();
   return `${dt.getDate()} ${mos[dt.getMonth()+1]} ${y}`;
 }
 
@@ -419,6 +425,7 @@ function updBadge(status, ts) {
 
 // ── Sparkline SVG ──────────────────────────────────────
 function sparkline(vals, today_idx) {
+  if (!vals.length) return '';
   const W=8, G=3, H=24;
   const max = Math.max(...vals, 1);
   let s = '';
@@ -477,6 +484,7 @@ async function fetchData() {
     startCd();
   } catch(e) {
     showError(t('errorPrefix') + e.message);
+    startCd(); // keep auto-refresh running even on error
   } finally {
     showLoading(false);
     document.getElementById('btnRefresh').classList.remove('spinning');
@@ -509,6 +517,9 @@ function tickCd() {
 function renderAll() {
   const d = S.raw;
   if (!d) return;
+
+  // Sync initial sort col to actual today date so sort indicator works
+  if (S.sort.col === 'today') S.sort.col = d.today;
 
   // gen time
   const gt = document.getElementById('genTime');
@@ -596,17 +607,29 @@ function renderTable() {
   th += '</tr>';
   document.getElementById('tblHead').innerHTML = th;
 
-  // --- total row ---
+  // --- total row (uses filtered subset when search is active) ---
+  const isFiltered = S.search.trim().length > 0;
+  const totalSrc = isFiltered ? branches : null; // null = use pre-computed grand totals
+  function totVal(col) {
+    if (!isFiltered) return d.totals.daily?.[col] || 0;
+    return branches.reduce((s, b) => s + (b.daily?.[col] || 0), 0);
+  }
+  const totThis = isFiltered ? branches.reduce((s,b)=>s+b.this_month,0) : d.totals.this_month;
+  const totLast = isFiltered ? branches.reduce((s,b)=>s+b.last_month,0) : d.totals.last_month;
+  const totLabel = isFiltered
+    ? `${t('colTotal')} (${branches.length} ${t('branchUnit')})`
+    : t('colTotal');
+
   let tot = '<tr class="tr-tot">';
   tot += '<td class="c-rank">—</td>';
-  tot += `<td class="c-name">${t('colTotal')}</td>`;
+  tot += `<td class="c-name">${totLabel}</td>`;
   cols.forEach(c => {
-    const v = d.totals.daily?.[c] || 0;
+    const v = totVal(c);
     const cl = c===today ? 'c-today' : 'c-date';
     tot += `<td class="${cl}">${v?fmtN(v):'—'}</td>`;
   });
-  tot += `<td class="c-month">${fmtN(d.totals.this_month)}</td>`;
-  tot += `<td class="c-month">${fmtN(d.totals.last_month)}</td>`;
+  tot += `<td class="c-month">${totThis?fmtN(totThis):'—'}</td>`;
+  tot += `<td class="c-month">${totLast?fmtN(totLast):'—'}</td>`;
   tot += '<td class="c-upd">—</td></tr>';
 
   // --- branch rows ---
