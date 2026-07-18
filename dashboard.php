@@ -515,7 +515,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
             <div class="pill" id="verdictPill" style="display:none"><span id="verdictText"></span></div>
           </div>
         </div>
-        <div class="hero-actions">
+        <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
+<a href="realtime.php" class="icon-btn" title="ยอดขาย Real-time" style="font-size:13px;text-decoration:none;display:flex;align-items:center;gap:5px;padding:6px 10px;font-size:12px;font-weight:600;color:var(--muted)"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Real-time</a>
 <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
         </div>
       </div>
