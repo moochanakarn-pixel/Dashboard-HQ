@@ -142,11 +142,17 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .rt-empty{padding:40px 16px;text-align:center;color:var(--muted2);font-size:13px}
 
 /* ━━━━━━━━━━━ TABLE ━━━━━━━━━━━ */
-.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
+/*
+  overflow-x:auto implicitly computes overflow-y as auto too (CSS spec).
+  This makes .tbl-wrap a scroll container, which BREAKS position:sticky on thead.
+  Fix: bound the height explicitly so the container scrolls vertically inside itself
+  (height set dynamically by JS after render to fill remaining viewport).
+*/
+.tbl-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
 .rt-tbl{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12.5px}
 .rt-tbl th,.rt-tbl td{padding:0;border-bottom:1px solid var(--line)}
 
-/* sticky header */
+/* sticky header — works only when .tbl-wrap has bounded height (set by JS) */
 .rt-tbl thead th{
   position:sticky;top:0;z-index:20;
   background:#0a1525;border-bottom:2px solid var(--line2);
@@ -172,6 +178,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .c-upd  {min-width:70px;width:70px;text-align:center!important;cursor:default!important}
 .c-today{background:var(--bg-today)!important}
 .rt-tbl thead th.c-today{background:#182d49!important;color:var(--yellow)!important}
+/* light-theme overrides for today column (hardcoded darks above don't work in light) */
+[data-theme="light"] .rt-tbl thead th.c-today{background:#c8d9f8!important;color:#1d40af!important}
+[data-theme="light"] .rt-tbl tbody tr td.c-today{background:#dbeafe!important}
+[data-theme="light"] .rt-tbl tbody tr:nth-child(even) td.c-today{background:#e8f0fe!important}
+[data-theme="light"] .tr-tot td.c-today{background:#bfdbfe!important;color:#1d40af!important}
 
 /* rows */
 .rt-tbl tbody tr:nth-child(odd)  td{background:var(--bg-row1)}
@@ -406,6 +417,7 @@ function fmtDateCol(d) {
 function fmtTime(ts) {
   if (!ts) return '—';
   const d = new Date(ts.replace(' ','T'));
+  if (isNaN(d)) return '—';
   return d.toLocaleTimeString(S.lang==='th'?'th-TH':'en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
 }
 
@@ -505,7 +517,7 @@ function startCd() {
   tickCd();
   S.cdTimer = setInterval(() => { S.cd--; tickCd(); if(S.cd<=0){stopCd();fetchData()} }, 1000);
 }
-function stopCd() { if(S.cdTimer) clearInterval(S.cdTimer); }
+function stopCd() { if(S.cdTimer) { clearInterval(S.cdTimer); S.cdTimer = null; } }
 function tickCd() {
   const el = document.getElementById('cdText');
   if (!el) return;
@@ -595,7 +607,7 @@ function renderTable() {
   // --- head ---
   const sortCls = col => S.sort.col===col ? (S.sort.dir<0?'sort-desc':'sort-asc') : '';
   let th = '<tr>';
-  th += `<th class="c-rank" onclick="sortBy('name')" style="cursor:default">#</th>`;
+  th += `<th class="c-rank" style="cursor:default">#</th>`;
   th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}</th>`;
   cols.forEach(c => {
     const isTd = c === today;
@@ -654,6 +666,9 @@ function renderTable() {
 
   if (!branches.length) rows += `<tr><td colspan="99" class="rt-empty">${t('noResult')}</td></tr>`;
   document.getElementById('tblBody').innerHTML = rows;
+
+  // Must run AFTER DOM is updated so getBoundingClientRect() is accurate
+  requestAnimationFrame(fitTableHeight);
 }
 
 // ── Cards ──────────────────────────────────────────────
@@ -708,6 +723,15 @@ function renderCards() {
   document.getElementById('cardGrid').innerHTML =
     html || `<div class="rt-empty">${t('noResult')}</div>`;
 }
+
+// ── Table height (fixes sticky thead inside overflow-x:auto container) ──────
+function fitTableHeight() {
+  const w = document.getElementById('tblWrap');
+  if (!w || w.style.display === 'none') return;
+  const top = w.getBoundingClientRect().top;
+  w.style.height = Math.max(200, window.innerHeight - top - 4) + 'px';
+}
+window.addEventListener('resize', fitTableHeight, { passive: true });
 
 // ── View / Days ────────────────────────────────────────
 function setView(v) {

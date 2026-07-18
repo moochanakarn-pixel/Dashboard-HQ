@@ -104,14 +104,14 @@ try {
     $sqlMonthly = "
         SELECT
             ProductLevelID,
-            SUM(CASE WHEN SaleDate >= ? THEN TotalPrice ELSE 0 END)                        AS this_month,
+            SUM(CASE WHEN SaleDate >= ? AND SaleDate <= ? THEN TotalPrice ELSE 0 END) AS this_month,
             SUM(CASE WHEN SaleDate >= ? AND SaleDate <= ? THEN TotalPrice ELSE 0 END) AS last_month
         FROM summarysalebydate
         WHERE SaleDate >= ?
         GROUP BY ProductLevelID
     ";
     $stmt = $conn->prepare($sqlMonthly);
-    $stmt->bind_param('ssss', $thisMonthStart, $lastMonthStart, $lastMonthEndFull, $lastMonthStart);
+    $stmt->bind_param('sssss', $thisMonthStart, $dateTo, $lastMonthStart, $lastMonthEndFull, $lastMonthStart);
     $stmt->execute();
     $res = $stmt->get_result();
     $monthlyMap = [];
