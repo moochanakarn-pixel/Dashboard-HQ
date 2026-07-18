@@ -74,6 +74,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 }
 .live-dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:pulse-dot 2s ease-in-out infinite}
 @keyframes pulse-dot{0%,100%{opacity:1}50%{opacity:.25}}
+@media(prefers-reduced-motion:reduce){.live-dot{animation:none}}
 .hd-meta{font-size:11px;color:var(--muted2);margin-top:1px}
 .hd-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
 .icon-btn{
@@ -182,7 +183,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 [data-theme="light"] .rt-tbl thead th.c-today{background:#c8d9f8!important;color:#1d40af!important}
 [data-theme="light"] .rt-tbl tbody tr td.c-today{background:#dbeafe!important}
 [data-theme="light"] .rt-tbl tbody tr:nth-child(even) td.c-today{background:#e8f0fe!important}
-[data-theme="light"] .tr-tot td.c-today{background:#bfdbfe!important;color:#1d40af!important}
+[data-theme="light"] .rt-tbl tbody tr.tr-tot td.c-today{background:#bfdbfe!important;color:#1d40af!important}
 
 /* rows */
 .rt-tbl tbody tr:nth-child(odd)  td{background:var(--bg-row1)}
@@ -198,14 +199,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .rt-tbl .zero{color:var(--muted2)}
 .rt-tbl .today-val{color:var(--yellow);font-weight:700}
 
-/* total row */
-.tr-tot td{background:var(--bg3)!important;font-weight:700;font-size:12.5px;border-bottom:2px solid var(--line2);padding:8px 10px}
-.tr-tot td.c-name{padding-left:12px}
-.tr-tot td.c-today{background:#223a58!important;color:var(--yellow)!important}
-.tr-tot td.c-rank{background:var(--bg3)!important}
+/* total row — full selector chain to beat .rt-tbl tbody tr:nth-child() !important at (0,3,3) */
+.rt-tbl tbody tr.tr-tot td{background:var(--bg3)!important;font-weight:700;font-size:12.5px;border-bottom:2px solid var(--line2);padding:8px 10px}
+.rt-tbl tbody tr.tr-tot td.c-name{padding-left:12px;background:var(--bg3)!important}
+.rt-tbl tbody tr.tr-tot td.c-today{background:#223a58!important;color:var(--yellow)!important}
+.rt-tbl tbody tr.tr-tot td.c-rank{background:var(--bg3)!important}
 
 /* ━━━━━━━━━━━ CARDS ━━━━━━━━━━━ */
-.card-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;padding:12px 12px 80px}
+.card-grid{display:none;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;padding:12px 12px max(80px,calc(80px + env(safe-area-inset-bottom)))}
 @media(max-width:640px){
   .card-grid{display:grid}
   .tbl-wrap{display:none}
@@ -216,7 +217,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   padding:13px 14px;display:flex;flex-direction:column;gap:10px;
 }
 .bc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.bc-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.3}
+.bc-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .bc-code{font-size:10.5px;color:var(--muted2);margin-top:2px}
 .bc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
 .bc-rank{font-size:11px;color:var(--muted2);font-weight:600}
@@ -432,7 +433,7 @@ function fmtThaiDate(ds) {
 function updBadge(status, ts) {
   const time  = fmtTime(ts);
   const label = t(status) || status;
-  return `<span class="upd upd-${status}" title="${label}">${time}</span>`;
+  return `<span class="upd upd-${esc(status)}" title="${esc(label)}">${time}</span>`;
 }
 
 // ── Sparkline SVG ──────────────────────────────────────
@@ -456,7 +457,8 @@ function applyI18n() {
   document.documentElement.lang = S.lang;
   document.querySelectorAll('[data-i]').forEach(el => {
     const k = el.dataset.i;
-    if (I18N[S.lang][k] !== undefined) el.textContent = I18N[S.lang][k];
+    const v = I18N[S.lang][k];
+    if (typeof v === 'string') el.textContent = v;
   });
   document.getElementById('searchInput').placeholder = t('searchPh');
   document.getElementById('langLabel').textContent   = S.lang === 'th' ? 'EN' : 'ไทย';
@@ -483,30 +485,40 @@ function toggleTheme() {
 }
 
 // ── Fetch ──────────────────────────────────────────────
+let _fetchController = null;
+
 async function fetchData() {
+  // Abort any in-flight request before starting a new one
+  if (_fetchController) _fetchController.abort();
+  _fetchController = new AbortController();
+  const { signal } = _fetchController;
+  const timeoutId  = setTimeout(() => _fetchController?.abort(), 30000);
+
   showLoading(true);
   hideError();
+  stopCd();
   try {
-    const r = await fetch(`api_realtime.php?days=${S.days}&t=${Date.now()}`);
+    const r = await fetch(`api_realtime.php?days=${S.days}&t=${Date.now()}`, { signal });
+    clearTimeout(timeoutId);
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data.error) throw new Error(data.error);
     S.raw = data;
     renderAll();
-    startCd();
   } catch(e) {
-    showError(t('errorPrefix') + e.message);
-    startCd(); // keep auto-refresh running even on error
+    clearTimeout(timeoutId);
+    if (e.name !== 'AbortError') showError(t('errorPrefix') + e.message);
   } finally {
     showLoading(false);
     document.getElementById('btnRefresh').classList.remove('spinning');
+    startCd(); // always restart countdown, even after error or abort
+    _fetchController = null;
   }
 }
 
 function manualRefresh() {
   document.getElementById('btnRefresh').classList.add('spinning');
-  stopCd();
-  fetchData();
+  fetchData(); // fetchData already calls stopCd() before requesting
 }
 
 // ── Countdown ──────────────────────────────────────────
@@ -540,16 +552,16 @@ function renderAll() {
   // summary
   const sumBar = document.getElementById('sumBar');
   sumBar.style.display = '';
-  const todayTotal   = d.totals.daily?.[d.today] || 0;
-  const todayBranches= d.branches.filter(b => (b.daily?.[d.today]||0) > 0).length;
+  const todayTotal   = d.totals?.daily?.[d.today] || 0;
+  const todayBranches= (d.branches || []).filter(b => (b.daily?.[d.today]||0) > 0).length;
   document.getElementById('sv1').textContent    = fmtN(todayTotal);
   document.getElementById('sv1sub').textContent = fmtThaiDate(d.today);
   document.getElementById('sv2').textContent    = `${todayBranches} ${t('branchUnit')}`;
   document.getElementById('sv3lbl').textContent = `${t('thisMonth')} (${d.month_labels?.this||''})`;
   document.getElementById('sv4lbl').textContent = `${t('lastMonth')} (${d.month_labels?.last||''})`;
-  document.getElementById('sv3').textContent    = fmtN(d.totals.this_month);
-  document.getElementById('sv4').textContent    = fmtN(d.totals.last_month);
-  const mom = d.totals.mom_pct;
+  document.getElementById('sv3').textContent    = fmtN(d.totals?.this_month || 0);
+  document.getElementById('sv4').textContent    = fmtN(d.totals?.last_month || 0);
+  const mom = d.totals?.mom_pct;
   const sub4 = document.getElementById('sv4sub');
   if (mom !== null && mom !== undefined) {
     const sign = mom >= 0 ? '+' : '';
@@ -563,7 +575,7 @@ function renderAll() {
 function filteredBranches() {
   if (!S.raw) return [];
   const q = S.search.toLowerCase().trim();
-  const branches = S.raw.branches.slice();
+  const branches = (S.raw.branches || []).slice();
 
   // sort
   const today = S.raw.today;
@@ -621,13 +633,12 @@ function renderTable() {
 
   // --- total row (uses filtered subset when search is active) ---
   const isFiltered = S.search.trim().length > 0;
-  const totalSrc = isFiltered ? branches : null; // null = use pre-computed grand totals
   function totVal(col) {
-    if (!isFiltered) return d.totals.daily?.[col] || 0;
+    if (!isFiltered) return d.totals?.daily?.[col] || 0;
     return branches.reduce((s, b) => s + (b.daily?.[col] || 0), 0);
   }
-  const totThis = isFiltered ? branches.reduce((s,b)=>s+b.this_month,0) : d.totals.this_month;
-  const totLast = isFiltered ? branches.reduce((s,b)=>s+b.last_month,0) : d.totals.last_month;
+  const totThis = isFiltered ? branches.reduce((s,b)=>s+b.this_month,0) : (d.totals?.this_month || 0);
+  const totLast = isFiltered ? branches.reduce((s,b)=>s+b.last_month,0) : (d.totals?.last_month || 0);
   const totLabel = isFiltered
     ? `${t('colTotal')} (${branches.length} ${t('branchUnit')})`
     : t('colTotal');
@@ -664,7 +675,7 @@ function renderTable() {
     rows += '</tr>';
   });
 
-  if (!branches.length) rows += `<tr><td colspan="99" class="rt-empty">${t('noResult')}</td></tr>`;
+  if (!branches.length) rows += `<tr><td colspan="99" class="rt-empty">${S.search.trim() ? t('noResult') : t('noData')}</td></tr>`;
   document.getElementById('tblBody').innerHTML = rows;
 
   // Must run AFTER DOM is updated so getBoundingClientRect() is accurate
@@ -721,17 +732,28 @@ function renderCards() {
   }).join('');
 
   document.getElementById('cardGrid').innerHTML =
-    html || `<div class="rt-empty">${t('noResult')}</div>`;
+    html || `<div class="rt-empty" style="grid-column:1/-1">${S.search.trim() ? t('noResult') : t('noData')}</div>`;
 }
 
-// ── Table height (fixes sticky thead inside overflow-x:auto container) ──────
+// ── Table height (fixes sticky thead inside overflow:auto container) ──────────
 function fitTableHeight() {
   const w = document.getElementById('tblWrap');
-  if (!w || w.style.display === 'none') return;
+  if (!w || getComputedStyle(w).display === 'none') return;
   const top = w.getBoundingClientRect().top;
   w.style.height = Math.max(200, window.innerHeight - top - 4) + 'px';
 }
-window.addEventListener('resize', fitTableHeight, { passive: true });
+
+// Resize: recalculate height AND auto-switch view at the 641px breakpoint
+let _viewResizeTimer = null;
+window.addEventListener('resize', () => {
+  fitTableHeight();
+  clearTimeout(_viewResizeTimer);
+  _viewResizeTimer = setTimeout(() => {
+    const mobile = window.innerWidth < 641;
+    if (mobile && S.view !== 'cards') setView('cards');
+    else if (!mobile && S.view !== 'table') setView('table');
+  }, 150);
+}, { passive: true });
 
 // ── View / Days ────────────────────────────────────────
 function setView(v) {
@@ -743,6 +765,7 @@ function setView(v) {
 
 function setDays(n) {
   S.days = n;
+  S.sort.col = 'today'; // date columns change with new range; reset sort to today
   document.querySelectorAll('.seg-btn[data-days]').forEach(el => {
     el.classList.toggle('active', +el.dataset.days === n);
   });
