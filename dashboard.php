@@ -181,21 +181,15 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi[data-kpi="bills"]::before{background:linear-gradient(90deg,#06d6a0,#34d399)}
 .kpi[data-kpi="avg"]::before{background:linear-gradient(90deg,#a78bfa,#818cf8)}
 .kpi[data-kpi="watch"]::before{background:linear-gradient(90deg,#f59e0b,#fb923c)}
-.kpi[data-kpi="guests"]::before{background:linear-gradient(90deg,#f472b6,#fb7185)}
-.kpi[data-kpi="branches"]::before{background:linear-gradient(90deg,#22d3ee,#38bdf8)}
 .kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(59,130,246,.18),0 0 36px rgba(59,130,246,.08)}
 .kpi[data-kpi="bills"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(6,214,160,.18),0 0 36px rgba(6,214,160,.08)}
 .kpi[data-kpi="avg"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(167,139,250,.18),0 0 36px rgba(167,139,250,.08)}
 .kpi[data-kpi="watch"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(245,158,11,.18),0 0 36px rgba(245,158,11,.08)}
-.kpi[data-kpi="guests"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(244,114,182,.18),0 0 36px rgba(244,114,182,.08)}
-.kpi[data-kpi="branches"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(34,211,238,.18),0 0 36px rgba(34,211,238,.08)}
-.kpi-icon{width:36px;height:36px;border-radius:var(--r-xs);display:flex;align-items:center;justify-content:center;font-size:17px;margin-bottom:12px}
-.kpi[data-kpi="sales"] .kpi-icon{background:linear-gradient(135deg,rgba(59,130,246,.2),rgba(96,165,250,.07));border-color:rgba(59,130,246,.3)}
-.kpi[data-kpi="bills"] .kpi-icon{background:linear-gradient(135deg,rgba(6,214,160,.2),rgba(52,211,153,.07));border-color:rgba(6,214,160,.3)}
-.kpi[data-kpi="avg"] .kpi-icon{background:linear-gradient(135deg,rgba(167,139,250,.2),rgba(129,140,248,.07));border-color:rgba(167,139,250,.3)}
-.kpi[data-kpi="watch"] .kpi-icon{background:linear-gradient(135deg,rgba(245,158,11,.2),rgba(251,146,60,.07));border-color:rgba(245,158,11,.3)}
-.kpi[data-kpi="guests"] .kpi-icon{background:linear-gradient(135deg,rgba(244,114,182,.2),rgba(251,113,133,.07));border-color:rgba(244,114,182,.3)}
-.kpi[data-kpi="branches"] .kpi-icon{background:linear-gradient(135deg,rgba(34,211,238,.2),rgba(56,189,248,.07));border-color:rgba(34,211,238,.3)}
+.kpi-icon{width:38px;height:38px;border-radius:var(--r-xs);border:1px solid transparent;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.kpi[data-kpi="sales"] .kpi-icon{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(96,165,250,.06));border-color:rgba(59,130,246,.28);color:#60a5fa}
+.kpi[data-kpi="bills"] .kpi-icon{background:linear-gradient(135deg,rgba(6,214,160,.18),rgba(52,211,153,.06));border-color:rgba(6,214,160,.28);color:#34d399}
+.kpi[data-kpi="avg"] .kpi-icon{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(129,140,248,.06));border-color:rgba(167,139,250,.28);color:#a78bfa}
+.kpi[data-kpi="watch"] .kpi-icon{background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(251,146,60,.06));border-color:rgba(245,158,11,.28);color:#fbbf24}
 .kpi .label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px}
 .kpi .value{font-size:26px;font-weight:700;letter-spacing:-.04em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.4;font-weight:400}
@@ -452,7 +446,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
         </div>
         <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
 <a href="realtime.php" title="ยอดขาย Real-time" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:12px;border:1px solid rgba(16,217,160,.35);background:rgba(16,217,160,.08);color:var(--good);font-size:12px;font-weight:700;letter-spacing:.02em;transition:background .15s,border-color .15s" onmouseover="this.style.background='rgba(16,217,160,.16)';this.style.borderColor='rgba(16,217,160,.6)'" onmouseout="this.style.background='rgba(16,217,160,.08)';this.style.borderColor='rgba(16,217,160,.35)'"><span style="width:7px;height:7px;border-radius:50%;background:var(--good);flex-shrink:0;animation:pulse-dot 2.5s ease-in-out infinite"></span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Real-time</a>
-<button class="icon-btn" id="openFilterBtn" title="ตัวกรอง" style="font-size:14px">⚙️</button>
+<button class="icon-btn" id="openFilterBtn" title="ตัวกรอง"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2.5" fill="var(--bg)"/><circle cx="15" cy="12" r="2.5" fill="var(--bg)"/><circle cx="9" cy="18" r="2.5" fill="var(--bg)"/></svg></button>
         </div>
       </div>
       <!-- desktop inline filter -->
@@ -490,7 +484,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   <!-- ── KPI CARDS ── -->
   <div class="kpi-grid">
     <div class="card kpi" data-kpi="sales">
-      <div class="kpi-icon">💰</div>
+      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
       <div class="label" id="kpiSalesLabel">ยอดขายรวม</div>
       <div class="value" id="salesTotal">—</div>
       <div class="sub" id="kpiSalesSub">ช่วงที่เลือก</div>
@@ -500,19 +494,19 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
       </div>
     </div>
     <div class="card kpi" data-kpi="bills">
-      <div class="kpi-icon">🧾</div>
+      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg></div>
       <div class="label" id="kpiBillsLabel">จำนวนบิล</div>
       <div class="value" id="billCount">—</div>
       <div class="sub" id="kpiBillsSub">บิลที่ชำระแล้ว</div>
     </div>
     <div class="card kpi" data-kpi="avg">
-      <div class="kpi-icon">📊</div>
+      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
       <div class="label" id="kpiAvgLabel">ค่าเฉลี่ย/บิล</div>
       <div class="value" id="avgBill">—</div>
       <div class="sub" id="kpiAvgSub">เฉลี่ยต่อบิล</div>
     </div>
     <div class="card kpi" data-kpi="watch">
-      <div class="kpi-icon">🏅</div>
+      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
       <div class="label" id="kpiWatchLabel">ดีสุด – แย่สุด</div>
       <div class="value" id="bestWorst" style="font-size:13px">—</div>
       <div class="sub" id="bestWorstSub">—</div>
