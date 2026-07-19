@@ -465,19 +465,19 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
       <div class="desktop-only" style="margin-top:18px">
         <div class="filter-grid">
           <div>
-            <div class="filter-label">ภาษา</div>
+            <div class="filter-label" id="labelLangDesktop">ภาษา</div>
             <select class="control" id="langSelectDesktop"><option value="th">ไทย</option><option value="en">English</option></select>
           </div>
           <div>
-            <div class="filter-label">ธีม</div>
+            <div class="filter-label" id="labelThemeDesktop">ธีม</div>
             <select class="control" id="themeSelectDesktop"><option value="dark">Dark</option><option value="light">Light</option></select>
           </div>
           <div>
-            <div class="filter-label">วันที่เริ่ม</div>
+            <div class="filter-label" id="labelDateFromDesktop">วันที่เริ่ม</div>
             <input class="control" type="date" id="dateFromDesktop" value="<?php echo h($dateFrom); ?>">
           </div>
           <div>
-            <div class="filter-label">วันที่สิ้นสุด</div>
+            <div class="filter-label" id="labelDateToDesktop">วันที่สิ้นสุด</div>
             <input class="control" type="date" id="dateToDesktop" value="<?php echo h($dateTo); ?>">
           </div>
         </div>
@@ -542,11 +542,11 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
-          <h2>อันดับสาขา Top 12</h2>
-          <div class="desc">ยอดขายเปรียบเทียบรายสาขา</div>
+          <h2 id="branchTitle">อันดับสาขา Top 12</h2>
+          <div class="desc" id="branchDesc">ยอดขายเปรียบเทียบรายสาขา</div>
         </div>
       </div>
-      <div id="rankingBars"><div class="empty">กำลังโหลด...</div></div>
+      <div id="rankingBars"><div class="empty">กำลังโหลด…</div></div>
     </div>
   </div>
 
@@ -559,7 +559,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <div class="alert-verdict" id="alertVerdictMobile"><span class="av-icon" id="alertVerdictIconM"></span><div class="av-body"><div id="alertVerdictMainM"></div><div class="av-sub" id="alertVerdictSubM"></div></div></div>
         </div>
       </div>
-      <div class="list" id="alertListOnly"><div class="empty">กำลังโหลด...</div></div>
+      <div class="list" id="alertListOnly"><div class="empty">กำลังโหลด…</div></div>
     </div>
   </div>
 
@@ -579,11 +579,11 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
       <div class="card section">
         <div class="section-head">
           <div class="section-head-left">
-            <h2>อันดับสาขา Top 12</h2>
-            <div class="desc">ยอดขายเปรียบเทียบรายสาขา</div>
+            <h2 id="branchTitleDesktop">อันดับสาขา Top 12</h2>
+            <div class="desc" id="branchDescDesktop">ยอดขายเปรียบเทียบรายสาขา</div>
           </div>
         </div>
-        <div id="rankingBarsDesktop"><div class="empty">กำลังโหลด...</div></div>
+        <div id="rankingBarsDesktop"><div class="empty">กำลังโหลด…</div></div>
       </div>
     </div>
 
@@ -597,7 +597,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           </div>
           <span class="priority-count" id="alertCountDesktop">0</span>
         </div>
-        <div class="list" id="alertListDesktop"><div class="empty">กำลังโหลด...</div></div>
+        <div class="list" id="alertListDesktop"><div class="empty">กำลังโหลด…</div></div>
       </div>
     </div>
   </div>
@@ -609,13 +609,13 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 <div class="mobile-tabs">
   <div class="tab-row">
     <button class="tab-btn active" data-panel="overview" id="tabOverview">
-      <span class="tab-icon">📈</span><span>ภาพรวม</span>
+      <span class="tab-icon">📈</span><span id="tabOverviewLabel">ภาพรวม</span>
     </button>
     <button class="tab-btn" data-panel="branches" id="tabBranches">
-      <span class="tab-icon">🏪</span><span>สาขา</span>
+      <span class="tab-icon">🏪</span><span id="tabBranchesLabel">สาขา</span>
     </button>
 <button class="tab-btn" data-panel="alerts" id="tabAlerts">
-      <span class="tab-icon" style="position:relative">⚠️<span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span></span><span>แจ้งเตือน</span>
+      <span class="tab-icon" style="position:relative">⚠️<span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span></span><span id="tabAlertsLabel">แจ้งเตือน</span>
     </button>
   </div>
 </div>
@@ -631,7 +631,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
     </div>
 
     <div class="sheet-section">
-      <div class="filter-label">ช่วงวันที่</div>
+      <div class="filter-label" id="labelDateRange">ช่วงวันที่</div>
       <div class="filter-grid" style="margin-top:6px">
         <input class="control" type="date" id="dateFrom" value="<?php echo h($dateFrom); ?>">
         <input class="control" type="date" id="dateTo" value="<?php echo h($dateTo); ?>">
@@ -645,11 +645,11 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 
     <div class="filter-grid">
       <div>
-        <div class="filter-label">ภาษา</div>
+        <div class="filter-label" id="labelLang">ภาษา</div>
         <select class="control" id="langSelect" style="margin-top:6px"><option value="th">ไทย</option><option value="en">English</option></select>
       </div>
       <div>
-        <div class="filter-label">ธีม</div>
+        <div class="filter-label" id="labelTheme">ธีม</div>
         <select class="control" id="themeSelect" style="margin-top:6px"><option value="dark">Dark</option><option value="light">Light</option></select>
       </div>
     </div>
@@ -663,8 +663,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 
 <script>
 const I18N={
-en:{heroTitle:'HQ Dashboard',heroDesc:'Executive overview across all branches.',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg / Bill',kpiAvgSub:'Average per bill',kpiWatchLabel:'Best · Worst',kpiGuestsLabel:'Total Guests',kpiGuestsSub:'Sum of TotalCustomer',kpiBranchLabel:'Branches',kpiBranchSub:'Within selected range',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'All Branches',branchDesc:'Ranked by revenue.',paymentTitle:'Payment Mix',paymentDesc:'Top payment types.',productTitle:'Top Products',productDesc:'Products driving revenue.',tabOverview:'Overview',tabBranches:'Branches',tabProducts:'Products',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noData:'No Data',normal:'Normal',sales:'Sales',bills:'Bills',avgBill:'Avg Bill',qty:'Qty',revenue:'Revenue',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noPayment:'No payment data.',noProduct:'No product data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.'},
-th:{heroTitle:'HQ Dashboard',heroDesc:'ภาพรวมยอดขายทุกสาขา',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ย/บิล',kpiAvgSub:'เฉลี่ยต่อบิล',kpiWatchLabel:'ดีสุด – แย่สุด',kpiGuestsLabel:'ลูกค้ารวม',kpiGuestsSub:'รวม TotalCustomer',kpiBranchLabel:'สาขาที่มีข้อมูล',kpiBranchSub:'ในช่วงที่เลือก',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'สาขาทั้งหมด',branchDesc:'เรียงตามยอดขายสูงสุด',paymentTitle:'ช่องทางชำระเงิน',paymentDesc:'ประเภทที่ใช้มากสุด',productTitle:'สินค้าขายดี',productDesc:'สินค้าที่ขับยอดขายรวม',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabProducts:'สินค้า',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noData:'ไม่มีข้อมูล',normal:'ปกติ',sales:'ยอดขาย',bills:'บิล',avgBill:'Avg Bill',qty:'จำนวน',revenue:'ยอดขาย',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noPayment:'ยังไม่มีข้อมูลการชำระเงิน',noProduct:'ยังไม่มีข้อมูลสินค้า',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป'}};
+en:{heroTitle:'HQ Dashboard',heroDesc:'Executive overview across all branches.',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg / Bill',kpiAvgSub:'Average per bill',kpiWatchLabel:'Best · Worst',kpiGuestsLabel:'Total Guests',kpiGuestsSub:'Sum of TotalCustomer',kpiBranchLabel:'Branches',kpiBranchSub:'Within selected range',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'Branch Rankings',branchDesc:'Sales compared by branch',paymentTitle:'Payment Mix',paymentDesc:'Top payment types.',productTitle:'Top Products',productDesc:'Products driving revenue.',tabOverview:'Overview',tabBranches:'Branches',tabProducts:'Products',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noData:'No Data',normal:'Normal',sales:'Sales',bills:'Bills',avgBill:'Avg Bill',qty:'Qty',revenue:'Revenue',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noPayment:'No payment data.',noProduct:'No product data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.',labelLang:'Language',labelTheme:'Theme',labelDateFrom:'From',labelDateTo:'To',labelDateRange:'Date Range',loading:'Loading…',close:'Close'},
+th:{heroTitle:'HQ Dashboard',heroDesc:'ภาพรวมยอดขายทุกสาขา',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ย/บิล',kpiAvgSub:'เฉลี่ยต่อบิล',kpiWatchLabel:'ดีสุด – แย่สุด',kpiGuestsLabel:'ลูกค้ารวม',kpiGuestsSub:'รวม TotalCustomer',kpiBranchLabel:'สาขาที่มีข้อมูล',kpiBranchSub:'ในช่วงที่เลือก',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'อันดับสาขา Top 12',branchDesc:'ยอดขายเปรียบเทียบรายสาขา',paymentTitle:'ช่องทางชำระเงิน',paymentDesc:'ประเภทที่ใช้มากสุด',productTitle:'สินค้าขายดี',productDesc:'สินค้าที่ขับยอดขายรวม',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabProducts:'สินค้า',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noData:'ไม่มีข้อมูล',normal:'ปกติ',sales:'ยอดขาย',bills:'บิล',avgBill:'Avg Bill',qty:'จำนวน',revenue:'ยอดขาย',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noPayment:'ยังไม่มีข้อมูลการชำระเงิน',noProduct:'ยังไม่มีข้อมูลสินค้า',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป',labelLang:'ภาษา',labelTheme:'ธีม',labelDateFrom:'วันที่เริ่ม',labelDateTo:'วันที่สิ้นสุด',labelDateRange:'ช่วงวันที่',loading:'กำลังโหลด…',close:'ปิด'}};
 const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[],rankingRows:[]};
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),from:$('dateFrom'),to:$('dateTo')};
@@ -693,8 +693,8 @@ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;'
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
 function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText()}
 function getCurrentFilters(){return{date_from:mobile.from.value,date_to:mobile.to.value}}
-const LABEL_MAP={heroTitle:'heroTitle',heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverview:'tabOverview',tabBranches:'tabBranches',tabProducts:'tabProducts',tabAlerts:'tabAlerts'};
-function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote()}
+const LABEL_MAP={heroTitle:'heroTitle',heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close'};
+function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote();['rankingBars','rankingBarsDesktop','alertListOnly','alertListDesktop'].forEach(id=>{const el=$(id);if(el){const ch=el.querySelector('.empty');if(ch)ch.textContent=t('loading')}})}
 function applyPrefs(){document.body.dataset.theme=state.theme;localStorage.setItem('hq_lang',state.lang);localStorage.setItem('hq_theme',state.theme);syncPrefsInputs();applyText();redrawCharts()}
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}
 function showError(msg){if(msg){$('errorBox').style.display='block';$('errorBox').textContent=msg}else{$('errorBox').style.display='none';$('errorBox').textContent=''}}
@@ -728,18 +728,18 @@ function renderAlerts(rows,meta,summary){
     if(count>0){
       cls='alert-verdict '+(count>=3?'av-bad':'av-warn');
       icon=count>=3?'🚨':'⚠️';
-      main=`มี ${count} สาขาที่ต้องติดตาม`;
-      sub=hasCmp?(pct>=0?`ยอดรวม ▲ +${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`ยอดรวม ▼ ${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`):(summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'');
+      main=state.lang==='th'?`มี ${count} สาขาที่ต้องติดตาม`:`${count} branch${count!==1?'es':''} need attention`;
+      sub=hasCmp?(pct>=0?(state.lang==='th'?`ยอดรวม ▲ +${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`Total ▲ +${Math.abs(pct).toFixed(1)}% vs yesterday`):(state.lang==='th'?`ยอดรวม ▼ ${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`Total ▼ ${Math.abs(pct).toFixed(1)}% vs yesterday`)):(summary.best_branch_name?(state.lang==='th'?`สาขาดีสุด: ${summary.best_branch_name}`:`Top branch: ${summary.best_branch_name}`):'');
     }else if(hasCmp){
       const pos=pct>=0;
       cls='alert-verdict '+(pos?'av-good':'av-warn');
       icon=pos?'✅':'📉';
-      main=(pos?'▲ ดีขึ้น +':'▼ ลดลง ')+Math.abs(pct).toFixed(1)+'% เทียบเมื่อวาน';
-      sub=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
+      main=(pos?(state.lang==='th'?'▲ ดีขึ้น +':'▲ Up +'):(state.lang==='th'?'▼ ลดลง ':'▼ Down '))+Math.abs(pct).toFixed(1)+(state.lang==='th'?'% เทียบเมื่อวาน':'% vs yesterday');
+      sub=summary.best_branch_name?(state.lang==='th'?`สาขาดีสุด: ${summary.best_branch_name}`:`Top branch: ${summary.best_branch_name}`):'';
     }else{
       cls='alert-verdict av-good';
-      icon='✅';main='ภาพรวมปกติ';
-      sub=summary.best_branch_name?`สาขาดีสุด: ${summary.best_branch_name}`:'';
+      icon='✅';main=state.lang==='th'?'ภาพรวมปกติ':'All Clear';
+      sub=summary.best_branch_name?(state.lang==='th'?`สาขาดีสุด: ${summary.best_branch_name}`:`Top branch: ${summary.best_branch_name}`):'';
     }
     [['alertVerdictMobile','alertVerdictIconM','alertVerdictMainM','alertVerdictSubM'],
      ['alertVerdictDesktop','alertVerdictIconD','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,iId,mId,sId])=>{
@@ -755,12 +755,14 @@ function renderAlerts(rows,meta,summary){
     const icon=icons[type]||'⚠';
     let detail='';
     if(type==='watch'){
-      const dir=Number(a.pct)<0?'▼ ลดลง':'▲ เพิ่มขึ้น';
-      detail=`${dir} <b>${Math.abs(Number(a.pct)).toFixed(1)}%</b> &nbsp;|&nbsp; ช่วงนี้ <b>${compactMoney(a.curr_sales)}</b> &nbsp;vs&nbsp; ก่อนหน้า <b>${compactMoney(a.prev_sales)}</b>`;
+      const dir=Number(a.pct)<0?(state.lang==='th'?'▼ ลดลง':'▼ Down'):(state.lang==='th'?'▲ เพิ่มขึ้น':'▲ Up');
+      const lbl1=state.lang==='th'?'ช่วงนี้':'this period',lbl2=state.lang==='th'?'ก่อนหน้า':'previous';
+      detail=`${dir} <b>${Math.abs(Number(a.pct)).toFixed(1)}%</b> &nbsp;|&nbsp; ${lbl1} <b>${compactMoney(a.curr_sales)}</b> &nbsp;vs&nbsp; ${lbl2} <b>${compactMoney(a.prev_sales)}</b>`;
     } else if(type==='low_avg'){
-      detail=`avg/บิล <b>${compactMoney(a.avg_bill)}</b> &nbsp;|&nbsp; ค่าเฉลี่ยรวม <b>${compactMoney(a.overall_avg)}</b> &nbsp;(ต่ำกว่า <b>${Number(a.pct_below).toFixed(1)}%</b>)`;
+      const lbl1=state.lang==='th'?'avg/บิล':'avg/bill',lbl2=state.lang==='th'?'ค่าเฉลี่ยรวม':'overall avg',lbl3=state.lang==='th'?'ต่ำกว่า':'below by';
+      detail=`${lbl1} <b>${compactMoney(a.avg_bill)}</b> &nbsp;|&nbsp; ${lbl2} <b>${compactMoney(a.overall_avg)}</b> &nbsp;(${lbl3} <b>${Number(a.pct_below).toFixed(1)}%</b>)`;
     } else if(type==='missing'){
-      detail='ไม่มีข้อมูลในช่วงที่เลือก &nbsp;|&nbsp; มีข้อมูลในช่วงก่อนหน้า';
+      detail=state.lang==='th'?'ไม่มีข้อมูลในช่วงที่เลือก &nbsp;|&nbsp; มีข้อมูลในช่วงก่อนหน้า':'No data in selected range &nbsp;|&nbsp; Had data in previous period';
     }
     return`<div class="alert-item" data-type="${escapeHtml(type)}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-name">${escapeHtml(a.shop_name||'-')}</div>${detail?`<div class="alert-detail">${detail}</div>`:''}</div></div>`;
   }
@@ -850,7 +852,7 @@ const cmp=data.comparison||{};
     el.style.display='';
     if(cmpData.pct===null||cmpData.pct===undefined){
       el.className='cmp-badge cmp-flat';
-      el.textContent='— '+label+': ไม่มีข้อมูล';
+      el.textContent='— '+label+': '+(state.lang==='th'?'ไม่มีข้อมูล':'no data');
     }else{
       const pos=cmpData.pct>=0;
       el.className='cmp-badge '+(pos?'cmp-up':'cmp-down');
