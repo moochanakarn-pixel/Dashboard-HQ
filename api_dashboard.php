@@ -36,8 +36,9 @@ if (!function_exists('api_base_payload')) {
 register_shutdown_function(function () {
     $error = error_get_last();
     if ($error && in_array($error['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        error_log('[api_dashboard] Fatal: ' . ($error['message'] ?? 'unknown'));
         $payload = api_base_payload();
-        $payload['error'] = 'Fatal error: ' . ($error['message'] ?? 'unknown');
+        $payload['error'] = 'เกิดข้อผิดพลาดร้ายแรง / Fatal error';
         json_output($payload, 500);
     }
 });
@@ -51,7 +52,8 @@ function set_error_once(array &$data, string $message): void {
 function safe_prepare(mysqli $conn, array &$data, string $sql): ?mysqli_stmt {
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
-        set_error_once($data, 'Prepare failed: ' . $conn->error);
+        error_log('[api_dashboard] Prepare failed: ' . $conn->error);
+        set_error_once($data, 'ไม่สามารถเตรียมคำสั่ง SQL ได้');
         return null;
     }
     return $stmt;
@@ -59,12 +61,14 @@ function safe_prepare(mysqli $conn, array &$data, string $sql): ?mysqli_stmt {
 
 function safe_execute(mysqli_stmt $stmt, array &$data): ?mysqli_result {
     if (!$stmt->execute()) {
-        set_error_once($data, 'Execute failed: ' . $stmt->error);
+        error_log('[api_dashboard] Execute failed: ' . $stmt->error);
+        set_error_once($data, 'ไม่สามารถดึงข้อมูลได้');
         return null;
     }
     $result = $stmt->get_result();
     if ($result === false) {
-        set_error_once($data, 'Get result failed: ' . $stmt->error);
+        error_log('[api_dashboard] Get result failed: ' . $stmt->error);
+        set_error_once($data, 'ไม่สามารถดึงข้อมูลได้');
         return null;
     }
     return $result;
@@ -113,14 +117,24 @@ function product_query_candidates(): array {
     ];
 }
 
-$defaultRange  = default_dashboard_range();
-$today         = date('Y-m-d');
-$dateFrom      = $_GET['date_from'] ?? $defaultRange['date_from'];
-$dateTo        = $_GET['date_to']   ?? $defaultRange['date_to'];
-$forceRefresh  = isset($_GET['force']) && $_GET['force'] === '1';
+$today        = date('Y-m-d');
+$rawFrom      = $_GET['date_from'] ?? '';
+$rawTo        = $_GET['date_to']   ?? '';
+$forceRefresh = isset($_GET['force']) && $_GET['force'] === '1';
 
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) $dateFrom = $defaultRange['date_from'];
-if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo))   $dateTo   = $defaultRange['date_to'];
+$dateFromOk = (bool)preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawFrom);
+$dateToOk   = (bool)preg_match('/^\d{4}-\d{2}-\d{2}$/', $rawTo);
+
+if (!$dateFromOk || !$dateToOk) {
+    // DB hit only when dates are missing or invalid
+    $defaultRange = default_dashboard_range();
+    $dateFrom = $dateFromOk ? $rawFrom : $defaultRange['date_from'];
+    $dateTo   = $dateToOk   ? $rawTo   : $defaultRange['date_to'];
+} else {
+    $defaultRange = null; // lazy — loaded after cache check if needed
+    $dateFrom = $rawFrom;
+    $dateTo   = $rawTo;
+}
 if ($dateFrom > $dateTo) [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
 
 $cacheDir  = __DIR__ . '/cache';
@@ -134,6 +148,11 @@ $cacheTtl  = max(0, $isTodayRange
 if (!$forceRefresh && $cacheTtl > 0 && is_file($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
     readfile($cacheFile);
     exit;
+}
+
+// Cache miss — load default range lazily if not already loaded above
+if ($defaultRange === null) {
+    $defaultRange = default_dashboard_range();
 }
 
 $days         = max(1, (int)round((strtotime($dateTo) - strtotime($dateFrom)) / 86400) + 1);
@@ -294,20 +313,21 @@ try {
     $sqlMissing = "
         SELECT pr.ShopID, MAX(pr.ShopName) AS ShopName
         FROM summary_tranreport pr
+        LEFT JOIN (
+            SELECT DISTINCT ShopID
+            FROM summary_tranreport
+            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
+              AND DocType = 8 AND TransactionStatusID = 2
+        ) cr ON cr.ShopID = pr.ShopID
         WHERE pr.SaleDate >= ? AND pr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
           AND pr.DocType = 8 AND pr.TransactionStatusID = 2
-          AND pr.ShopID NOT IN (
-              SELECT cr.ShopID
-              FROM summary_tranreport cr
-              WHERE cr.SaleDate >= ? AND cr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-                AND cr.DocType = 8 AND cr.TransactionStatusID = 2
-          )
+          AND cr.ShopID IS NULL
         GROUP BY pr.ShopID
         ORDER BY ShopName ASC
         LIMIT 20
     ";
     if ($stmt = safe_prepare($conn, $data, $sqlMissing)) {
-        $stmt->bind_param('ssss', $previousFrom, $previousTo, $dateFrom, $dateTo);
+        $stmt->bind_param('ssss', $dateFrom, $dateTo, $previousFrom, $previousTo);
         if ($res = safe_execute($stmt, $data)) {
             while ($row = $res->fetch_assoc()) {
                 $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
@@ -334,7 +354,7 @@ try {
         FROM summary_tranreport sr
         WHERE sr.SaleDate >= ? AND sr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
           AND sr.DocType = 8 AND sr.TransactionStatusID = 2
-        GROUP BY DATE(sr.SaleDate)
+        GROUP BY sale_date
         ORDER BY sale_date ASC
     ";
     if ($stmt = safe_prepare($conn, $data, $sqlTrend)) {
@@ -354,62 +374,16 @@ try {
         $stmt->close();
     }
 
-    $sqlPayment = "
-        SELECT COALESCE(NULLIF(sp.PayTypeName,''),CONCAT('PayType ',sp.PayTypeID)) AS pay_type_name,
-               COALESCE(SUM(sp.TotalPay),0)  AS total_amount,
-               COALESCE(SUM(sp.TotalBill),0) AS bill_count
-        FROM summary_paymentreport sp
-        WHERE sp.SaleDate >= ? AND sp.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-          AND sp.DocType = 8 AND sp.IsSale = 1
-        GROUP BY sp.PayTypeID, sp.PayTypeName
-        ORDER BY total_amount DESC, bill_count DESC
-        LIMIT 10
-    ";
-    if ($stmt = safe_prepare($conn, $data, $sqlPayment)) {
-        $stmt->bind_param('ss', $dateFrom, $dateTo);
-        if ($res = safe_execute($stmt, $data)) {
-            while ($row = $res->fetch_assoc()) {
-                $data['payment_mix'][] = [
-                    'pay_type_name' => $row['pay_type_name'] ?? '-',
-                    'total_amount'  => (float)($row['total_amount'] ?? 0),
-                    'bill_count'    => (int)($row['bill_count']     ?? 0),
-                ];
-            }
-        }
-        $stmt->close();
-    }
-
-    foreach (product_query_candidates() as $candidate) {
-        if (!empty($data['top_products'])) break;
-        if ($stmt = safe_prepare($conn, $data, $candidate['sql'])) {
-            $stmt->bind_param('ss', $dateFrom, $dateTo);
-            if ($res = safe_execute($stmt, $data)) {
-                $rows = [];
-                while ($row = $res->fetch_assoc()) {
-                    $rows[] = [
-                        'product_name'       => $row['product_name']       ?? '-',
-                        'product_group_name' => $row['product_group_name'] ?? '-',
-                        'qty_sold'           => (float)($row['qty_sold']   ?? 0),
-                        'total_sales'        => (float)($row['total_sales']?? 0),
-                    ];
-                }
-                if (!empty($rows)) {
-                    $data['top_products']        = $rows;
-                    $data['meta']['product_source'] = $candidate['source'];
-                }
-            }
-            $stmt->close();
-        }
-    }
-
     $conn->close();
 } catch (Throwable $e) {
-    set_error_once($data, $e->getMessage());
+    error_log('[api_dashboard] Exception: ' . $e->getMessage());
+    set_error_once($data, 'เกิดข้อผิดพลาด / Server error');
 }
 
 $bufferOutput = trim((string)ob_get_clean());
 if ($bufferOutput !== '') {
-    set_error_once($data, 'Unexpected output: ' . preg_replace('/\s+/', ' ', $bufferOutput));
+    error_log('[api_dashboard] Unexpected output: ' . preg_replace('/\s+/', ' ', $bufferOutput));
+    set_error_once($data, 'เกิดข้อผิดพลาดภายใน / Internal error');
 }
 
 if ($cacheTtl > 0) {

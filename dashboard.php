@@ -85,6 +85,10 @@ body[data-theme="light"] .card{
   background:linear-gradient(145deg,rgba(255,255,255,.88) 0%,rgba(255,255,255,.65) 100%);
   box-shadow:0 2px 16px rgba(30,50,100,.08),0 1px 4px rgba(30,50,100,.05);
 }
+body[data-theme="light"] .kpi:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(59,130,246,.22),0 0 24px rgba(59,130,246,.1)}
+body[data-theme="light"] .kpi[data-kpi="bills"]:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(6,214,160,.22),0 0 24px rgba(6,214,160,.1)}
+body[data-theme="light"] .kpi[data-kpi="avg"]:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(167,139,250,.22),0 0 24px rgba(167,139,250,.1)}
+body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(245,158,11,.22),0 0 24px rgba(245,158,11,.1)}
 .card::after{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
   background:linear-gradient(90deg,transparent 5%,rgba(255,255,255,.22) 50%,transparent 95%);
@@ -665,7 +669,7 @@ const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getIt
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),from:$('dateFrom'),to:$('dateTo')};
 const desk={lang:$('langSelectDesktop'),theme:$('themeSelectDesktop'),from:$('dateFromDesktop'),to:$('dateToDesktop')};
-let autoRefreshTimer=null,activeController=null,isLoading=false;
+let autoRefreshTimer=null,activeController=null,isLoading=false,cdSecs=0,cdTimer=null;
 const refreshMs=<?php echo (int)$DASHBOARD_REFRESH_MS; ?>;
 function t(k){return(I18N[state.lang]&&I18N[state.lang][k])||k}
 function locale(){return state.lang==='th'?'th-TH':'en-US'}
@@ -695,9 +699,12 @@ function applyPrefs(){document.body.dataset.theme=state.theme;localStorage.setIt
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}
 function showError(msg){if(msg){$('errorBox').style.display='block';$('errorBox').textContent=msg}else{$('errorBox').style.display='none';$('errorBox').textContent=''}}
 function shouldAutoRefresh(){return!document.hidden&&mobile.to.value===state.latestDate}
-function updateFooterNote(){$('footerNote').textContent=shouldAutoRefresh()?`${t('autoRefresh')} ${Math.round(refreshMs/1000)}s`:t('disabledRefresh')}
-function stopAutoRefresh(){if(autoRefreshTimer){clearInterval(autoRefreshTimer);autoRefreshTimer=null}updateFooterNote()}
-function startAutoRefresh(){stopAutoRefresh();if(!shouldAutoRefresh())return;autoRefreshTimer=setInterval(()=>loadDashboard(false),refreshMs);updateFooterNote()}
+function fmtCd(s){const m=Math.floor(s/60),ss=String(s%60).padStart(2,'0');return`${m}:${ss}`}
+function stopCd(){if(cdTimer){clearInterval(cdTimer);cdTimer=null}cdSecs=0}
+function startCd(){stopCd();if(!shouldAutoRefresh())return;cdSecs=Math.round(refreshMs/1000);cdTimer=setInterval(()=>{if(cdSecs>0)cdSecs--;updateFooterNote()},1000);updateFooterNote()}
+function updateFooterNote(){const pfx=state.lang==='th'?'รีเฟรชใน':'Refresh in';$('footerNote').textContent=shouldAutoRefresh()&&cdSecs>0?`${pfx} ${fmtCd(cdSecs)}`:shouldAutoRefresh()?`${t('autoRefresh')} ${Math.round(refreshMs/1000)}s`:t('disabledRefresh')}
+function stopAutoRefresh(){if(autoRefreshTimer){clearInterval(autoRefreshTimer);autoRefreshTimer=null}stopCd();updateFooterNote()}
+function startAutoRefresh(){stopAutoRefresh();if(!shouldAutoRefresh())return;autoRefreshTimer=setInterval(()=>loadDashboard(false),refreshMs);startCd()}
 function openSheet(){$('filterSheet').classList.add('open')}function closeSheet(){$('filterSheet').classList.remove('open')}
 async function fetchText(url,timeout=15000){if(activeController)activeController.abort();const controller=new AbortController();activeController=controller;const timer=setTimeout(()=>controller.abort(),timeout);try{const res=await fetch(url,{cache:'no-store',signal:controller.signal});const text=await res.text();return{res,text}}finally{clearTimeout(timer);if(activeController===controller)activeController=null}}
 function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
@@ -855,7 +862,7 @@ const cmp=data.comparison||{};
   if($vp){$vp.style.display='none'}
 })();
 state._lastCmp=cmp;
-renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();updateFooterNote()}}
+renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
