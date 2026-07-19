@@ -393,14 +393,20 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 
 /* ── MOBILE-SPECIFIC ── */
 @media(max-width:919px){
-  .hero{border-radius:0 0 var(--r) var(--r)}
+  .hero{border-radius:0 0 var(--r) var(--r);padding:11px 14px 13px}
   .topbar{border-radius:0 0 var(--r) var(--r)}
-  .hero h1{font-size:22px}
+  .hero-badge{margin-bottom:5px;padding:3px 9px;font-size:8.5px}
+  .hero h1{font-size:19px}
   .hero-sub{display:none}
   .kpi-grid{gap:6px}
-  .kpi{padding:14px 13px}
+  .kpi{padding:13px 12px}
   .kpi .value{font-size:20px}
-  .kpi-icon{width:30px;height:30px;font-size:15px;margin-bottom:9px}
+  .kpi[data-kpi="sales"]{grid-column:1/-1;background:linear-gradient(135deg,rgba(59,130,246,.1) 0%,rgba(6,214,160,.04) 100%)}
+  .kpi[data-kpi="sales"] .value{font-size:34px;letter-spacing:-.04em}
+  .kpi[data-kpi="sales"] .label{font-size:10px}
+  .kpi[data-kpi="sales"] .kpi-icon{width:34px;height:34px}
+  .kpi[data-kpi="watch"]{grid-column:1/-1}
+  .kpi-icon{width:28px;height:28px;margin-bottom:8px}
   .kpi .label{font-size:9px}
   .kpi .sub{font-size:10px}
   .section,.priority-card{padding:14px}
@@ -408,6 +414,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .priority-head{margin-bottom:12px}
   .meta-strip{gap:5px}
   .pill{padding:4px 9px;font-size:10px}
+  .pill-range{display:none}
   .chart-shell{height:190px}
 }
 
@@ -417,6 +424,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .hero{display:grid;grid-template-columns:360px 1fr;align-items:start;gap:28px;padding:24px 26px}
   .kpi-grid{grid-template-columns:repeat(4,1fr)}
   .kpi .value{font-size:21px}
+  .kpi[data-kpi="sales"] .value{font-size:28px}
   .mobile-tabs,.filter-sheet,.panel,.panel.active{display:none!important}
   #openFilterBtn{display:none}
   .desktop-only{display:block}
@@ -440,7 +448,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
           <p class="hero-sub" id="heroDesc">ภาพรวมยอดขายทุกสาขา</p>
           <div class="meta-strip">
             <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php echo h($range['latest_date']); ?></span></div>
-            <div class="pill"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
+            <div class="pill pill-range"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
             <div class="pill" id="verdictPill" style="display:none"><span id="verdictText"></span></div>
           </div>
         </div>
@@ -822,7 +830,7 @@ function renderRankingBar(rows,containerId){
 }
 function redrawCharts(){drawTrend(state.trendRows,'trendCanvas');drawTrend(state.trendRows,'trendCanvasDesktop')}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);['salesTotal','billCount','avgBill'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);['billCount','avgBill'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
   const $sc=$('salesCmp'),$vp=$('verdictPill'),$vt=$('verdictText');
