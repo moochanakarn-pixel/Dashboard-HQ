@@ -585,7 +585,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           <h2 id="trendTitle">แนวโน้มยอดขาย</h2>
           <div class="desc" id="trendDesc">ยอดขายรายวันตามช่วงที่เลือก</div>
         </div>
-        <button class="soft-btn" id="compareToggle">เปรียบเทียบ</button>
+        <button class="soft-btn" id="compareToggle" aria-pressed="false">เปรียบเทียบ</button>
       </div>
       <div id="trendLegend" class="trend-legend" style="display:none"><span class="tl-dot tl-dot-main"></span><span id="trendLegendMain">ช่วงปัจจุบัน</span><span class="tl-dot tl-dot-cmp"></span><span id="trendLegendCmp">ช่วงก่อนหน้า</span></div>
       <div class="chart-shell"><canvas id="trendCanvas"></canvas><div class="chart-tip" id="tipMobile"></div></div>
@@ -625,7 +625,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           <h2 id="trendTitleDesktop">แนวโน้มยอดขาย</h2>
           <div class="desc" id="trendDescDesktop">ยอดขายรายวันตามช่วงที่เลือก</div>
         </div>
-        <button class="soft-btn" id="compareToggleDesktop">เปรียบเทียบ</button>
+        <button class="soft-btn" id="compareToggleDesktop" aria-pressed="false">เปรียบเทียบ</button>
       </div>
       <div id="trendLegendDesktop" class="trend-legend" style="display:none"><span class="tl-dot tl-dot-main"></span><span id="trendLegendMainDesktop">ช่วงปัจจุบัน</span><span class="tl-dot tl-dot-cmp"></span><span id="trendLegendCmpDesktop">ช่วงก่อนหน้า</span></div>
       <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas><div class="chart-tip" id="tipDesktop"></div></div>
@@ -765,10 +765,10 @@ function qtyfmt(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:
 function pctfmt(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(Number(n||0))}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
-function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText();if(state.compareMode){state.compareMode=false;state.compareTrendRows=[];['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');el.textContent=t('compare')}})}}
+function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText();if(state.compareMode){state.compareMode=false;state.compareTrendRows=[];['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');el.textContent=t('compare');el.setAttribute('aria-pressed','false')}});['trendLegend','trendLegendDesktop'].forEach(id=>{const el=$(id);if(el)el.style.display='none'})}}
 function getCurrentFilters(){return{date_from:mobile.from.value,date_to:mobile.to.value}}
-const LABEL_MAP={heroTitle:'heroTitle',heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',compareToggle:'compare',compareToggleDesktop:'compare',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
-function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote();['rankingBars','rankingBarsDesktop','alertListOnly','alertListDesktop'].forEach(id=>{const el=$(id);if(el){const ch=el.querySelector('.empty');if(ch)ch.textContent=t('loading')}})}
+const LABEL_MAP={heroTitle:'heroTitle',heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
+function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el)el.textContent=state.compareMode?t('compareOff'):t('compare')});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote();['rankingBars','rankingBarsDesktop','alertListOnly','alertListDesktop'].forEach(id=>{const el=$(id);if(el){const ch=el.querySelector('.empty');if(ch)ch.textContent=t('loading')}})}
 function applyPrefs(){document.body.dataset.theme=state.theme;localStorage.setItem('hq_lang',state.lang);localStorage.setItem('hq_theme',state.theme);syncPrefsInputs();applyText();redrawCharts()}
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}
 function showError(msg){if(msg){$('errorBox').style.display='block';$('errorBox').textContent=msg}else{$('errorBox').style.display='none';$('errorBox').textContent=''}}
@@ -881,7 +881,7 @@ function drawTrend(rows,canvasId,cmpRows){
 }
 async function toggleCompare(){
   state.compareMode=!state.compareMode;
-  ['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(!el)return;el.classList.toggle('active',state.compareMode);el.textContent=state.compareMode?t('compareOff'):t('compare')});
+  ['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(!el)return;el.classList.toggle('active',state.compareMode);el.textContent=state.compareMode?t('compareOff'):t('compare');el.setAttribute('aria-pressed',state.compareMode?'true':'false')});
   ['trendLegend','trendLegendDesktop'].forEach(id=>{const el=$(id);if(el)el.style.display=state.compareMode?'flex':'none'});
   if(!state.compareMode){state.compareTrendRows=[];redrawCharts();return}
   const f=mobile.from.value,to=mobile.to.value;
@@ -889,18 +889,24 @@ async function toggleCompare(){
   const diff=Math.round((td-fd)/86400000)+1;
   const prevTo=new Date(fd);prevTo.setDate(prevTo.getDate()-1);
   const prevFrom=new Date(prevTo);prevFrom.setDate(prevTo.getDate()-diff+1);
-  try{const r=await fetch(`api_dashboard.php?date_from=${toLocalDateStr(prevFrom)}&date_to=${toLocalDateStr(prevTo)}&_=${Date.now()}`,{cache:'no-store'});const d=await r.json();state.compareTrendRows=d.sales_trend||[]}catch(e){state.compareTrendRows=[]}
+  try{const r=await fetch(`api_dashboard.php?date_from=${toLocalDateStr(prevFrom)}&date_to=${toLocalDateStr(prevTo)}&_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();state.compareTrendRows=d.sales_trend||[]}catch(e){state.compareTrendRows=[];showError(t('invalidJson')+' (compare)')}
   redrawCharts()
 }
+let _branchModalTrigger=null;
 function openBranchModal(shopId,shopName,totalSales,bills,avg){
+  _branchModalTrigger=document.activeElement;
   $('branchModalTitle').textContent=shopName;
   $('bmTotal').textContent=money(totalSales);$('bmBills').textContent=intfmt(bills);$('bmAvg').textContent=money(avg);
   $('branchModal').classList.remove('hidden');document.body.style.overflow='hidden';
-  const c=$('branchModalChart');if(c)c._chart=null;
+  $('branchModalClose')?.focus();
+  // lazy-init tooltip (canvas not in DOM when <script> executed)
+  const c=$('branchModalChart');
+  if(c&&!c._tipBound){initChartTooltip('branchModalChart','branchModalTip');c._tipBound=true}
+  if(c)c._chart=null;
   const f=mobile.from.value,to=mobile.to.value;
   fetch(`api_branch_daily.php?shop_id=${encodeURIComponent(shopId)}&date_from=${encodeURIComponent(f)}&date_to=${encodeURIComponent(to)}&_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json()).then(d=>drawBranchModalChart(d.daily||[])).catch(()=>drawBranchModalChart([]))
 }
-function closeBranchModal(){$('branchModal').classList.add('hidden');document.body.style.overflow=''}
+function closeBranchModal(){$('branchModal').classList.add('hidden');document.body.style.overflow='';if(_branchModalTrigger){_branchModalTrigger.focus();_branchModalTrigger=null}}
 function drawBranchModalChart(daily){
   const canvas=$('branchModalChart');if(!canvas)return;
   const ctx=canvas.getContext('2d'),par=canvas.parentElement,dpr=window.devicePixelRatio||1;
@@ -948,7 +954,7 @@ function renderRankingBar(rows,containerId){
   el.innerHTML='<div class="rank-list">'+items.map((r,i)=>{
     const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
     const isAlert=r.status==='watch'||r.status==='low_avg';
-    return `<div class="rank-row" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div><div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
+    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div><div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
   }).join('')+'</div>';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
@@ -1016,11 +1022,15 @@ initChartTooltip('trendCanvasDesktop','tipDesktop');
 // ── Compare ──
 ['compareToggle','compareToggleDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',toggleCompare)});
 // ── Branch drill-down (delegated) ──
-['rankingBars','rankingBarsDesktop'].forEach(cid=>{const c=$(cid);if(!c)return;c.addEventListener('click',e=>{const row=e.target.closest('.rank-row[data-shop-id]');if(!row||!row.dataset.shopId||row.dataset.shopId==='0')return;openBranchModal(row.dataset.shopId,row.dataset.shopName,Number(row.dataset.sales||0),Number(row.dataset.bills||0),Number(row.dataset.avg||0))})});
+['rankingBars','rankingBarsDesktop'].forEach(cid=>{
+  const c=$(cid);if(!c)return;
+  function openRow(e){const row=e.target.closest('.rank-row[data-shop-id]');if(!row||!row.dataset.shopId||row.dataset.shopId==='0')return;openBranchModal(row.dataset.shopId,row.dataset.shopName,Number(row.dataset.sales||0),Number(row.dataset.bills||0),Number(row.dataset.avg||0))}
+  c.addEventListener('click',openRow);
+  c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRow(e)}});
+});
 $('branchModalClose')&&$('branchModalClose').addEventListener('click',closeBranchModal);
 $('branchModalBackdrop')&&$('branchModalBackdrop').addEventListener('click',closeBranchModal);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBranchModal()});
-initChartTooltip('branchModalChart','branchModalTip');
 // ── PWA Install ──
 if('serviceWorker' in navigator){
   navigator.serviceWorker.register('sw.js').catch(()=>{});
@@ -1048,10 +1058,10 @@ document.getElementById('installDismiss')?.addEventListener('click',()=>{
 
 <div class="bm-overlay hidden" id="branchModal">
   <div class="bm-backdrop" id="branchModalBackdrop"></div>
-  <div class="bm-box">
+  <div class="bm-box" role="dialog" aria-modal="true" aria-labelledby="branchModalTitle">
     <div class="bm-head">
       <h3 id="branchModalTitle">—</h3>
-      <button class="icon-btn" id="branchModalClose">✕</button>
+      <button class="icon-btn" id="branchModalClose" aria-label="ปิด">✕</button>
     </div>
     <div class="bm-stats">
       <div class="bm-stat"><div class="bm-lbl" id="bmLblTotal">Total</div><div class="bm-val" id="bmTotal">—</div></div>

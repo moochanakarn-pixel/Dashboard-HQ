@@ -11,17 +11,19 @@ if (!$shopId
     || !preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) {
     json_output(['error' => 'Invalid params', 'daily' => []], 400);
 }
+if ($dateFrom > $dateTo) [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
 
 try {
     $conn = db_connect();
 
     $sql = "
-        SELECT DATE(sr.SaleDate)                          AS sale_date,
-               COALESCE(SUM(sr.ReceiptPayPrice), 0)       AS sales_total,
-               COUNT(*)                                   AS bill_count,
-               CASE WHEN COUNT(*) > 0
-                    THEN COALESCE(SUM(sr.ReceiptPayPrice),0) / COUNT(*)
-                    ELSE 0 END                            AS avg_bill
+        SELECT DATE(sr.SaleDate)                                    AS sale_date,
+               COALESCE(SUM(sr.ReceiptPayPrice), 0)               AS sales_total,
+               COALESCE(SUM(sr.TotalBill), 0)                     AS bill_count,
+               CASE WHEN COALESCE(SUM(sr.TotalBill), 0) > 0
+                    THEN COALESCE(SUM(sr.ReceiptPayPrice), 0)
+                         / COALESCE(SUM(sr.TotalBill), 0)
+                    ELSE 0 END                                     AS avg_bill
         FROM summary_tranreport sr
         WHERE sr.ShopID = ?
           AND sr.SaleDate >= ?
