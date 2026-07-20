@@ -332,6 +332,8 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
 .rank-name{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;white-space:nowrap;text-overflow:ellipsis;line-height:1.2}
 .rank-val{font-size:12.5px;font-weight:600;color:var(--text);flex-shrink:0;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .rank-track{height:5px;background:var(--line);border-radius:999px;overflow:hidden}
+.rank-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0;letter-spacing:.01em}
+.rank-badge-warn{background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
 .rank-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));box-shadow:0 0 6px var(--primary-glow);transition:width .7s cubic-bezier(.22,1,.36,1);width:0}
 .rank-fill-alert{background:linear-gradient(90deg,#f59e0b,#fb923c);box-shadow:0 0 6px rgba(245,158,11,.3)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
@@ -954,7 +956,10 @@ function renderRankingBar(rows,containerId){
   el.innerHTML='<div class="rank-list">'+items.map((r,i)=>{
     const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
     const isAlert=r.status==='watch'||r.status==='low_avg';
-    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div><div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
+    let badge='';
+    if(r.status==='watch'){const dp=Math.abs(Math.round(Number(r.sales_diff_pct||0)));badge=`<span class="rank-badge rank-badge-warn" title="${t('watch')}">▼ ${dp}%</span>`}
+    else if(r.status==='low_avg'){badge=`<span class="rank-badge rank-badge-warn" title="avg/บิลต่ำกว่าค่าเฉลี่ยรวม">${t('lowAvg')}</span>`}
+    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div>${badge}<div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
   }).join('')+'</div>';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
