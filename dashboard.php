@@ -1034,7 +1034,7 @@ initChartTooltip('trendCanvasDesktop','tipDesktop');
   c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRow(e)}});
 });
 // modal close via delegation (elements live after </script>, so use document)
-document.addEventListener('click',e=>{if(e.target.id==='branchModalClose'||e.target.id==='branchModalBackdrop')closeBranchModal()});
+document.addEventListener('click',e=>{if(e.target.closest('#branchModalClose')||e.target.id==='branchModalBackdrop')closeBranchModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBranchModal()});
 // ── PWA Install ──
 if('serviceWorker' in navigator){
@@ -1076,6 +1076,15 @@ document.getElementById('installDismiss')?.addEventListener('click',()=>{
     <div class="bm-chart-wrap"><canvas id="branchModalChart"></canvas><div class="bm-tip" id="branchModalTip"></div></div>
   </div>
 </div>
+<script>
+// Direct listeners on modal elements (runs after they exist in DOM)
+(function(){
+  var cl=document.getElementById('branchModalClose');
+  var bd=document.getElementById('branchModalBackdrop');
+  if(cl)cl.addEventListener('click',function(){closeBranchModal()});
+  if(bd)bd.addEventListener('click',function(){closeBranchModal()});
+})();
+</script>
 
 </body>
 </html>

@@ -48,6 +48,8 @@
 | 9 | `dashboard.php` | `applyText()` เขียนทับ text ปุ่ม Compare กลับเป็น "เปรียบเทียบ" แม้ตอน active | ย้าย compareToggle ออกจาก LABEL_MAP; `applyText()` ตรวจ `state.compareMode` |
 | 10 | `dashboard.php` | `toggleCompare()` ไม่เช็ค `r.ok` → HTTP 500 หาย silent | เพิ่ม `if(!r.ok) throw` + แสดง error message |
 | 11 | `dashboard.php` | `initChartTooltip('branchModalChart')` เรียกก่อน canvas มีใน DOM → tooltip ตาย | เปลี่ยนเป็น lazy init ครั้งแรกที่เปิด modal |
+| 12 | `sw.js` | Cache version `hq-v1` ไม่เคย expire → browser เสิร์ฟ `dashboard.php` เก่าจาก cache ตลอด | เปลี่ยนเป็น `hq-v2`; activate event ลบ `hq-v1` cache อัตโนมัติ |
+| 13 | `dashboard.php` | Document delegation ใช้ `e.target.id` ตรง ๆ → คลิกที่ child ของ ✕ ไม่ match | เปลี่ยนเป็น `e.target.closest('#branchModalClose')` + เพิ่ม inline script ต่อท้าย modal HTML สำหรับ direct listener |
 
 ---
 
