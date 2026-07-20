@@ -1033,7 +1033,7 @@ initChartTooltip('trendCanvasDesktop','tipDesktop');
   c.addEventListener('click',openRow);
   c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRow(e)}});
 });
-// modal close via delegation (elements live after </script>, so use document)
+// modal close via delegation (elements added after the main script block)
 document.addEventListener('click',e=>{if(e.target.closest('#branchModalClose')||e.target.id==='branchModalBackdrop')closeBranchModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeBranchModal()});
 // ── PWA Install ──
