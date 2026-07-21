@@ -444,6 +444,9 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .rt-btn{padding:7px 10px;font-size:0;gap:0}
   .rt-btn .live-dot{display:none}
   .rt-btn svg{display:block;width:18px;height:18px;stroke-width:2}
+  /* single-scroll feed: show all panels, hide tab bar */
+  .panel,.panel.active{display:block!important;animation:none!important}
+  .mobile-tabs{display:none!important}
 }
 @media(min-width:920px){
   .app{padding-bottom:24px}
@@ -599,22 +602,8 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
     </div>
   </div>
 
-  <!-- ── MOBILE PANELS ── -->
-  <div id="panel-overview" class="panel active">
-    <div class="card section gap">
-      <div class="section-head">
-        <div class="section-head-left">
-          <h2 id="trendTitle">แนวโน้มยอดขาย</h2>
-          <div class="desc" id="trendDesc">ยอดขายรายวันตามช่วงที่เลือก</div>
-        </div>
-        <button class="soft-btn" id="compareToggle" aria-pressed="false">เปรียบเทียบ</button>
-      </div>
-      <div id="trendLegend" class="trend-legend" style="display:none"><span class="tl-dot tl-dot-main"></span><span id="trendLegendMain">ช่วงปัจจุบัน</span><span class="tl-dot tl-dot-cmp"></span><span id="trendLegendCmp">ช่วงก่อนหน้า</span></div>
-      <div class="chart-shell"><canvas id="trendCanvas"></canvas><div class="chart-tip" id="tipMobile"></div></div>
-    </div>
-  </div>
-
-  <div id="panel-branches" class="panel">
+  <!-- ── MOBILE PANELS (order = priority on mobile: branches → alerts → chart) ── -->
+  <div id="panel-branches" class="panel active">
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
@@ -626,7 +615,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
     </div>
   </div>
 
-<div id="panel-alerts" class="panel">
+  <div id="panel-alerts" class="panel">
     <div class="card priority-card gap">
       <div class="priority-head">
         <div class="priority-head-title">
@@ -636,6 +625,20 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
         </div>
       </div>
       <div class="list" id="alertListOnly"><div class="empty">กำลังโหลด…</div></div>
+    </div>
+  </div>
+
+  <div id="panel-overview" class="panel">
+    <div class="card section gap">
+      <div class="section-head">
+        <div class="section-head-left">
+          <h2 id="trendTitle">แนวโน้มยอดขาย</h2>
+          <div class="desc" id="trendDesc">ยอดขายรายวันตามช่วงที่เลือก</div>
+        </div>
+        <button class="soft-btn" id="compareToggle" aria-pressed="false">เปรียบเทียบ</button>
+      </div>
+      <div id="trendLegend" class="trend-legend" style="display:none"><span class="tl-dot tl-dot-main"></span><span id="trendLegendMain">ช่วงปัจจุบัน</span><span class="tl-dot tl-dot-cmp"></span><span id="trendLegendCmp">ช่วงก่อนหน้า</span></div>
+      <div class="chart-shell"><canvas id="trendCanvas"></canvas><div class="chart-tip" id="tipMobile"></div></div>
     </div>
   </div>
 
@@ -1029,7 +1032,7 @@ let _resizeTimer;
 window.addEventListener('resize',()=>{if(window.innerWidth>=920)closeSheet();clearTimeout(_resizeTimer);_resizeTimer=setTimeout(redrawCharts,150)});
 let _lastFetchAt=0;
 document.addEventListener('visibilitychange',()=>{if(document.hidden){stopAutoRefresh()}else{loadDashboard(Date.now()-_lastFetchAt>=refreshMs);startAutoRefresh()}});
-applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('overview');loadDashboard(false);startAutoRefresh();
+applyPrefs();syncDateInputs('<?php echo h($dateFrom); ?>','<?php echo h($dateTo); ?>');setTab('branches');loadDashboard(false);startAutoRefresh();
 initChartTooltip('trendCanvas','tipMobile');
 initChartTooltip('trendCanvasDesktop','tipDesktop');
 // ── Q shortcuts ──
