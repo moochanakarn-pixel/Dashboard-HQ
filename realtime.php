@@ -274,6 +274,21 @@ html,body{
   .btn-lang{padding:0 7px}
   .rt-title{font-size:13px}
 }
+
+/* ── PWA Install Banner ── */
+#installBanner{
+  display:none;position:fixed;bottom:16px;left:12px;right:12px;z-index:200;
+  background:var(--bg2);border:1px solid var(--line2);border-radius:var(--r);
+  padding:12px 14px;gap:12px;align-items:center;
+  box-shadow:0 4px 24px rgba(0,0,0,.4);
+}
+@media(min-width:641px){#installBanner{display:none!important}}
+#installBanner .ib-icon{width:40px;height:40px;border-radius:10px;object-fit:cover;flex-shrink:0}
+#installBanner .ib-text{flex:1;min-width:0}
+#installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
+#installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
+#installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff;white-space:nowrap;flex-shrink:0}
+#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -380,6 +395,7 @@ const I18N = {
     days_th:['อา','จ','อ','พ','พฤ','ศ','ส'],
     months_th:['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'],
     branchUnit:'สาขา',
+    installSub:'เพิ่มลงหน้าจอหลัก', installBtn:'ติดตั้ง',
   },
   en: {
     back:'Dashboard', pageTitle:'Real-time Sales', refresh:'Refresh',
@@ -396,6 +412,7 @@ const I18N = {
     days_th:['Su','Mo','Tu','We','Th','Fr','Sa'],
     months_th:['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
     branchUnit:'branches',
+    installSub:'Add to home screen', installBtn:'Install',
   },
 };
 
@@ -714,6 +731,41 @@ function hideError()    { document.getElementById('errorEl').style.display='none
 document.documentElement.dataset.theme = S.theme;
 applyI18n();
 fetchData();
+
+// ── PWA Install ──
+let _deferredInstall = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault(); _deferredInstall = e;
+  const b = document.getElementById('installBanner');
+  if (b) b.style.display = 'flex';
+});
+window.addEventListener('appinstalled', () => {
+  _deferredInstall = null;
+  const b = document.getElementById('installBanner');
+  if (b) b.style.display = 'none';
+});
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('installBtn')?.addEventListener('click', async () => {
+    if (!_deferredInstall) return;
+    _deferredInstall.prompt();
+    await _deferredInstall.userChoice;
+    _deferredInstall = null;
+    document.getElementById('installBanner').style.display = 'none';
+  });
+  document.getElementById('installDismiss')?.addEventListener('click', () => {
+    document.getElementById('installBanner').style.display = 'none';
+  });
+});
 </script>
+
+<div id="installBanner">
+  <img class="ib-icon" src="icons/icon-192.png" alt="">
+  <div class="ib-text">
+    <div class="ib-title">HQ Dashboard</div>
+    <div class="ib-sub" data-i="installSub">เพิ่มลงหน้าจอหลัก</div>
+  </div>
+  <button class="ib-btn" id="installBtn" data-i="installBtn">ติดตั้ง</button>
+  <button class="ib-close" id="installDismiss" aria-label="ปิด">✕</button>
+</div>
 </body>
 </html>
