@@ -617,7 +617,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
-          <h2 id="branchTitle">อันดับสาขา Top 12</h2>
+          <h2 id="branchTitle">อันดับสาขา Top 20</h2>
           <div class="desc" id="branchDesc">ยอดขายเปรียบเทียบรายสาขา</div>
         </div>
       </div>
