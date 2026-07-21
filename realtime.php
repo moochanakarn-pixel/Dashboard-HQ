@@ -787,7 +787,7 @@ document.addEventListener('DOMContentLoaded', () => {
 <div id="installBanner">
   <img class="ib-icon" src="icons/icon-192.png" alt="">
   <div class="ib-text">
-    <div class="ib-title">HQ Dashboard</div>
+    <div class="ib-title">Sales HQ</div>
     <div class="ib-sub" data-i="installSub">เพิ่มลงหน้าจอหลัก</div>
   </div>
   <button class="ib-btn" id="installBtn" data-i="installBtn">ติดตั้ง</button>

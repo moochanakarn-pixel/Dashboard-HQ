@@ -11,13 +11,13 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>HQ Dashboard</title>
+<title>Sales HQ</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070f20" id="metaThemeColor">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="HQ Dashboard">
+<meta name="apple-mobile-web-app-title" content="Sales HQ">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -753,7 +753,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 <div id="installBanner">
   <img class="ib-icon" src="icons/icon-192.png" alt="">
   <div class="ib-text">
-    <div class="ib-title">HQ Dashboard</div>
+    <div class="ib-title">Sales HQ</div>
     <div id="ibSub" class="ib-sub">เพิ่มลงหน้าจอหลัก</div>
   </div>
   <button class="ib-btn" id="installBtn">ติดตั้ง</button>

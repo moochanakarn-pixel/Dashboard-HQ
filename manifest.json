@@ -1,6 +1,6 @@
 {
-  "name": "HQ Dashboard",
-  "short_name": "HQ Dashboard",
+  "name": "Sales HQ",
+  "short_name": "Sales HQ",
   "description": "Executive Sales Dashboard — ภาพรวมยอดขายทุกสาขา",
   "start_url": "./realtime.php",
   "display": "standalone",
