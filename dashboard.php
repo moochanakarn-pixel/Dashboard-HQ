@@ -654,28 +654,15 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 
   <!-- ── DESKTOP LAYOUT ── -->
   <div class="desktop-only">
+
     <div class="card section gap">
       <div class="section-head">
         <div class="section-head-left">
-          <h2 id="trendTitleDesktop">แนวโน้มยอดขาย</h2>
-          <div class="desc" id="trendDescDesktop">ยอดขายรายวันตามช่วงที่เลือก</div>
+          <h2 id="branchTitleDesktop">อันดับสาขา Top 20</h2>
+          <div class="desc" id="branchDescDesktop">ยอดขายเปรียบเทียบรายสาขา</div>
         </div>
-        <button class="soft-btn" id="compareToggleDesktop" aria-pressed="false">เปรียบเทียบ</button>
       </div>
-      <div id="trendLegendDesktop" class="trend-legend" style="display:none"><span class="tl-dot tl-dot-main"></span><span id="trendLegendMainDesktop">ช่วงปัจจุบัน</span><span class="tl-dot tl-dot-cmp"></span><span id="trendLegendCmpDesktop">ช่วงก่อนหน้า</span></div>
-      <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas><div class="chart-tip" id="tipDesktop"></div></div>
-    </div>
-
-    <div class="gap">
-      <div class="card section">
-        <div class="section-head">
-          <div class="section-head-left">
-            <h2 id="branchTitleDesktop">อันดับสาขา Top 12</h2>
-            <div class="desc" id="branchDescDesktop">ยอดขายเปรียบเทียบรายสาขา</div>
-          </div>
-        </div>
-        <div id="rankingBarsDesktop"><div class="empty">กำลังโหลด…</div></div>
-      </div>
+      <div id="rankingBarsDesktop"><div class="empty">กำลังโหลด…</div></div>
     </div>
 
     <div class="gap">
@@ -691,6 +678,21 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
         <div class="list" id="alertListDesktop"><div class="empty">กำลังโหลด…</div></div>
       </div>
     </div>
+
+    <div class="gap">
+      <div class="card section">
+        <div class="section-head">
+          <div class="section-head-left">
+            <h2 id="trendTitleDesktop">แนวโน้มยอดขาย</h2>
+            <div class="desc" id="trendDescDesktop">ยอดขายรายวันตามช่วงที่เลือก</div>
+          </div>
+          <button class="soft-btn" id="compareToggleDesktop" aria-pressed="false">เปรียบเทียบ</button>
+        </div>
+        <div id="trendLegendDesktop" class="trend-legend" style="display:none"><span class="tl-dot tl-dot-main"></span><span id="trendLegendMainDesktop">ช่วงปัจจุบัน</span><span class="tl-dot tl-dot-cmp"></span><span id="trendLegendCmpDesktop">ช่วงก่อนหน้า</span></div>
+        <div class="chart-shell"><canvas id="trendCanvasDesktop"></canvas><div class="chart-tip" id="tipDesktop"></div></div>
+      </div>
+    </div>
+
   </div>
 
   <div class="footer-note" id="footerNote">พร้อม</div>
