@@ -1,5 +1,5 @@
-const CACHE = 'hq-v2';
-const PRECACHE = ['./dashboard.php', './icons/icon-192.png', './icons/icon-512.png'];
+const CACHE = 'hq-v3';
+const PRECACHE = ['./realtime.php', './dashboard.php', './icons/icon-192.png', './icons/icon-512.png'];
 
 self.addEventListener('install', e => {
   self.skipWaiting();
@@ -15,7 +15,7 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  if (e.request.url.includes('api_dashboard.php')) {
+  if (e.request.url.includes('api_realtime.php') || e.request.url.includes('api_dashboard.php')) {
     e.respondWith(fetch(e.request));
     return;
   }

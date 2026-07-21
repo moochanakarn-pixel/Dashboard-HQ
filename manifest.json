@@ -2,7 +2,7 @@
   "name": "HQ Dashboard",
   "short_name": "HQ Dashboard",
   "description": "Executive Sales Dashboard — ภาพรวมยอดขายทุกสาขา",
-  "start_url": "./dashboard.php",
+  "start_url": "./realtime.php",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#070f20",
