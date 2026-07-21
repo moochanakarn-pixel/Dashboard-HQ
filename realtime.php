@@ -263,6 +263,17 @@ html,body{
 
 /* countdown */
 #cdWrap{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:4px}
+
+/* ── Mobile nav: icon-only controls so header fits in one row ── */
+@media(max-width:640px){
+  .back-btn span[data-i="back"]{display:none}
+  .back-btn{padding:5px 6px}
+  #cdWrap{display:none}
+  .btn-refresh span{display:none}
+  #langLabel{display:none}
+  .btn-lang{padding:0 7px}
+  .rt-title{font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -393,7 +404,7 @@ const S = {
   lang:  localStorage.getItem('hq_lang')  || 'th',
   theme: localStorage.getItem('hq_theme') || 'dark',
   days:  3,
-  sort:  { col: 'today', dir: -1 },
+  sort:  { col: 'today', dir: 1 },
   search:'',
   raw:   null,
   cd:    300,
@@ -593,7 +604,7 @@ function applyFilter() {
 // ── Table ──────────────────────────────────────────────
 function sortBy(col) {
   if (S.sort.col === col) S.sort.dir *= -1;
-  else { S.sort.col = col; S.sort.dir = -1; }
+  else { S.sort.col = col; S.sort.dir = 1; }
   renderTable();
 }
 
@@ -602,7 +613,7 @@ function renderTable() {
   if (!d) return;
   document.getElementById('tblWrap').style.display = '';
 
-  const cols  = d.date_columns || [];
+  const cols  = [...(d.date_columns || [])].reverse(); // today first, oldest last
   const today = d.today;
   const branches = filteredBranches();
 
@@ -686,7 +697,7 @@ window.addEventListener('resize', fitTableHeight, { passive: true });
 
 function setDays(n) {
   S.days = n;
-  S.sort.col = 'today'; // date columns change with new range; reset sort to today
+  S.sort = { col: 'today', dir: 1 }; // date columns change with new range; reset sort
   document.querySelectorAll('.seg-btn[data-days]').forEach(el => {
     el.classList.toggle('active', +el.dataset.days === n);
   });
