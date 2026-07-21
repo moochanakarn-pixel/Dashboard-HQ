@@ -13,7 +13,7 @@ register_shutdown_function(function () {
     }
 });
 
-$days     = max(7, min(30, (int)($_GET['days'] ?? 14)));
+$days     = max(3, min(30, (int)($_GET['days'] ?? 3)));
 $cacheKey = "realtime_v4_{$days}"; // TTL=120s governs freshness — no timestamp in key
 $cacheTtl = 120;
 

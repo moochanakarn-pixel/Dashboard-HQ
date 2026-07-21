@@ -308,8 +308,9 @@ html,body{
     <input id="searchInput" type="search" autocomplete="off" oninput="applyFilter()">
   </div>
   <div class="seg" id="daysSeg">
+    <button class="seg-btn active" data-days="3"  onclick="setDays(3)">3 <span data-i="days">วัน</span></button>
     <button class="seg-btn" data-days="7"  onclick="setDays(7)">7 <span data-i="days">วัน</span></button>
-    <button class="seg-btn active" data-days="14" onclick="setDays(14)">14 <span data-i="days">วัน</span></button>
+    <button class="seg-btn" data-days="14" onclick="setDays(14)">14 <span data-i="days">วัน</span></button>
     <button class="seg-btn" data-days="30" onclick="setDays(30)">30 <span data-i="days">วัน</span></button>
   </div>
 </div>
@@ -395,7 +396,7 @@ const I18N = {
 const S = {
   lang:  localStorage.getItem('hq_lang')  || 'th',
   theme: localStorage.getItem('hq_theme') || 'dark',
-  days:  14,
+  days:  3,
   sort:  { col: 'today', dir: -1 },
   search:'',
   raw:   null,
