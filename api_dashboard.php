@@ -14,8 +14,6 @@ if (!function_exists('api_base_payload')) {
                 'sales_total'       => 0,
                 'bill_count'        => 0,
                 'avg_bill'          => 0,
-                'guest_count'       => 0,
-                'branch_count'      => 0,
                 'best_branch_name'  => '-',
                 'best_branch_sales' => 0,
                 'worst_branch_name' => '-',
@@ -25,7 +23,7 @@ if (!function_exists('api_base_payload')) {
             'sales_trend'    => [],
             'alerts'         => [],
             'comparison'     => ['is_single_day' => false],
-            'meta'           => ['latest_data_date' => null, 'product_source' => null],
+            'meta'           => ['latest_data_date' => null],
             'error'          => null,
         ];
     }
@@ -134,9 +132,7 @@ try {
     $sqlSummary = "
         SELECT
             COALESCE(SUM(sr.ReceiptPayPrice),0) AS sales_total,
-            COALESCE(SUM(sr.TotalBill),0)       AS bill_count,
-            COALESCE(SUM(sr.TotalCustomer),0)   AS guest_count,
-            COUNT(DISTINCT sr.ShopID)           AS branch_count
+            COALESCE(SUM(sr.TotalBill),0)       AS bill_count
         FROM summary_tranreport sr
         WHERE sr.SaleDate >= ? AND sr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
           AND sr.DocType = 8 AND sr.TransactionStatusID = 2
@@ -149,8 +145,6 @@ try {
             $billCount  = (int)($row['bill_count']   ?? 0);
             $data['summary']['sales_total']  = $salesTotal;
             $data['summary']['bill_count']   = $billCount;
-            $data['summary']['guest_count']  = (int)($row['guest_count']  ?? 0);
-            $data['summary']['branch_count'] = (int)($row['branch_count'] ?? 0);
             $data['summary']['avg_bill']     = $billCount > 0 ? $salesTotal / $billCount : 0;
         }
         $stmt->close();
@@ -190,11 +184,9 @@ try {
     $sqlRanking = "
         SELECT
             sr.ShopID,
-            MAX(sr.ShopCode)  AS ShopCode,
             MAX(sr.ShopName)  AS ShopName,
             COALESCE(SUM(sr.ReceiptPayPrice),0)                                  AS sales_total,
             COALESCE(SUM(sr.TotalBill),0)                                        AS bill_count,
-            COALESCE(SUM(sr.TotalCustomer),0)                                    AS guest_count,
             COALESCE(SUM(sr.ReceiptPayPrice)/NULLIF(SUM(sr.TotalBill),0),0)      AS avg_bill,
             COALESCE(prev.prev_sales,0)                                          AS prev_sales
         FROM summary_tranreport sr
@@ -249,11 +241,9 @@ try {
                 $entry = [
                     'rank'           => ++$idx,
                     'shop_id'        => (int)($row['ShopID']    ?? 0),
-                    'shop_code'      => $row['ShopCode']          ?? '',
                     'shop_name'      => $shopName,
                     'sales_total'    => $currSales,
                     'bill_count'     => (int)($row['bill_count'] ?? 0),
-                    'guest_count'    => (int)($row['guest_count']?? 0),
                     'avg_bill'       => (float)($row['avg_bill'] ?? 0),
                     'sales_diff_pct' => $pct,
                     'status'         => $status,

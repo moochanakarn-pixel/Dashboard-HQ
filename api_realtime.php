@@ -173,19 +173,19 @@ try {
 
         $todaySales = $dailyMap[$bid][$today] ?? 0;
         $branches[] = [
-            'id'            => $bid,
             'name'          => $info['name'] ?: "Branch #{$bid}",
             'code'          => $info['code'] ?? '',
             'daily'         => $dailyMap[$bid],
             'this_month'    => $monthly['this_month'],
             'last_month'    => $monthly['last_month'],
-            'today_sales'   => $todaySales,
             'last_update'   => $lastUpd,
             'update_status' => $updateStatus,
+            '_sort'         => $todaySales,
         ];
     }
 
-    usort($branches, fn($a, $b) => $b['today_sales'] <=> $a['today_sales']);
+    usort($branches, fn($a, $b) => $b['_sort'] <=> $a['_sort']);
+    $branches = array_map(function($b) { unset($b['_sort']); return $b; }, $branches);
 
     // --- 5. Grand totals ---
     $totalsDaily    = [];

@@ -35,7 +35,6 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
   --warn:#f59e0b; --warn-bg:rgba(245,158,11,.08); --warn-border:rgba(245,158,11,.22);
   --bad:#f43f5e;  --bad-bg:rgba(244,63,94,.08);   --bad-border:rgba(244,63,94,.22);
   --shadow:0 16px 48px rgba(0,0,0,.45),0 4px 14px rgba(0,0,0,.25);
-  --shadow-sm:0 4px 18px rgba(0,0,0,.25);  /* used by card hover states */
   --r:20px; --r-sm:14px; --r-xs:9px;
 }
 body[data-theme="light"]{
@@ -49,7 +48,6 @@ body[data-theme="light"]{
   --warn:#d97706; --warn-bg:rgba(217,119,6,.07);  --warn-border:rgba(217,119,6,.18);
   --bad:#e11d48;  --bad-bg:rgba(225,29,72,.07);   --bad-border:rgba(225,29,72,.18);
   --shadow:0 2px 16px rgba(30,50,100,.08),0 1px 4px rgba(30,50,100,.05);
-  --shadow-sm:0 2px 10px rgba(30,50,100,.07);
 }
 
 
@@ -123,12 +121,6 @@ body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba
   font-size:9.5px;font-weight:700;color:var(--primary);
   margin-bottom:6px;letter-spacing:.07em;text-transform:uppercase;
 }
-.hero h1{font-size:28px;font-weight:600;letter-spacing:-.04em;line-height:1.05}
-.hero h1 span{
-  background:linear-gradient(135deg,var(--primary) 20%,var(--primary2) 100%);
-  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-}
-.hero-sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.55;max-width:300px}
 .hero-actions{display:flex;gap:8px;flex-shrink:0;padding-top:4px}
 
 .meta-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
@@ -288,23 +280,6 @@ select.control option{background:var(--bg);color:var(--text)}
 body[data-theme="light"] .chart-tip{background:rgba(245,249,255,.97)}
 
 
-.badge{display:inline-flex;align-items:center;padding:3px 9px;border-radius:999px;font-size:9.5px;font-weight:800;flex-shrink:0;letter-spacing:.03em}
-.status-normal{background:rgba(59,130,246,.1);color:var(--primary);border:1px solid rgba(59,130,246,.2)}
-.status-watch,.status-low_avg{background:var(--warn-bg);color:var(--warn);border:1px solid var(--warn-border)}
-.status-no_data{background:var(--bad-bg);color:var(--bad);border:1px solid var(--bad-border)}
-
-.table-wrap{overflow:hidden;border-radius:var(--r-sm);border:1px solid var(--line2)}
-table{width:100%;border-collapse:collapse;table-layout:fixed}
-th{
-  padding:10px 11px;border-bottom:1px solid var(--line);text-align:left;
-  font-size:10.5px;font-weight:700;color:var(--muted);letter-spacing:.04em;text-transform:uppercase;
-  background:rgba(255,255,255,.03);position:sticky;top:0;white-space:nowrap;overflow:hidden;
-}
-td{padding:10px 11px;border-bottom:1px solid var(--line2);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-variant-numeric:tabular-nums}
-tr:last-child td{border-bottom:none}
-tr:nth-child(even) td{background:rgba(255,255,255,.015)}
-tr:hover td{background:rgba(59,130,246,.07)!important}
-td.rank-cell{font-weight:800;color:var(--muted);width:46px;font-size:10.5px;text-align:center}
 
 .empty{
   padding:20px;border-radius:var(--r-sm);background:rgba(255,255,255,.02);
@@ -428,8 +403,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .hero{border-radius:0 0 var(--r) var(--r);padding:11px 14px 13px}
   .topbar{border-radius:0 0 var(--r) var(--r)}
   .hero-badge{margin-bottom:5px;padding:3px 9px;font-size:8.5px}
-  .hero h1{font-size:19px}
-  .hero-sub{display:none}
   .kpi-grid{gap:6px}
   .kpi[data-kpi="sales"]{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:14px 16px}
   .kpi[data-kpi="sales"] .kpi-icon{margin-bottom:0;flex-shrink:0}
@@ -527,7 +500,6 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           <div class="meta-strip">
             <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php echo h($range['latest_date']); ?></span></div>
             <div class="pill pill-range"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
-            <div class="pill" id="verdictPill" style="display:none"><span id="verdictText"></span></div>
           </div>
         </div>
         <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
@@ -769,8 +741,8 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 
 <script>
 const I18N={
-en:{heroTitle:'HQ Dashboard',heroDesc:'Executive overview across all branches.',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg per Bill',kpiAvgSub:'Per receipt',kpiWatchLabel:'Top · Lowest Branch',kpiGuestsLabel:'Total Guests',kpiGuestsSub:'Sum of TotalCustomer',kpiBranchLabel:'Branches',kpiBranchSub:'Within selected range',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'Branch Rankings',branchDesc:'Sales compared by branch',paymentTitle:'Payment Mix',paymentDesc:'Top payment types.',productTitle:'Top Products',productDesc:'Products driving revenue.',tabOverview:'Overview',tabBranches:'Branches',tabProducts:'Products',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noData:'No Data',normal:'Normal',sales:'Sales',bills:'Bills',avgBill:'Avg Bill',qty:'Qty',revenue:'Revenue',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noPayment:'No payment data.',noProduct:'No product data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.',labelLang:'Language',labelTheme:'Theme',labelDateFrom:'From',labelDateTo:'To',labelDateRange:'Date Range',loading:'Loading…',close:'Close',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'This Year',lastYear:'Last Year',compare:'Compare',compareOff:'Hide Compare',exportPdf:'Print',installSub:'Add to home screen',installBtn:'Install',bmTotal:'Total',bmBills:'Bills',bmAvg:'Avg/Bill',dailySales:'Daily Sales',trendLegendMain:'Current period',trendLegendCmp:'Previous period'},
-th:{heroTitle:'HQ Dashboard',heroDesc:'ภาพรวมยอดขายทุกสาขา',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ยต่อบิล',kpiAvgSub:'ต่อ 1 ใบเสร็จ',kpiWatchLabel:'สาขา สูงสุด · ต่ำสุด',kpiGuestsLabel:'ลูกค้ารวม',kpiGuestsSub:'รวม TotalCustomer',kpiBranchLabel:'สาขาที่มีข้อมูล',kpiBranchSub:'ในช่วงที่เลือก',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'อันดับสาขา Top 12',branchDesc:'ยอดขายเปรียบเทียบรายสาขา',paymentTitle:'ช่องทางชำระเงิน',paymentDesc:'ประเภทที่ใช้มากสุด',productTitle:'สินค้าขายดี',productDesc:'สินค้าที่ขับยอดขายรวม',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabProducts:'สินค้า',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noData:'ไม่มีข้อมูล',normal:'ปกติ',sales:'ยอดขาย',bills:'บิล',avgBill:'Avg Bill',qty:'จำนวน',revenue:'ยอดขาย',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noPayment:'ยังไม่มีข้อมูลการชำระเงิน',noProduct:'ยังไม่มีข้อมูลสินค้า',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป',labelLang:'ภาษา',labelTheme:'ธีม',labelDateFrom:'วันที่เริ่ม',labelDateTo:'วันที่สิ้นสุด',labelDateRange:'ช่วงวันที่',loading:'กำลังโหลด…',close:'ปิด',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'ปีนี้',lastYear:'ปีก่อน',compare:'เปรียบเทียบ',compareOff:'ซ่อนเปรียบ',exportPdf:'พิมพ์',installSub:'เพิ่มลงหน้าจอหลัก',installBtn:'ติดตั้ง',bmTotal:'ยอดรวม',bmBills:'บิล',bmAvg:'Avg/บิล',dailySales:'ยอดรายวัน',trendLegendMain:'ช่วงปัจจุบัน',trendLegendCmp:'ช่วงก่อนหน้า'}};
+en:{latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg per Bill',kpiAvgSub:'Per receipt',kpiWatchLabel:'Top · Lowest Branch',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'Branch Rankings',branchDesc:'Sales compared by branch',tabOverview:'Overview',tabBranches:'Branches',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.',labelLang:'Language',labelTheme:'Theme',labelDateFrom:'From',labelDateTo:'To',labelDateRange:'Date Range',loading:'Loading…',close:'Close',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'This Year',lastYear:'Last Year',compare:'Compare',compareOff:'Hide Compare',exportPdf:'Print',installSub:'Add to home screen',installBtn:'Install',bmTotal:'Total',bmBills:'Bills',bmAvg:'Avg/Bill',trendLegendMain:'Current period',trendLegendCmp:'Previous period'},
+th:{latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ยต่อบิล',kpiAvgSub:'ต่อ 1 ใบเสร็จ',kpiWatchLabel:'สาขา สูงสุด · ต่ำสุด',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'อันดับสาขา Top 12',branchDesc:'ยอดขายเปรียบเทียบรายสาขา',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป',labelLang:'ภาษา',labelTheme:'ธีม',labelDateFrom:'วันที่เริ่ม',labelDateTo:'วันที่สิ้นสุด',labelDateRange:'ช่วงวันที่',loading:'กำลังโหลด…',close:'ปิด',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'ปีนี้',lastYear:'ปีก่อน',compare:'เปรียบเทียบ',compareOff:'ซ่อนเปรียบ',exportPdf:'พิมพ์',installSub:'เพิ่มลงหน้าจอหลัก',installBtn:'ติดตั้ง',bmTotal:'ยอดรวม',bmBills:'บิล',bmAvg:'Avg/บิล',trendLegendMain:'ช่วงปัจจุบัน',trendLegendCmp:'ช่วงก่อนหน้า'}};
 const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[],rankingRows:[],compareMode:false,compareTrendRows:[]};
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),from:$('dateFrom'),to:$('dateTo')};
@@ -793,13 +765,11 @@ function fmtPeriodThai(from,to){
 function compactMoney(n){const v=Number(n||0);if(v>=1e6)return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/1e6)+' M';if(v>=1e3)return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e3)+' K';return money(v)}
 function autoSizeKpi(el){const len=(el.textContent||'').replace(/\s/g,'').length;el.style.fontSize=len<=8?'':''+( len<=10?'20px':len<=12?'17px':'15px')}
 function intfmt(n){return new Intl.NumberFormat(locale(),{maximumFractionDigits:0}).format(Number(n||0))}
-function qtyfmt(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:0,maximumFractionDigits:2}).format(Number(n||0))}
-function pctfmt(n){return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(Number(n||0))}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
 function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText();if(state.compareMode){state.compareMode=false;state.compareTrendRows=[];['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');el.textContent=t('compare');el.setAttribute('aria-pressed','false')}});['trendLegend','trendLegendDesktop'].forEach(id=>{const el=$(id);if(el)el.style.display='none'})}}
 function getCurrentFilters(){return{date_from:mobile.from.value,date_to:mobile.to.value}}
-const LABEL_MAP={latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
+const LABEL_MAP={latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
 function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el)el.textContent=state.compareMode?t('compareOff'):t('compare')});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote();['rankingBars','rankingBarsDesktop','alertListOnly','alertListDesktop'].forEach(id=>{const el=$(id);if(el){const ch=el.querySelector('.empty');if(ch)ch.textContent=t('loading')}})}
 function applyPrefs(){document.body.dataset.theme=state.theme;localStorage.setItem('hq_lang',state.lang);localStorage.setItem('hq_theme',state.theme);syncPrefsInputs();applyText();redrawCharts()}
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}
@@ -813,8 +783,6 @@ function stopAutoRefresh(){if(autoRefreshTimer){clearInterval(autoRefreshTimer);
 function startAutoRefresh(){stopAutoRefresh();if(!shouldAutoRefresh())return;autoRefreshTimer=setInterval(()=>loadDashboard(false),refreshMs);startCd()}
 function openSheet(){$('filterSheet').classList.add('open')}function closeSheet(){$('filterSheet').classList.remove('open')}
 async function fetchText(url,timeout=15000){if(activeController)activeController.abort();const controller=new AbortController();activeController=controller;const timer=setTimeout(()=>controller.abort(),timeout);try{const res=await fetch(url,{cache:'no-store',signal:controller.signal});const text=await res.text();return{res,text}}finally{clearTimeout(timer);if(activeController===controller)activeController=null}}
-function statusLabel(status){if(status==='watch')return t('watch');if(status==='low_avg')return t('lowAvg');if(status==='no_data')return t('noData');return t('normal')}
-function rankClass(rank){if(rank===1)return'top1';if(rank===2)return'top2';if(rank===3)return'top3';return''}
 function renderAlerts(rows,meta,summary){
   const count=rows?rows.length:0;
   if(meta&&meta.previous_from){
@@ -1000,9 +968,9 @@ function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classL
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);['billCount','avgBill'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
-  const $sc=$('salesCmp'),$vp=$('verdictPill'),$vt=$('verdictText');
+  const $sc=$('salesCmp');
   if(!$sc)return;
-  if(!cmp.is_single_day){$sc.style.display='none';if($vp)$vp.style.display='none';return}
+  if(!cmp.is_single_day){$sc.style.display='none';return}
   $sc.style.display='';
   function badge(elId,cmpData,label){
     const el=$(elId);if(!el)return;
@@ -1019,7 +987,6 @@ const cmp=data.comparison||{};
   }
   badge('cmpYday',cmp.yesterday,'vs เมื่อวาน');
   badge('cmpWeek',cmp.last_week,'vs 7 วันที่แล้ว');
-  if($vp){$vp.style.display='none'}
 })();
 state._lastCmp=cmp;
 renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
