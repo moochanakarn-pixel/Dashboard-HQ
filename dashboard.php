@@ -438,6 +438,12 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .kpi[data-kpi="sales"]{gap:10px;padding:10px 12px}
   .kpi[data-kpi="sales"] .value{font-size:26px}
   .kpi[data-kpi="sales"] .kpi-icon{width:28px;height:28px}
+  /* hide print — useless on phone */
+  #printBtn{display:none!important}
+  /* compact ยอดสด button: icon only */
+  .rt-btn{padding:7px 10px;font-size:0;gap:0}
+  .rt-btn .live-dot{display:none}
+  .rt-btn svg{display:block;width:18px;height:18px;stroke-width:2}
 }
 @media(min-width:920px){
   .app{padding-bottom:24px}

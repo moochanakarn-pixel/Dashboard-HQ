@@ -288,6 +288,17 @@ html,body{
   .sum-val{font-size:15px}
   .sum-lbl{font-size:8px;margin-bottom:2px}
   .sum-sub{font-size:9px;margin-top:1px}
+
+  /* table: narrower columns so 3 date columns visible without scrolling */
+  .rt-tbl th.c-rank,.rt-tbl td.c-rank{width:32px;min-width:32px;max-width:32px}
+  .rt-tbl th.c-name,.rt-tbl td.c-name{left:32px;min-width:110px;width:110px;max-width:110px}
+  .c-date {min-width:76px;width:76px}
+  .c-today{min-width:86px;width:86px}
+  .c-month{min-width:86px;width:86px}
+  .rt-tbl thead th{padding:7px 7px}
+  .rt-tbl tbody td{padding:6.5px 7px}
+  .rt-tbl tbody td.c-rank{padding:6.5px 3px}
+  .rt-tbl tbody td.c-name{padding-left:8px}
 }
 
 /* ── PWA Install Banner ── */
