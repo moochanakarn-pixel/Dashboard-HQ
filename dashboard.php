@@ -114,6 +114,7 @@ body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba
   pointer-events:none;
 }
 .hero-inner{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.app-brand{font-size:14px;font-weight:800;color:var(--text);letter-spacing:-.025em;margin-bottom:5px;line-height:1.1;opacity:.9}
 .hero-badge{
   display:inline-flex;align-items:center;gap:6px;
   padding:4px 12px;border-radius:999px;
@@ -337,6 +338,7 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
 .rank-badge-warn{background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
 .rank-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));box-shadow:0 0 6px var(--primary-glow);transition:width .7s cubic-bezier(.22,1,.36,1);width:0}
 .rank-fill-alert{background:linear-gradient(90deg,#f59e0b,#fb923c);box-shadow:0 0 6px rgba(245,158,11,.3)}
+.rank-fill-top3{background:linear-gradient(90deg,#10d9a0,#34d399);box-shadow:0 0 8px rgba(16,217,160,.45)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
 .filter-sheet{position:fixed;inset:0;z-index:60;display:none}
@@ -514,12 +516,20 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
     <div class="card hero">
       <div class="hero-inner">
         <div style="flex:1;min-width:0">
+          <div class="app-brand">Sales HQ</div>
           <div class="hero-badge">
             <span class="live-dot"></span>
             <span id="apiStatusText">Live</span>
           </div>
           <div class="meta-strip">
-            <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php echo h($range['latest_date']); ?></span></div>
+            <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php
+  $ld = $range['latest_date'];
+  if ($ld && preg_match('/^(\d{4})-(\d{2})-(\d{2})$/', $ld, $m)) {
+    $thMonths = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+    $yy = ((int)$m[1] + 543) % 100;
+    echo h((int)$m[3].' '.$thMonths[(int)$m[2]].' '.($yy < 10 ? '0'.$yy : $yy));
+  } else { echo h($ld); }
+?></span></div>
             <div class="pill pill-range"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
           </div>
         </div>
@@ -978,7 +988,7 @@ function renderRankingBar(rows,containerId){
     let badge='';
     if(r.status==='watch'){const dp=Math.abs(Math.round(Number(r.sales_diff_pct||0)));badge=`<span class="rank-badge rank-badge-warn" title="${t('watch')}">▼ ${dp}%</span>`}
     else if(r.status==='low_avg'){badge=`<span class="rank-badge rank-badge-warn" title="avg/บิลต่ำกว่าค่าเฉลี่ยรวม">${t('lowAvg')}</span>`}
-    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div>${badge}<div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':''}" data-w="${pct}%"></div></div></div></div>`;
+    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div>${badge}<div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${isAlert?' rank-fill-alert':i<3?' rank-fill-top3':''}" data-w="${pct}%"></div></div></div></div>`;
   }).join('')+'</div>';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
@@ -986,7 +996,7 @@ function renderRankingBar(rows,containerId){
 }
 function redrawCharts(){const cmp=state.compareMode?state.compareTrendRows:null;drawTrend(state.trendRows,'trendCanvas',cmp);drawTrend(state.trendRows,'trendCanvasDesktop',cmp)}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel))}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=state.latestDate||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);['billCount','avgBill'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=fmtDateThai(state.latestDate)||'-';$('salesTotal').textContent=money(data.summary.sales_total);$('billCount').textContent=intfmt(data.summary.bill_count);$('avgBill').textContent=money(data.summary.avg_bill);['billCount','avgBill'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${data.summary.best_branch_name||'-'} / ${data.summary.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(data.summary.best_branch_sales)} | ${t('lowest')} ${compactMoney(data.summary.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
   const $sc=$('salesCmp');

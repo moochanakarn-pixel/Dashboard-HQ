@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>ยอดขาย Real-time — HQ</title>
+<title>Sales HQ</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070f20">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -322,8 +322,8 @@ html,body{
 <!-- ── Header ── -->
 <header class="rt-hd">
   <a href="dashboard.php" class="back-btn">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></svg>
-    <span data-i="back">Dashboard</span>
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
+    <span data-i="back">Analytics</span>
   </a>
   <div class="rt-title-wrap">
     <div class="rt-title">
@@ -407,7 +407,7 @@ html,body{
 // ── i18n ────────────────────────────────────────────
 const I18N = {
   th: {
-    back:'Dashboard', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
+    back:'Analytics', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
     loading:'กำลังโหลดข้อมูล…', noData:'ไม่พบข้อมูล', noResult:'ไม่พบสาขาที่ค้นหา',
     errorPrefix:'โหลดข้อมูลไม่สำเร็จ: ',
     days:'วัน',
@@ -424,7 +424,7 @@ const I18N = {
     installSub:'เพิ่มลงหน้าจอหลัก', installBtn:'ติดตั้ง',
   },
   en: {
-    back:'Dashboard', pageTitle:'Real-time Sales', refresh:'Refresh',
+    back:'Analytics', pageTitle:'Real-time Sales', refresh:'Refresh',
     loading:'Loading data…', noData:'No data available', noResult:'No branches found',
     errorPrefix:'Failed to load: ',
     days:'Days',
