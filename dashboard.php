@@ -294,6 +294,14 @@ body[data-theme="light"] .chart-tip{background:rgba(245,249,255,.97)}
 .no-alerts-icon{font-size:36px;line-height:1}
 .no-alerts-title{font-size:14px;font-weight:700;color:var(--good);margin-top:4px}
 .no-alerts-sub{font-size:11px;color:var(--muted);text-align:center;line-height:1.5}
+.alert-show-more{
+  width:100%;margin-top:8px;padding:9px 14px;
+  border-radius:var(--r-xs);border:1px solid var(--line2);
+  background:rgba(255,255,255,.03);color:var(--muted);
+  font-size:11.5px;font-weight:600;cursor:pointer;text-align:center;
+  transition:background .15s,color .15s;
+}
+.alert-show-more:hover{background:var(--glass);color:var(--text)}
 .error-box{
   display:none;margin-top:8px;padding:12px 15px;border-radius:var(--r-sm);
   border:1px solid var(--bad-border);border-left:3px solid var(--bad);
@@ -873,7 +881,10 @@ function renderAlerts(rows,meta,summary){
     }
     return`<div class="alert-item" data-type="${escapeHtml(type)}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-name">${escapeHtml(a.shop_name||'-')}</div>${detail?`<div class="alert-detail">${detail}</div>`:''}</div></div>`;
   }
-  const html=(!rows||!rows.length)?`<div class="no-alerts-state"><div class="no-alerts-icon">✅</div><div class="no-alerts-title">${state.lang==='th'?'ทุกสาขาปกติ':'All Clear'}</div><div class="no-alerts-sub">${t('noAlerts')}</div></div>`:rows.map(alertHtml).join('');
+  const ALERT_MAX=5;
+  const noAlertHtml=`<div class="no-alerts-state"><div class="no-alerts-icon">✅</div><div class="no-alerts-title">${state.lang==='th'?'ทุกสาขาปกติ':'All Clear'}</div><div class="no-alerts-sub">${t('noAlerts')}</div></div>`;
+  const moreLabel=state.lang==='th'?`▼ แสดงเพิ่มอีก ${count-ALERT_MAX} สาขา`:`▼ Show ${count-ALERT_MAX} more`;
+  const html=(!rows||!rows.length)?noAlertHtml:rows.slice(0,ALERT_MAX).map(alertHtml).join('')+(count>ALERT_MAX?`<div class="alert-more-wrap" style="display:none">${rows.slice(ALERT_MAX).map(alertHtml).join('')}</div><button class="alert-show-more" onclick="this.previousElementSibling.style.display='';this.style.display='none'">${moreLabel}</button>`:'');
   ['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});
   $('alertCountDesktop')&&($('alertCountDesktop').textContent=count);
   const badge=$('tabAlertBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'flex':'none'}
