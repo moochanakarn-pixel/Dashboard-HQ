@@ -144,6 +144,32 @@ body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba
   animation:pulse-dot 2.5s ease-in-out infinite;
 }
 @keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(16,217,160,.6)}55%{box-shadow:0 0 0 6px rgba(16,217,160,0)}}
+.rt-btn{
+  text-decoration:none;display:inline-flex;align-items:center;gap:7px;
+  padding:9px 18px;border-radius:12px;
+  border:1.5px solid rgba(16,217,160,.65);
+  background:rgba(16,217,160,.18);
+  color:var(--good);font-size:13px;font-weight:700;letter-spacing:.02em;
+  transition:all .2s;
+  box-shadow:0 0 16px rgba(16,217,160,.2),inset 0 0 0 0 rgba(16,217,160,0);
+  white-space:nowrap;
+}
+.rt-btn:hover{
+  background:rgba(16,217,160,.28);
+  border-color:rgba(16,217,160,.95);
+  box-shadow:0 0 24px rgba(16,217,160,.38);
+  color:var(--good);
+}
+body[data-theme="light"] .rt-btn{
+  background:rgba(16,217,160,.12);
+  border-color:rgba(6,147,107,.5);
+  color:#06936b;
+  box-shadow:0 0 12px rgba(16,217,160,.12);
+}
+body[data-theme="light"] .rt-btn:hover{
+  background:rgba(16,217,160,.22);
+  border-color:rgba(6,147,107,.85);
+}
 
 .icon-btn{
   width:38px;height:38px;border-radius:var(--r-sm);
@@ -503,7 +529,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           </div>
         </div>
         <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
-<a href="realtime.php" title="ยอดขาย Real-time" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:12px;border:1px solid rgba(16,217,160,.35);background:rgba(16,217,160,.08);color:var(--good);font-size:12px;font-weight:700;letter-spacing:.02em;transition:background .15s,border-color .15s" onmouseover="this.style.background='rgba(16,217,160,.16)';this.style.borderColor='rgba(16,217,160,.6)'" onmouseout="this.style.background='rgba(16,217,160,.08)';this.style.borderColor='rgba(16,217,160,.35)'"><span style="width:7px;height:7px;border-radius:50%;background:var(--good);flex-shrink:0;animation:pulse-dot 2.5s ease-in-out infinite"></span><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Real-time</a><button id="printBtn" onclick="window.print()">🖨️ <span id="printBtnLabel">พิมพ์</span></button>
+<a href="realtime.php" class="rt-btn" title="ดูยอดขาย Real-time ทุกสาขา"><span class="live-dot"></span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>ยอดสด</a><button id="printBtn" onclick="window.print()">🖨️ <span id="printBtnLabel">พิมพ์</span></button>
 <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2.5" fill="var(--bg)"/><circle cx="15" cy="12" r="2.5" fill="var(--bg)"/><circle cx="9" cy="18" r="2.5" fill="var(--bg)"/></svg></button>
         </div>
       </div>
