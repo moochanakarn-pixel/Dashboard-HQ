@@ -121,7 +121,7 @@ body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba
   padding:4px 12px;border-radius:999px;
   background:rgba(59,130,246,.1);border:1px solid rgba(59,130,246,.28);
   font-size:9.5px;font-weight:700;color:var(--primary);
-  margin-bottom:10px;letter-spacing:.07em;text-transform:uppercase;
+  margin-bottom:6px;letter-spacing:.07em;text-transform:uppercase;
 }
 .hero h1{font-size:28px;font-weight:600;letter-spacing:-.04em;line-height:1.05}
 .hero h1 span{
@@ -131,7 +131,7 @@ body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba
 .hero-sub{margin-top:6px;color:var(--muted);font-size:12px;line-height:1.55;max-width:300px}
 .hero-actions{display:flex;gap:8px;flex-shrink:0;padding-top:4px}
 
-.meta-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:14px}
+.meta-strip{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
 .pill{
   display:inline-flex;align-items:center;gap:5px;
   padding:5px 11px;border-radius:999px;
@@ -431,6 +431,10 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .hero h1{font-size:19px}
   .hero-sub{display:none}
   .kpi-grid{gap:6px}
+  .kpi[data-kpi="sales"]{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:14px 16px}
+  .kpi[data-kpi="sales"] .kpi-icon{margin-bottom:0;flex-shrink:0}
+  .kpi[data-kpi="sales"] .kpi-text{flex:1;min-width:0}
+  .kpi[data-kpi="sales"] .value{font-size:32px}
   .kpi{padding:13px 12px}
   .kpi .value{font-size:20px}
   .kpi[data-kpi="sales"]{grid-column:1/-1;background:linear-gradient(135deg,rgba(59,130,246,.1) 0%,rgba(6,214,160,.04) 100%)}
@@ -520,7 +524,6 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
             <span class="live-dot"></span>
             <span id="apiStatusText">Live</span>
           </div>
-          <p class="hero-sub" id="heroDesc">ภาพรวมยอดขายทุกสาขา</p>
           <div class="meta-strip">
             <div class="pill"><b id="latestLabel">ล่าสุด</b>&nbsp;<span id="latestDataDate"><?php echo h($range['latest_date']); ?></span></div>
             <div class="pill pill-range"><b id="rangeLabel">ช่วง</b>&nbsp;<span id="selectedRangeText"><?php echo h($dateFrom); ?> – <?php echo h($dateTo); ?></span></div>
@@ -576,12 +579,14 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
   <div class="kpi-grid">
     <div class="card kpi" data-kpi="sales">
       <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
-      <div class="label" id="kpiSalesLabel">ยอดขายรวม</div>
-      <div class="value" id="salesTotal">—</div>
-      <div class="sub" id="kpiSalesSub">ช่วงที่เลือก</div>
-      <div class="kpi-cmp" id="salesCmp" style="display:none">
-        <span id="cmpYday" class="cmp-badge cmp-flat"></span>
-        <span id="cmpWeek" class="cmp-badge cmp-flat"></span>
+      <div class="kpi-text">
+        <div class="label" id="kpiSalesLabel">ยอดขายรวม</div>
+        <div class="value" id="salesTotal">—</div>
+        <div class="sub" id="kpiSalesSub">ช่วงที่เลือก</div>
+        <div class="kpi-cmp" id="salesCmp" style="display:none">
+          <span id="cmpYday" class="cmp-badge cmp-flat"></span>
+          <span id="cmpWeek" class="cmp-badge cmp-flat"></span>
+        </div>
       </div>
     </div>
     <div class="card kpi" data-kpi="bills">
@@ -794,7 +799,7 @@ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;'
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
 function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText();if(state.compareMode){state.compareMode=false;state.compareTrendRows=[];['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');el.textContent=t('compare');el.setAttribute('aria-pressed','false')}});['trendLegend','trendLegendDesktop'].forEach(id=>{const el=$(id);if(el)el.style.display='none'})}}
 function getCurrentFilters(){return{date_from:mobile.from.value,date_to:mobile.to.value}}
-const LABEL_MAP={heroDesc:'heroDesc',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
+const LABEL_MAP={latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',kpiGuestsLabel:'kpiGuestsLabel',kpiGuestsSub:'kpiGuestsSub',kpiBranchLabel:'kpiBranchLabel',kpiBranchSub:'kpiBranchSub',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',paymentTitle:'paymentTitle',paymentDesc:'paymentDesc',paymentTitleDesktop:'paymentTitle',paymentDescDesktop:'paymentDesc',productTitle:'productTitle',productDesc:'productDesc',productTitleDesktop:'productTitle',productDescDesktop:'productDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
 function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el)el.textContent=state.compareMode?t('compareOff'):t('compare')});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote();['rankingBars','rankingBarsDesktop','alertListOnly','alertListDesktop'].forEach(id=>{const el=$(id);if(el){const ch=el.querySelector('.empty');if(ch)ch.textContent=t('loading')}})}
 function applyPrefs(){document.body.dataset.theme=state.theme;localStorage.setItem('hq_lang',state.lang);localStorage.setItem('hq_theme',state.theme);syncPrefsInputs();applyText();redrawCharts()}
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}

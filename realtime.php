@@ -146,7 +146,6 @@ html,body{
 .seg-btn{padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;color:var(--muted);border:none;background:none;transition:all .15s;font-family:var(--font)}
 .seg-btn.active{background:var(--accent-g);color:var(--accent)}
 .ctrl-right{margin-left:auto;display:flex;gap:6px}
-@media(max-width:640px){.ctrl-right{display:none}}
 
 /* ── KPI strip — each tile gets a distinct color accent ── */
 .rt-sum{display:flex;gap:1px;background:var(--line);border-bottom:1px solid var(--line)}
@@ -245,59 +244,6 @@ html,body{
 .rt-tbl tbody tr.tr-tot td.c-today{background:#122540!important;color:var(--gold)!important}
 .rt-tbl tbody tr.tr-tot td.c-rank{background:var(--bg3)!important}
 
-/* ━━━━━━━━━━━ CARDS ━━━━━━━━━━━ */
-.card-grid{
-  display:none;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));
-  gap:10px;padding:12px 12px max(80px,calc(80px + env(safe-area-inset-bottom)));
-}
-@media(max-width:640px){
-  .card-grid{display:grid}
-  .tbl-wrap{display:none}
-  .ctrl-right{display:none}
-}
-.bc{
-  background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);
-  padding:14px 14px 12px;display:flex;flex-direction:column;gap:11px;
-  position:relative;overflow:hidden;
-  transition:border-color .2s,box-shadow .2s;
-}
-/* Subtle gold accent line at top of every card */
-.bc::before{
-  content:'';position:absolute;top:0;left:0;right:0;height:1.5px;
-  background:linear-gradient(90deg,rgba(245,166,35,.45) 0%,transparent 65%);
-}
-.bc:hover{border-color:var(--line2);box-shadow:0 4px 20px rgba(0,0,0,.28)}
-[data-theme="light"] .bc:hover{box-shadow:0 4px 20px rgba(30,50,100,.10)}
-
-.bc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
-.bc-name{
-  font-size:13.5px;font-weight:700;color:var(--text);line-height:1.3;
-  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
-}
-.bc-code{
-  display:inline-block;margin-top:3px;
-  font-size:9.5px;font-weight:700;color:var(--muted2);letter-spacing:.07em;text-transform:uppercase;
-}
-.bc-right{display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0}
-.bc-rank{font-size:11.5px;color:var(--muted2);font-weight:600}
-.bc-rank.rank-gold  {color:var(--gold)}
-.bc-rank.rank-silver{color:#8a9db8}
-.bc-rank.rank-bronze{color:#b07845}
-
-.bc-nums{display:grid;grid-template-columns:1fr 1fr;gap:7px}
-/* KPI boxes inside card */
-.bc-kpi{background:var(--bg3);border-radius:var(--r2);padding:9px 10px}
-/* Today KPI gets warm amber tint */
-.bc-kpi.kpi-today{
-  background:rgba(245,166,35,.07);
-  border:1px solid rgba(245,166,35,.14);
-}
-[data-theme="light"] .bc-kpi.kpi-today{background:rgba(180,83,9,.06);border-color:rgba(180,83,9,.14)}
-.bc-kpi .k-l{font-size:9.5px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.bc-kpi .k-v{font-size:16px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1}
-.bc-kpi .k-v.today-v{color:var(--gold)}
-.bc-kpi .k-s{font-size:10.5px;color:var(--muted);margin-top:3px}
-.spark-row{height:26px;margin-top:2px;opacity:.8}
 
 /* ━━━━━━━━━━━ Badges — pill with status dot ━━━━━━━━━━━ */
 .upd{
@@ -366,18 +312,6 @@ html,body{
     <button class="seg-btn active" data-days="14" onclick="setDays(14)">14 <span data-i="days">วัน</span></button>
     <button class="seg-btn" data-days="30" onclick="setDays(30)">30 <span data-i="days">วัน</span></button>
   </div>
-  <div class="ctrl-right">
-    <div class="seg" id="viewSeg">
-      <button class="seg-btn" id="btnCards" onclick="setView('cards')">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-        <span data-i="cardView">Cards</span>
-      </button>
-      <button class="seg-btn active" id="btnTable" onclick="setView('table')">
-        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 3h18M3 9h18M3 15h18M3 21h18M9 3v18M15 3v18"/></svg>
-        <span data-i="tableView">ตาราง</span>
-      </button>
-    </div>
-  </div>
 </div>
 
 <!-- ── Summary strip ── -->
@@ -415,8 +349,6 @@ html,body{
   <table class="rt-tbl"><thead id="tblHead"></thead><tbody id="tblBody"></tbody></table>
 </div>
 
-<!-- Cards -->
-<div class="card-grid" id="cardGrid"></div>
 
 <script>
 // ── i18n ────────────────────────────────────────────
@@ -425,7 +357,7 @@ const I18N = {
     back:'Dashboard', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
     loading:'กำลังโหลดข้อมูล…', noData:'ไม่พบข้อมูล', noResult:'ไม่พบสาขาที่ค้นหา',
     errorPrefix:'โหลดข้อมูลไม่สำเร็จ: ',
-    days:'วัน', cardView:'การ์ด', tableView:'ตาราง',
+    days:'วัน',
     searchPh:'ค้นหาสาขา…',
     sumToday:'ยอดรวมวันนี้', sumBranches:'สาขา (วันนี้)', sumBranchesSub:'สาขาที่มีข้อมูล',
     colBranch:'สาขา', colTotal:'รวมทั้งหมด', colUpdated:'อัพเดท',
@@ -443,7 +375,7 @@ const I18N = {
     back:'Dashboard', pageTitle:'Real-time Sales', refresh:'Refresh',
     loading:'Loading data…', noData:'No data available', noResult:'No branches found',
     errorPrefix:'Failed to load: ',
-    days:'Days', cardView:'Cards', tableView:'Table',
+    days:'Days',
     searchPh:'Search branch…',
     sumToday:"Today's Total", sumBranches:'Branches (Today)', sumBranchesSub:'Branches with data',
     colBranch:'Branch', colTotal:'Grand Total', colUpdated:'Updated',
@@ -464,7 +396,6 @@ const S = {
   lang:  localStorage.getItem('hq_lang')  || 'th',
   theme: localStorage.getItem('hq_theme') || 'dark',
   days:  14,
-  view:  window.innerWidth >= 641 ? 'table' : 'cards',
   sort:  { col: 'today', dir: -1 },
   search:'',
   raw:   null,
@@ -515,21 +446,6 @@ function updBadge(status, ts) {
   return `<span class="upd upd-${esc(status)}" title="${esc(label)}">${time}</span>`;
 }
 
-// ── Sparkline SVG ──────────────────────────────────────
-function sparkline(vals, today_idx) {
-  if (!vals.length) return '';
-  const W=8, G=3, H=24;
-  const max = Math.max(...vals, 1);
-  let s = '';
-  vals.forEach((v,i) => {
-    const h = Math.max(2, Math.round(v/max*H));
-    const x = i*(W+G);
-    const fill = i===today_idx ? 'rgba(245,166,35,.92)' : 'rgba(79,134,247,.42)';
-    s += `<rect x="${x}" y="${H-h}" width="${W}" height="${h}" rx="2" fill="${fill}"/>`;
-  });
-  const tw = vals.length*(W+G)-G;
-  return `<svg viewBox="0 0 ${tw} ${H}" width="100%" height="${H}" preserveAspectRatio="none">${s}</svg>`;
-}
 
 // ── Apply i18n ─────────────────────────────────────────
 function applyI18n() {
@@ -674,8 +590,7 @@ function filteredBranches() {
 
 function applyFilter() {
   S.search = document.getElementById('searchInput')?.value || '';
-  if (S.view === 'table') renderTable();
-  else renderCards();
+  renderTable();
 }
 
 // ── Table ──────────────────────────────────────────────
@@ -689,7 +604,6 @@ function renderTable() {
   const d = S.raw;
   if (!d) return;
   document.getElementById('tblWrap').style.display = '';
-  document.getElementById('cardGrid').style.display = 'none';
 
   const cols  = d.date_columns || [];
   const today = d.today;
@@ -762,59 +676,6 @@ function renderTable() {
   requestAnimationFrame(fitTableHeight);
 }
 
-// ── Cards ──────────────────────────────────────────────
-function renderCards() {
-  const d = S.raw;
-  if (!d) return;
-  document.getElementById('cardGrid').style.display = 'grid';
-  document.getElementById('tblWrap').style.display  = 'none';
-
-  const today    = d.today;
-  const cols     = d.date_columns || [];
-  const last7cols = cols.slice(-7);
-  const todayIdx = last7cols.indexOf(today);
-  const branches = filteredBranches();
-
-  const html = branches.map((b, i) => {
-    const todaySales = b.daily?.[today] || 0;
-    const mom = b.last_month > 0
-      ? ((b.this_month - b.last_month) / b.last_month * 100).toFixed(1)
-      : null;
-    const momStr = mom !== null
-      ? `<span style="color:${mom>=0?'var(--green)':'var(--red)'}">${mom>=0?'+':''}${mom}%</span> ${t('vsPrev')}`
-      : '';
-    const sparkVals = last7cols.map(c => b.daily?.[c] || 0);
-
-    const rankCls = i===0?' rank-gold':i===1?' rank-silver':i===2?' rank-bronze':'';
-    return `<div class="bc">
-      <div class="bc-head">
-        <div>
-          <div class="bc-name">${esc(b.name)}</div>
-          ${b.code ? `<div class="bc-code">${esc(b.code)}</div>` : ''}
-        </div>
-        <div class="bc-right">
-          <span class="bc-rank${rankCls}">#${i+1}</span>
-          ${updBadge(b.update_status, b.last_update)}
-        </div>
-      </div>
-      <div class="bc-nums">
-        <div class="bc-kpi kpi-today">
-          <div class="k-l">${t('today')}</div>
-          <div class="k-v today-v">${todaySales ? fmtN(todaySales) : '—'}</div>
-        </div>
-        <div class="bc-kpi">
-          <div class="k-l">${t('mtd')}</div>
-          <div class="k-v">${b.this_month ? fmtS(b.this_month) : '—'}</div>
-          <div class="k-s">${momStr}</div>
-        </div>
-      </div>
-      <div class="spark-row">${sparkline(sparkVals, todayIdx)}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('cardGrid').innerHTML =
-    html || `<div class="rt-empty" style="grid-column:1/-1">${S.search.trim() ? t('noResult') : t('noData')}</div>`;
-}
 
 // ── Table height (fixes sticky thead inside overflow:auto container) ──────────
 function fitTableHeight() {
@@ -824,25 +685,7 @@ function fitTableHeight() {
   w.style.height = Math.max(200, window.innerHeight - top - 4) + 'px';
 }
 
-// Resize: recalculate height AND auto-switch view at the 641px breakpoint
-let _viewResizeTimer = null;
-window.addEventListener('resize', () => {
-  fitTableHeight();
-  clearTimeout(_viewResizeTimer);
-  _viewResizeTimer = setTimeout(() => {
-    const mobile = window.innerWidth < 641;
-    if (mobile && S.view !== 'cards') setView('cards');
-    else if (!mobile && S.view !== 'table') setView('table');
-  }, 150);
-}, { passive: true });
-
-// ── View / Days ────────────────────────────────────────
-function setView(v) {
-  S.view = v;
-  document.getElementById('btnCards').classList.toggle('active', v==='cards');
-  document.getElementById('btnTable').classList.toggle('active', v==='table');
-  if (S.raw) { v==='table' ? renderTable() : renderCards(); }
-}
+window.addEventListener('resize', fitTableHeight, { passive: true });
 
 function setDays(n) {
   S.days = n;
