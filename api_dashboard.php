@@ -23,8 +23,6 @@ if (!function_exists('api_base_payload')) {
             ],
             'branch_ranking' => [],
             'sales_trend'    => [],
-            'payment_mix'    => [],
-            'top_products'   => [],
             'alerts'         => [],
             'comparison'     => ['is_single_day' => false],
             'meta'           => ['latest_data_date' => null, 'product_source' => null],
@@ -80,42 +78,6 @@ function branch_status(float $currSales, float $pct, float $avgBill, float $over
     return 'normal';
 }
 
-function product_query_candidates(): array {
-    return [
-        [
-            'source' => 'summary_productreport',
-            'sql'    => "
-                SELECT
-                    COALESCE(NULLIF(spr.OtherFoodName,''),NULLIF(spr.ProductName,''),CONCAT('Product #',spr.ProductID)) AS product_name,
-                    MAX(COALESCE(NULLIF(spr.ProductGroupName,''),'-')) AS product_group_name,
-                    COALESCE(SUM(COALESCE(spr.Amount,0)),0) AS qty_sold,
-                    COALESCE(SUM(COALESCE(spr.SalePrice,spr.TotalPrice,0)),0) AS total_sales
-                FROM summary_productreport spr
-                WHERE spr.SaleDate >= ? AND spr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-                  AND spr.DocType = 8 AND spr.TransactionStatusID = 2
-                GROUP BY product_name
-                ORDER BY total_sales DESC, qty_sold DESC
-                LIMIT 10
-            ",
-        ],
-        [
-            'source' => 'summary_productreport_stockonly',
-            'sql'    => "
-                SELECT
-                    COALESCE(NULLIF(spr.OtherFoodName,''),NULLIF(spr.ProductName,''),CONCAT('Product #',spr.ProductID)) AS product_name,
-                    MAX(COALESCE(NULLIF(spr.ProductGroupName,''),'-')) AS product_group_name,
-                    COALESCE(SUM(COALESCE(spr.Amount,0)),0) AS qty_sold,
-                    COALESCE(SUM(COALESCE(spr.SalePrice,spr.TotalPrice,0)),0) AS total_sales
-                FROM summary_productreport_stockonly spr
-                WHERE spr.SaleDate >= ? AND spr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-                  AND spr.DocType = 8 AND spr.TransactionStatusID = 2
-                GROUP BY product_name
-                ORDER BY total_sales DESC, qty_sold DESC
-                LIMIT 10
-            ",
-        ],
-    ];
-}
 
 $today        = date('Y-m-d');
 $rawFrom      = $_GET['date_from'] ?? '';
@@ -146,6 +108,7 @@ $cacheTtl  = max(0, $isTodayRange
     : (int)($DASHBOARD_CACHE_TTL_HISTORY ?? 1800));
 
 if (!$forceRefresh && $cacheTtl > 0 && is_file($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
+    header('Content-Type: application/json; charset=utf-8');
     readfile($cacheFile);
     exit;
 }

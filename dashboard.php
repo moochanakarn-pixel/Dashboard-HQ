@@ -1106,15 +1106,6 @@ document.getElementById('installDismiss')?.addEventListener('click',()=>{
     <div class="bm-chart-wrap"><canvas id="branchModalChart"></canvas><div class="bm-tip" id="branchModalTip"></div></div>
   </div>
 </div>
-<script>
-// Direct listeners on modal elements (runs after they exist in DOM)
-(function(){
-  var cl=document.getElementById('branchModalClose');
-  var bd=document.getElementById('branchModalBackdrop');
-  if(cl)cl.addEventListener('click',function(){closeBranchModal()});
-  if(bd)bd.addEventListener('click',function(){closeBranchModal()});
-})();
-</script>
 
 </body>
 </html>
