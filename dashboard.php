@@ -427,6 +427,18 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .chart-shell{height:190px}
 }
 
+@media(max-width:640px){
+  .hero{padding:8px 12px 10px}
+  .kpi-grid{gap:5px}
+  .kpi{padding:9px 10px}
+  .kpi .value{font-size:17px}
+  .kpi .label{font-size:8.5px}
+  .kpi .sub{font-size:9px;margin-top:4px}
+  .kpi-icon{width:22px;height:22px;margin-bottom:5px}
+  .kpi[data-kpi="sales"]{gap:10px;padding:10px 12px}
+  .kpi[data-kpi="sales"] .value{font-size:26px}
+  .kpi[data-kpi="sales"] .kpi-icon{width:28px;height:28px}
+}
 @media(min-width:920px){
   .app{padding-bottom:24px}
   .topbar{position:static;margin:0;padding:0}

@@ -168,7 +168,6 @@ html,body{
 .sum-val{font-size:19px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
 .sum-val.gold{color:var(--gold)}
 .sum-sub{font-size:11px;color:var(--muted);margin-top:3px}
-@media(max-width:560px){.rt-sum{flex-wrap:wrap}.sum-item{min-width:50%}}
 
 /* ── Loading / Error / Empty ── */
 .rt-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px 16px;color:var(--muted);font-size:14px}
@@ -266,8 +265,9 @@ html,body{
 /* countdown */
 #cdWrap{font-size:11px;color:var(--muted2);display:flex;align-items:center;gap:4px}
 
-/* ── Mobile nav: icon-only controls so header fits in one row ── */
+/* ── Mobile: compact everything so table gets maximum room ── */
 @media(max-width:640px){
+  /* header: icon-only controls, single row */
   .back-btn span[data-i="back"]{display:none}
   .back-btn{padding:5px 6px}
   #cdWrap{display:none}
@@ -275,6 +275,19 @@ html,body{
   #langLabel{display:none}
   .btn-lang{padding:0 7px}
   .rt-title{font-size:13px}
+
+  /* controls: single row, search + day buttons side by side */
+  .rt-ctrl{flex-wrap:nowrap;gap:6px;padding:6px 10px}
+  .search-box{min-width:0;max-width:none;flex:1}
+  .seg-btn{padding:5px 7px;font-size:11px}
+
+  /* summary strip: compact single horizontal row */
+  .rt-sum{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .rt-sum::-webkit-scrollbar{display:none}
+  .sum-item{min-width:88px;padding:7px 10px;flex-shrink:0}
+  .sum-val{font-size:15px}
+  .sum-lbl{font-size:8px;margin-bottom:2px}
+  .sum-sub{font-size:9px;margin-top:1px}
 }
 
 /* ── PWA Install Banner ── */
