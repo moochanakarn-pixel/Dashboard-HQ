@@ -71,7 +71,7 @@
 
 html,body{
   height:100%;background:var(--bg);color:var(--text);
-  font-family:var(--font);font-size:14px;
+  font-family:var(--font);font-size:14px;line-height:1.5;
   -webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;
 }
 
@@ -164,10 +164,10 @@ html,body{
 .si-muted::before {background:var(--muted2);opacity:.5}
 .si-gold{background:rgba(245,166,35,.025)!important}
 [data-theme="light"] .si-gold{background:rgba(180,83,9,.025)!important}
-.sum-lbl{font-size:9.5px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px}
-.sum-val{font-size:19px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
+.sum-lbl{font-size:10px;font-weight:700;color:var(--muted2);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.sum-val{font-size:20px;font-weight:800;color:var(--text);line-height:1;font-variant-numeric:tabular-nums}
 .sum-val.gold{color:var(--gold)}
-.sum-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.sum-sub{font-size:11.5px;color:var(--muted);margin-top:4px}
 
 /* ── Loading / Error / Empty ── */
 .rt-loading{display:flex;align-items:center;justify-content:center;gap:10px;padding:60px 16px;color:var(--muted);font-size:14px}
@@ -178,7 +178,7 @@ html,body{
 /* ━━━━━━━━━━━ TABLE ━━━━━━━━━━━ */
 /* overflow:auto + bounded height (set by JS) keeps thead sticky */
 .tbl-wrap{overflow:auto;-webkit-overflow-scrolling:touch}
-.rt-tbl{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:12.5px}
+.rt-tbl{border-collapse:separate;border-spacing:0;width:max-content;min-width:100%;font-size:13px}
 .rt-tbl th,.rt-tbl td{padding:0;border-bottom:1px solid var(--line)}
 
 /* thead */
@@ -228,8 +228,8 @@ html,body{
 .rt-tbl tbody tr:not(.tr-tot):hover td.c-today{background:rgba(245,166,35,.07)!important}
 [data-theme="light"] .rt-tbl tbody tr:not(.tr-tot):hover td{background:rgba(0,0,0,.025)}
 
-.rt-tbl tbody td{padding:7.5px 10px;text-align:right;font-variant-numeric:tabular-nums}
-.rt-tbl tbody td.c-rank{font-size:11px;color:var(--muted2);padding:7.5px 6px}
+.rt-tbl tbody td{padding:9.5px 10px;text-align:right;font-variant-numeric:tabular-nums}
+.rt-tbl tbody td.c-rank{font-size:11.5px;color:var(--muted2);padding:9.5px 6px}
 .rt-tbl tbody td.c-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:12px}
 .rt-tbl .zero{color:var(--muted2)}
 .rt-tbl .today-val{color:var(--gold);font-weight:700}
@@ -240,7 +240,7 @@ html,body{
 .rank-bronze{color:#b07845!important;font-weight:700!important}
 
 /* total row — (0,3,3) beats nth-child (0,3,3) by declaration order */
-.rt-tbl tbody tr.tr-tot td{background:var(--bg3)!important;font-weight:700;font-size:12.5px;border-top:1px solid var(--line2);border-bottom:2px solid var(--line2);padding:8px 10px}
+.rt-tbl tbody tr.tr-tot td{background:var(--bg3)!important;font-weight:700;font-size:13px;border-top:1px solid var(--line2);border-bottom:2px solid var(--line2);padding:10px 10px}
 .rt-tbl tbody tr.tr-tot td.c-name{padding-left:12px;background:var(--bg3)!important}
 .rt-tbl tbody tr.tr-tot td.c-today{background:#122540!important;color:var(--gold)!important}
 .rt-tbl tbody tr.tr-tot td.c-rank{background:var(--bg3)!important}
@@ -291,7 +291,7 @@ html,body{
 
   /* table: narrower columns so 3 date columns visible without scrolling */
   .rt-tbl th.c-rank,.rt-tbl td.c-rank{width:32px;min-width:32px;max-width:32px}
-  .rt-tbl th.c-name,.rt-tbl td.c-name{left:32px;min-width:110px;width:110px;max-width:110px}
+  .rt-tbl th.c-name,.rt-tbl td.c-name{left:32px;min-width:125px;width:125px;max-width:125px}
   .c-date {min-width:76px;width:76px}
   .c-today{min-width:86px;width:86px}
   .c-month{min-width:86px;width:86px}
