@@ -295,9 +295,9 @@ html,body{
   .c-date {min-width:76px;width:76px}
   .c-today{min-width:86px;width:86px}
   .c-month{min-width:86px;width:86px}
-  .rt-tbl thead th{padding:7px 7px}
-  .rt-tbl tbody td{padding:6.5px 7px}
-  .rt-tbl tbody td.c-rank{padding:6.5px 3px}
+  .rt-tbl thead th{padding:8px 7px}
+  .rt-tbl tbody td{padding:8.5px 7px}
+  .rt-tbl tbody td.c-rank{padding:8.5px 3px}
   .rt-tbl tbody td.c-name{padding-left:8px}
 }
 

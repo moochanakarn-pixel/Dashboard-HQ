@@ -709,10 +709,10 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 <!-- ── MOBILE BOTTOM TABS ── -->
 <div class="mobile-tabs">
   <div class="tab-row">
-    <button class="tab-btn active" data-panel="overview" id="tabOverview">
+    <button class="tab-btn" data-panel="overview" id="tabOverview">
       <span class="tab-icon">📈</span><span id="tabOverviewLabel">ภาพรวม</span>
     </button>
-    <button class="tab-btn" data-panel="branches" id="tabBranches">
+    <button class="tab-btn active" data-panel="branches" id="tabBranches">
       <span class="tab-icon">🏪</span><span id="tabBranchesLabel">สาขา</span>
     </button>
 <button class="tab-btn" data-panel="alerts" id="tabAlerts">
@@ -997,7 +997,6 @@ function renderRankingBar(rows,containerId){
   const maxVal=Math.max(...items.map(r=>Number(r.sales_total||0)),1);
   el.innerHTML='<div class="rank-list">'+items.map((r,i)=>{
     const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
-    const isAlert=r.status==='watch'||r.status==='low_avg';
     let badge='';
     if(r.status==='watch'){const dp=Math.abs(Math.round(Number(r.sales_diff_pct||0)));badge=`<span class="rank-badge rank-badge-warn" title="${t('watch')}">▼ ${dp}%</span>`}
     else if(r.status==='low_avg'){badge=`<span class="rank-badge rank-badge-warn" title="avg/บิลต่ำกว่าค่าเฉลี่ยรวม">${t('lowAvg')}</span>`}
@@ -1029,8 +1028,8 @@ const cmp=data.comparison||{};
       el.textContent=(pos?'▲ +':'▼ ')+Math.abs(cmpData.pct).toFixed(1)+'% '+label;
     }
   }
-  badge('cmpYday',cmp.yesterday,'vs เมื่อวาน');
-  badge('cmpWeek',cmp.last_week,'vs 7 วันที่แล้ว');
+  badge('cmpYday',cmp.yesterday,state.lang==='th'?'vs เมื่อวาน':'vs yesterday');
+  badge('cmpWeek',cmp.last_week,state.lang==='th'?'vs 7 วันที่แล้ว':'vs last week');
 })();
 state._lastCmp=cmp;
 renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
@@ -1094,6 +1093,9 @@ document.getElementById('installBtn')?.addEventListener('click',async()=>{
   _deferredInstall.prompt();
   await _deferredInstall.userChoice;
   _deferredInstall=null;
+  $('installBanner').style.display='none';
+});
+document.getElementById('installDismiss')?.addEventListener('click',()=>{
   $('installBanner').style.display='none';
 });
 document.getElementById('installDismiss')?.addEventListener('click',()=>{
