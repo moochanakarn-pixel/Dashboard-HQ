@@ -280,7 +280,6 @@ select.control option{background:var(--bg);color:var(--text)}
 }
 .chart-tip .ct-date{font-size:9px;color:var(--muted);font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px}
 .chart-tip .ct-val{font-size:15px;font-weight:800;color:var(--text);font-variant-numeric:tabular-nums;line-height:1.1}
-.chart-tip .ct-sub{font-size:10px;color:var(--muted);margin-top:4px;font-weight:500}
 body[data-theme="light"] .chart-tip{background:rgba(245,249,255,.97)}
 
 
@@ -366,7 +365,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 .sheet-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:16px}
 .sheet-head h3{font-size:16px;font-weight:800;letter-spacing:-.025em}
 .filter-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-.filter-grid .full{grid-column:1/-1}
 .filter-label{font-size:9.5px;font-weight:400;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:5px}
 .sheet-section{margin-bottom:16px}
 .sheet-quick{display:flex;gap:6px;margin-top:8px}
