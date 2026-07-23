@@ -809,7 +809,6 @@ function fmtPeriodThai(from,to){
 }
 function compactMoney(n){const v=Number(n||0);if(v>=1e6)return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/1e6)+' M';if(v>=1e3)return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e3)+' K';return money(v)}
 
-function intfmt(n){return new Intl.NumberFormat(locale(),{maximumFractionDigits:0}).format(Number(n||0))}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
 function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText();if(state.compareMode){state.compareMode=false;state.compareTrendRows=[];['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');el.textContent=t('compare');el.setAttribute('aria-pressed','false')}});['trendLegend','trendLegendDesktop'].forEach(id=>{const el=$(id);if(el)el.style.display='none'})}}
