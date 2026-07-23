@@ -844,7 +844,7 @@ function renderAlerts(rows,meta,summary){
   const count=rows?rows.length:0;
   if(meta&&meta.previous_from){
     const label='เทียบกับ '+fmtPeriodThai(meta.previous_from,meta.previous_to);
-    ['alertsDesc2','alertsDescDesktop'].forEach(id=>{$(id)&&($(id).textContent=label)});
+    ['alertsDesc2','alertsDescDesktop','branchDesc','branchDescDesktop'].forEach(id=>{$(id)&&($(id).textContent=label)});
   }
   // Alert tab glow
   const alertTabBtn=document.querySelector('.tab-btn[data-panel="alerts"]');
