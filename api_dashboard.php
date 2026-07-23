@@ -11,13 +11,11 @@ if (!function_exists('api_base_payload')) {
         return [
             'filters'        => ['date_from' => '', 'date_to' => ''],
             'summary'        => [
-                'sales_total'       => 0,
-                'bill_count'        => 0,
-                'avg_bill'          => 0,
-                'best_branch_name'  => '-',
-                'best_branch_sales' => 0,
-                'worst_branch_name' => '-',
-                'worst_branch_sales'=> 0,
+                'sales_total'        => 0,
+                'best_branch_name'   => '-',
+                'best_branch_sales'  => 0,
+                'worst_branch_name'  => '-',
+                'worst_branch_sales' => 0,
             ],
             'branch_ranking' => [],
             'sales_trend'    => [],
@@ -70,10 +68,17 @@ function safe_execute(mysqli_stmt $stmt, array &$data): ?mysqli_result {
     return $result;
 }
 
-function branch_status(float $currSales, float $pct, float $avgBill, float $overallAvg): string {
-    if ($pct <= -15)                                         return 'watch';
-    if ($overallAvg > 0 && $avgBill < $overallAvg * 0.7)   return 'low_avg';
+function branch_status(float $currSales, float $pct): string {
+    if ($pct <= -15) return 'watch';
     return 'normal';
+}
+
+function realtime_latest_date(mysqli $conn): ?string {
+    $res = @$conn->query('SELECT DATE(MAX(SaleDate)) AS d FROM summarysalebydate');
+    if (!$res) return null;
+    $row = $res->fetch_assoc();
+    $d = trim((string)($row['d'] ?? ''));
+    return preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) ? $d : null;
 }
 
 
@@ -129,23 +134,23 @@ $data['meta']['previous_to']      = $previousTo;
 try {
     $conn = db_connect();
 
+    // Prefer the live table's latest date so the frontend navigates to realtime data
+    $rtLatest = realtime_latest_date($conn);
+    if ($rtLatest) {
+        $data['meta']['latest_data_date'] = $rtLatest;
+    }
+
+    // Summary: total sales from live summarysalebydate table
     $sqlSummary = "
-        SELECT
-            COALESCE(SUM(sr.ReceiptPayPrice),0) AS sales_total,
-            COALESCE(SUM(sr.TotalBill),0)       AS bill_count
-        FROM summary_tranreport sr
-        WHERE sr.SaleDate >= ? AND sr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-          AND sr.DocType = 8 AND sr.TransactionStatusID = 2
+        SELECT COALESCE(SUM(TotalPrice), 0) AS sales_total
+        FROM summarysalebydate
+        WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
     ";
     if ($stmt = safe_prepare($conn, $data, $sqlSummary)) {
         $stmt->bind_param('ss', $dateFrom, $dateTo);
         if ($res = safe_execute($stmt, $data)) {
             $row = $res->fetch_assoc() ?: [];
-            $salesTotal = (float)($row['sales_total'] ?? 0);
-            $billCount  = (int)($row['bill_count']   ?? 0);
-            $data['summary']['sales_total']  = $salesTotal;
-            $data['summary']['bill_count']   = $billCount;
-            $data['summary']['avg_bill']     = $billCount > 0 ? $salesTotal / $billCount : 0;
+            $data['summary']['sales_total'] = (float)($row['sales_total'] ?? 0);
         }
         $stmt->close();
     }
@@ -155,11 +160,9 @@ try {
         $yDay    = date('Y-m-d', strtotime($dateFrom . ' -1 day'));
         $wAgo    = date('Y-m-d', strtotime($dateFrom . ' -7 days'));
         $sqlComp = "
-            SELECT COALESCE(SUM(ReceiptPayPrice),0) AS sales_total,
-                   COALESCE(SUM(TotalBill),0)       AS bill_count
-            FROM summary_tranreport
-            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-              AND DocType = 8 AND TransactionStatusID = 2
+            SELECT COALESCE(SUM(TotalPrice), 0) AS sales_total
+            FROM summarysalebydate
+            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
         ";
         $currSales = (float)$data['summary']['sales_total'];
         foreach ([['yesterday', $yDay], ['last_week', $wAgo]] as [$key, $cmpDate]) {
@@ -172,7 +175,6 @@ try {
                     $data['comparison'][$key] = [
                         'date'        => $cmpDate,
                         'sales_total' => $cmpSales,
-                        'bill_count'  => (int)($row['bill_count'] ?? 0),
                         'pct'         => $pct,
                     ];
                 }
@@ -181,31 +183,34 @@ try {
         }
     }
 
+    // Branch ranking: summarysalebydate + name lookup from summary_tranreport
     $sqlRanking = "
         SELECT
-            sr.ShopID,
-            MAX(sr.ShopName)  AS ShopName,
-            COALESCE(SUM(sr.ReceiptPayPrice),0)                                  AS sales_total,
-            COALESCE(SUM(sr.TotalBill),0)                                        AS bill_count,
-            COALESCE(SUM(sr.ReceiptPayPrice)/NULLIF(SUM(sr.TotalBill),0),0)      AS avg_bill,
-            COALESCE(prev.prev_sales,0)                                          AS prev_sales
-        FROM summary_tranreport sr
+            s.ProductLevelID AS ShopID,
+            COALESCE(n.ShopName, CONCAT('Shop #', s.ProductLevelID)) AS ShopName,
+            COALESCE(SUM(s.TotalPrice), 0)  AS sales_total,
+            COALESCE(prev.prev_sales, 0)    AS prev_sales
+        FROM summarysalebydate s
         LEFT JOIN (
-            SELECT ShopID, COALESCE(SUM(ReceiptPayPrice),0) AS prev_sales
+            SELECT ProductLevelID, COALESCE(SUM(TotalPrice), 0) AS prev_sales
+            FROM summarysalebydate
+            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
+            GROUP BY ProductLevelID
+        ) prev ON prev.ProductLevelID = s.ProductLevelID
+        LEFT JOIN (
+            SELECT ShopID, MAX(ShopName) AS ShopName
             FROM summary_tranreport
-            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-              AND DocType = 8 AND TransactionStatusID = 2
+            WHERE DocType = 8 AND TransactionStatusID = 2
+              AND SaleDate >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
             GROUP BY ShopID
-        ) prev ON prev.ShopID = sr.ShopID
-        WHERE sr.SaleDate >= ? AND sr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-          AND sr.DocType = 8 AND sr.TransactionStatusID = 2
-        GROUP BY sr.ShopID
-        ORDER BY sales_total DESC, bill_count DESC, ShopName ASC
+        ) n ON n.ShopID = s.ProductLevelID
+        WHERE s.SaleDate >= ? AND s.SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
+        GROUP BY s.ProductLevelID
+        ORDER BY sales_total DESC, ShopName ASC
     ";
     if ($stmt = safe_prepare($conn, $data, $sqlRanking)) {
         $stmt->bind_param('ssss', $previousFrom, $previousTo, $dateFrom, $dateTo);
         if ($res = safe_execute($stmt, $data)) {
-            $overallAvg = (float)$data['summary']['avg_bill'];
             $idx = 0;
             while ($row = $res->fetch_assoc()) {
                 $currSales = (float)($row['sales_total'] ?? 0);
@@ -214,11 +219,10 @@ try {
                 if ($prevSales > 0)       $pct = (($currSales - $prevSales) / $prevSales) * 100;
                 elseif ($currSales > 0)   $pct = 100.0;
 
-                $status = branch_status($currSales, $pct, (float)($row['avg_bill'] ?? 0), $overallAvg);
+                $status   = branch_status($currSales, $pct);
+                $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
+                $shopId   = (int)($row['ShopID'] ?? 0);
 
-                $shopName  = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
-                $shopId    = (int)($row['ShopID'] ?? 0);
-                $branchAvg = (float)($row['avg_bill'] ?? 0);
                 if ($status === 'watch') {
                     $data['alerts'][] = [
                         'type'       => 'watch',
@@ -227,28 +231,16 @@ try {
                         'curr_sales' => round($currSales, 2),
                         'prev_sales' => round($prevSales, 2),
                     ];
-                } elseif ($status === 'low_avg') {
-                    $pctBelow = $overallAvg > 0 ? round((($overallAvg - $branchAvg) / $overallAvg) * 100, 1) : 0;
-                    $data['alerts'][] = [
-                        'type'        => 'low_avg',
-                        'shop_name'   => $shopName,
-                        'avg_bill'    => round($branchAvg, 2),
-                        'overall_avg' => round($overallAvg, 2),
-                        'pct_below'   => $pctBelow,
-                    ];
                 }
 
-                $entry = [
+                $data['branch_ranking'][] = [
                     'rank'           => ++$idx,
-                    'shop_id'        => (int)($row['ShopID']    ?? 0),
+                    'shop_id'        => $shopId,
                     'shop_name'      => $shopName,
                     'sales_total'    => $currSales,
-                    'bill_count'     => (int)($row['bill_count'] ?? 0),
-                    'avg_bill'       => (float)($row['avg_bill'] ?? 0),
                     'sales_diff_pct' => $pct,
                     'status'         => $status,
                 ];
-                $data['branch_ranking'][] = $entry;
             }
             if (!empty($data['branch_ranking'])) {
                 $best  = $data['branch_ranking'][0];
@@ -264,18 +256,24 @@ try {
 
     // Detect branches active in previous period but completely absent this period
     $sqlMissing = "
-        SELECT pr.ShopID, MAX(pr.ShopName) AS ShopName
-        FROM summary_tranreport pr
+        SELECT pr.ProductLevelID AS ShopID,
+               COALESCE(n.ShopName, CONCAT('Shop #', pr.ProductLevelID)) AS ShopName
+        FROM summarysalebydate pr
         LEFT JOIN (
-            SELECT DISTINCT ShopID
+            SELECT DISTINCT ProductLevelID
+            FROM summarysalebydate
+            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
+        ) cr ON cr.ProductLevelID = pr.ProductLevelID
+        LEFT JOIN (
+            SELECT ShopID, MAX(ShopName) AS ShopName
             FROM summary_tranreport
-            WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-              AND DocType = 8 AND TransactionStatusID = 2
-        ) cr ON cr.ShopID = pr.ShopID
-        WHERE pr.SaleDate >= ? AND pr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-          AND pr.DocType = 8 AND pr.TransactionStatusID = 2
-          AND cr.ShopID IS NULL
-        GROUP BY pr.ShopID
+            WHERE DocType = 8 AND TransactionStatusID = 2
+              AND SaleDate >= DATE_SUB(CURDATE(), INTERVAL 90 DAY)
+            GROUP BY ShopID
+        ) n ON n.ShopID = pr.ProductLevelID
+        WHERE pr.SaleDate >= ? AND pr.SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
+          AND cr.ProductLevelID IS NULL
+        GROUP BY pr.ProductLevelID
         ORDER BY ShopName ASC
         LIMIT 20
     ";
@@ -301,12 +299,10 @@ try {
     $data['alerts'] = array_slice($unique, 0, 15);
 
     $sqlTrend = "
-        SELECT DATE(sr.SaleDate) AS sale_date,
-               COALESCE(SUM(sr.ReceiptPayPrice),0) AS sales_total,
-               COALESCE(SUM(sr.TotalBill),0)       AS bill_count
-        FROM summary_tranreport sr
-        WHERE sr.SaleDate >= ? AND sr.SaleDate < DATE_ADD(?,INTERVAL 1 DAY)
-          AND sr.DocType = 8 AND sr.TransactionStatusID = 2
+        SELECT DATE(SaleDate) AS sale_date,
+               COALESCE(SUM(TotalPrice), 0) AS sales_total
+        FROM summarysalebydate
+        WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
         GROUP BY sale_date
         ORDER BY sale_date ASC
     ";
@@ -314,13 +310,9 @@ try {
         $stmt->bind_param('ss', $dateFrom, $dateTo);
         if ($res = safe_execute($stmt, $data)) {
             while ($row = $res->fetch_assoc()) {
-                $sales = (float)($row['sales_total'] ?? 0);
-                $bills = (int)($row['bill_count']    ?? 0);
                 $data['sales_trend'][] = [
                     'sale_date'   => $row['sale_date'] ?? '',
-                    'sales_total' => $sales,
-                    'bill_count'  => $bills,
-                    'avg_bill'    => $bills > 0 ? $sales / $bills : 0,
+                    'sales_total' => (float)($row['sales_total'] ?? 0),
                 ];
             }
         }

@@ -1,6 +1,18 @@
 <?php
 require __DIR__ . '/dashboard_config.php';
 $range = default_dashboard_range();
+// Override with live table's latest date so the initial view shows realtime data
+try {
+    $_rtconn = db_connect();
+    $_rtres = @$_rtconn->query('SELECT DATE(MAX(SaleDate)) AS d FROM summarysalebydate');
+    if ($_rtres && ($_rtrow = $_rtres->fetch_assoc()) && preg_match('/^\d{4}-\d{2}-\d{2}$/', (string)$_rtrow['d'])) {
+        $range['date_from']   = $_rtrow['d'];
+        $range['date_to']     = $_rtrow['d'];
+        $range['latest_date'] = $_rtrow['d'];
+    }
+    $_rtconn->close();
+    unset($_rtconn, $_rtres, $_rtrow);
+} catch (Throwable $_rte) { unset($_rte); }
 $dateFrom = $_GET['date_from'] ?? $range['date_from'];
 $dateTo = $_GET['date_to'] ?? $range['date_to'];
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) $dateFrom = $range['date_from'];
@@ -84,8 +96,6 @@ body[data-theme="light"] .card{
   box-shadow:0 2px 16px rgba(30,50,100,.08),0 1px 4px rgba(30,50,100,.05);
 }
 body[data-theme="light"] .kpi:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(59,130,246,.22),0 0 24px rgba(59,130,246,.1)}
-body[data-theme="light"] .kpi[data-kpi="bills"]:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(6,214,160,.22),0 0 24px rgba(6,214,160,.1)}
-body[data-theme="light"] .kpi[data-kpi="avg"]:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(167,139,250,.22),0 0 24px rgba(167,139,250,.1)}
 body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba(30,50,100,.16),0 0 0 1px rgba(245,158,11,.22),0 0 24px rgba(245,158,11,.1)}
 .card::after{
   content:'';position:absolute;top:0;left:0;right:0;height:1px;
@@ -201,17 +211,11 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi{padding:18px 16px;transition:transform .22s,box-shadow .22s}
 .kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
 .kpi[data-kpi="sales"]::before{background:linear-gradient(90deg,#3b82f6,#60a5fa)}
-.kpi[data-kpi="bills"]::before{background:linear-gradient(90deg,#06d6a0,#34d399)}
-.kpi[data-kpi="avg"]::before{background:linear-gradient(90deg,#a78bfa,#818cf8)}
 .kpi[data-kpi="watch"]::before{background:linear-gradient(90deg,#f59e0b,#fb923c)}
 .kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(59,130,246,.18),0 0 36px rgba(59,130,246,.08)}
-.kpi[data-kpi="bills"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(6,214,160,.18),0 0 36px rgba(6,214,160,.08)}
-.kpi[data-kpi="avg"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(167,139,250,.18),0 0 36px rgba(167,139,250,.08)}
 .kpi[data-kpi="watch"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(245,158,11,.18),0 0 36px rgba(245,158,11,.08)}
 .kpi-icon{width:38px;height:38px;border-radius:var(--r-xs);border:1px solid transparent;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
 .kpi[data-kpi="sales"] .kpi-icon{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(96,165,250,.06));border-color:rgba(59,130,246,.28);color:#60a5fa}
-.kpi[data-kpi="bills"] .kpi-icon{background:linear-gradient(135deg,rgba(6,214,160,.18),rgba(52,211,153,.06));border-color:rgba(6,214,160,.28);color:#34d399}
-.kpi[data-kpi="avg"] .kpi-icon{background:linear-gradient(135deg,rgba(167,139,250,.18),rgba(129,140,248,.06));border-color:rgba(167,139,250,.28);color:#a78bfa}
 .kpi[data-kpi="watch"] .kpi-icon{background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(251,146,60,.06));border-color:rgba(245,158,11,.28);color:#fbbf24}
 .kpi .label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px}
 .kpi .value{font-size:26px;font-weight:700;letter-spacing:-.04em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
@@ -259,7 +263,6 @@ select.control option{background:var(--bg);color:var(--text)}
   background:var(--bad-bg);color:var(--text);
   transition:background .15s;
 }
-.alert-item[data-type="low_avg"]{border-left-color:var(--warn);border-color:rgba(245,158,11,.25);background:rgba(245,158,11,.06)}
 .alert-item[data-type="missing"]{border-left-color:var(--muted);border-color:var(--line);background:rgba(255,255,255,.02)}
 .alert-item:hover{filter:brightness(1.08)}
 .alert-icon{font-size:15px;flex-shrink:0;line-height:1;margin-top:1px}
@@ -345,7 +348,6 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
 .rank-badge{display:inline-flex;align-items:center;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;white-space:nowrap;flex-shrink:0;letter-spacing:.01em}
 .rank-badge-warn{background:rgba(245,158,11,.14);color:#f59e0b;border:1px solid rgba(245,158,11,.25)}
 .rank-fill{height:100%;border-radius:999px;background:linear-gradient(90deg,var(--primary),var(--primary2));box-shadow:0 0 6px var(--primary-glow);transition:width .7s cubic-bezier(.22,1,.36,1);width:0}
-.rank-fill-alert{background:linear-gradient(90deg,#f59e0b,#fb923c);box-shadow:0 0 6px rgba(245,158,11,.3)}
 .rank-fill-top3{background:linear-gradient(90deg,#10d9a0,#34d399);box-shadow:0 0 8px rgba(16,217,160,.45)}
 @keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
@@ -616,18 +618,6 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
         </div>
       </div>
     </div>
-    <div class="card kpi" data-kpi="bills">
-      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><line x1="9" y1="12" x2="15" y2="12"/><line x1="9" y1="16" x2="12" y2="16"/></svg></div>
-      <div class="label" id="kpiBillsLabel">จำนวนบิล</div>
-      <div class="value" id="billCount">—</div>
-      <div class="sub" id="kpiBillsSub">บิลที่ชำระแล้ว</div>
-    </div>
-    <div class="card kpi" data-kpi="avg">
-      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg></div>
-      <div class="label" id="kpiAvgLabel">ค่าเฉลี่ยต่อบิล</div>
-      <div class="value" id="avgBill">—</div>
-      <div class="sub" id="kpiAvgSub">ต่อ 1 ใบเสร็จ</div>
-    </div>
     <div class="card kpi" data-kpi="watch">
       <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
       <div class="label" id="kpiWatchLabel">สาขา สูงสุด · ต่ำสุด</div>
@@ -798,8 +788,8 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 
 <script>
 const I18N={
-en:{latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',yesterday:'Yesterday',qcustom:'Custom ›',billUnit:'bills',rankBadgeLowTitle:'Avg/bill below overall average',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiBillsLabel:'Total Bills',kpiBillsSub:'Paid bills',kpiAvgLabel:'Avg per Bill',kpiAvgSub:'Per receipt',kpiWatchLabel:'Top · Lowest Branch',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'Branch Rankings',branchDesc:'Sales compared by branch',tabOverview:'Overview',tabBranches:'Branches',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',lowAvg:'Low Avg',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.',labelLang:'Language',labelTheme:'Theme',labelDateFrom:'From',labelDateTo:'To',labelDateRange:'Date Range',loading:'Loading…',close:'Close',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'This Year',lastYear:'Last Year',compare:'Compare',compareOff:'Hide Compare',exportPdf:'Print',installSub:'Add to home screen',installBtn:'Install',bmTotal:'Total',bmBills:'Bills',bmAvg:'Avg/Bill',trendLegendMain:'Current period',trendLegendCmp:'Previous period'},
-th:{latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',yesterday:'เมื่อวาน',qcustom:'กำหนดเอง ›',billUnit:'บิล',rankBadgeLowTitle:'avg/บิลต่ำกว่าค่าเฉลี่ยรวม',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiBillsLabel:'จำนวนบิล',kpiBillsSub:'บิลที่ชำระแล้ว',kpiAvgLabel:'ค่าเฉลี่ยต่อบิล',kpiAvgSub:'ต่อ 1 ใบเสร็จ',kpiWatchLabel:'สาขา สูงสุด · ต่ำสุด',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'อันดับสาขา Top 20',branchDesc:'ยอดขายเปรียบเทียบรายสาขา',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',lowAvg:'Avg ต่ำ',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป',labelLang:'ภาษา',labelTheme:'ธีม',labelDateFrom:'วันที่เริ่ม',labelDateTo:'วันที่สิ้นสุด',labelDateRange:'ช่วงวันที่',loading:'กำลังโหลด…',close:'ปิด',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'ปีนี้',lastYear:'ปีก่อน',compare:'เปรียบเทียบ',compareOff:'ซ่อนเปรียบ',exportPdf:'พิมพ์',installSub:'เพิ่มลงหน้าจอหลัก',installBtn:'ติดตั้ง',bmTotal:'ยอดรวม',bmBills:'บิล',bmAvg:'Avg/บิล',trendLegendMain:'ช่วงปัจจุบัน',trendLegendCmp:'ช่วงก่อนหน้า'}};
+en:{latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',yesterday:'Yesterday',qcustom:'Custom ›',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiWatchLabel:'Top · Lowest Branch',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'Branch Rankings',branchDesc:'Sales compared by branch',tabOverview:'Overview',tabBranches:'Branches',tabAlerts:'Alerts',filterTitle:'Filters',watch:'Watch',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.',labelLang:'Language',labelTheme:'Theme',labelDateFrom:'From',labelDateTo:'To',labelDateRange:'Date Range',loading:'Loading…',close:'Close',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'This Year',lastYear:'Last Year',compare:'Compare',compareOff:'Hide Compare',exportPdf:'Print',installSub:'Add to home screen',installBtn:'Install',bmTotal:'Total',trendLegendMain:'Current period',trendLegendCmp:'Previous period'},
+th:{latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'MTD',d7:'7 วัน',yesterday:'เมื่อวาน',qcustom:'กำหนดเอง ›',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiWatchLabel:'สาขา สูงสุด · ต่ำสุด',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'อันดับสาขา Top 20',branchDesc:'ยอดขายเปรียบเทียบรายสาขา',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',watch:'ต้องดู',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิด auto refresh (ข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป',labelLang:'ภาษา',labelTheme:'ธีม',labelDateFrom:'วันที่เริ่ม',labelDateTo:'วันที่สิ้นสุด',labelDateRange:'ช่วงวันที่',loading:'กำลังโหลด…',close:'ปิด',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'ปีนี้',lastYear:'ปีก่อน',compare:'เปรียบเทียบ',compareOff:'ซ่อนเปรียบ',exportPdf:'พิมพ์',installSub:'เพิ่มลงหน้าจอหลัก',installBtn:'ติดตั้ง',bmTotal:'ยอดรวม',trendLegendMain:'ช่วงปัจจุบัน',trendLegendCmp:'ช่วงก่อนหน้า'}};
 const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[],rankingRows:[],compareMode:false,compareTrendRows:[],quickSel:'latest'};
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),from:$('dateFrom'),to:$('dateTo')};
@@ -826,7 +816,7 @@ function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;'
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
 function syncDateInputs(from,to){[mobile,desk].forEach(g=>{if(!g.from)return;g.from.value=from;g.to.value=to});updateSelectedText();if(state.compareMode){state.compareMode=false;state.compareTrendRows=[];['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el){el.classList.remove('active');el.textContent=t('compare');el.setAttribute('aria-pressed','false')}});['trendLegend','trendLegendDesktop'].forEach(id=>{const el=$(id);if(el)el.style.display='none'})}}
 function getCurrentFilters(){return{date_from:mobile.from.value,date_to:mobile.to.value}}
-const LABEL_MAP={qLatest:'latest',qYesterday:'yesterday',q7d:'d7',qMtd:'mtd',qCustom:'qcustom',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiBillsLabel:'kpiBillsLabel',kpiBillsSub:'kpiBillsSub',kpiAvgLabel:'kpiAvgLabel',kpiAvgSub:'kpiAvgSub',kpiWatchLabel:'kpiWatchLabel',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',bmLblBills:'bmBills',bmLblAvg:'bmAvg',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
+const LABEL_MAP={qLatest:'latest',qYesterday:'yesterday',q7d:'d7',qMtd:'mtd',qCustom:'qcustom',latestLabel:'latestLabel',rangeLabel:'rangeLabel',kpiSalesLabel:'kpiSalesLabel',kpiSalesSub:'kpiSalesSub',kpiWatchLabel:'kpiWatchLabel',alertsTitle2:'alertsTitle',alertsDesc2:'alertsDesc2',trendTitle:'trendTitle',trendDesc:'trendDesc',trendTitleDesktop:'trendTitle',trendDescDesktop:'trendDesc',branchTitle:'branchTitle',branchDesc:'branchDesc',branchTitleDesktop:'branchTitle',branchDescDesktop:'branchDesc',alertsTitleDesktop:'alertsTitle',alertsDescDesktop:'alertsDesc',filterTitle:'filterTitle',tabOverviewLabel:'tabOverview',tabBranchesLabel:'tabBranches',tabAlertsLabel:'tabAlerts',labelLangDesktop:'labelLang',labelThemeDesktop:'labelTheme',labelDateFromDesktop:'labelDateFrom',labelDateToDesktop:'labelDateTo',labelDateRange:'labelDateRange',labelLang:'labelLang',labelTheme:'labelTheme',closeFilterBtn2:'close',q1BtnD:'q1',q2BtnD:'q2',q3BtnD:'q3',q4BtnD:'q4',thisYearBtnD:'thisYear',lastYearBtnD:'lastYear',q1Btn:'q1',q2Btn:'q2',q3Btn:'q3',q4Btn:'q4',thisYearBtn:'thisYear',lastYearBtn:'lastYear',printBtnLabel:'exportPdf',ibSub:'installSub',installBtn:'installBtn',bmLblTotal:'bmTotal',trendLegendMain:'trendLegendMain',trendLegendCmp:'trendLegendCmp',trendLegendMainDesktop:'trendLegendMain',trendLegendCmpDesktop:'trendLegendCmp'};
 function applyText(){Object.entries(LABEL_MAP).forEach(([id,key])=>{if($(id))$(id).textContent=t(key)});['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('reload'))});['latestBtn','latestBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('latest'))});['mtdBtn','mtdBtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('mtd'))});['d7Btn','d7BtnDesktop'].forEach(id=>{$(id)&&($(id).textContent=t('d7'))});['compareToggle','compareToggleDesktop'].forEach(id=>{const el=$(id);if(el)el.textContent=state.compareMode?t('compareOff'):t('compare')});$('apiStatusText').textContent=t('apiOk');updateSelectedText();updateFooterNote();['rankingBars','rankingBarsDesktop','alertListOnly','alertListDesktop'].forEach(id=>{const el=$(id);if(el){const ch=el.querySelector('.empty');if(ch)ch.textContent=t('loading')}})}
 function applyPrefs(){document.body.dataset.theme=state.theme;localStorage.setItem('hq_lang',state.lang);localStorage.setItem('hq_theme',state.theme);const mc=document.getElementById('metaThemeColor');if(mc)mc.content=state.theme==='light'?'#f0f4fa':'#070f20';syncPrefsInputs();applyText();redrawCharts()}
 function updateSelectedText(){$('selectedRangeText').textContent=`${mobile.from.value} – ${mobile.to.value}`}
@@ -882,16 +872,13 @@ function renderAlerts(rows,meta,summary){
   function alertHtml(a){
     if(typeof a==='string')return`<div class="alert-item"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
     const type=a.type||'watch';
-    const icons={watch:'📉',low_avg:'📊',missing:'❔'};
+    const icons={watch:'📉',missing:'❔'};
     const icon=icons[type]||'⚠';
     let detail='';
     if(type==='watch'){
       const dir=Number(a.pct)<0?(state.lang==='th'?'▼ ลดลง':'▼ Down'):(state.lang==='th'?'▲ เพิ่มขึ้น':'▲ Up');
       const lbl1=state.lang==='th'?'ช่วงนี้':'this period',lbl2=state.lang==='th'?'ก่อนหน้า':'previous';
       detail=`${dir} <b>${Math.abs(Number(a.pct)).toFixed(1)}%</b> &nbsp;|&nbsp; ${lbl1} <b>${compactMoney(a.curr_sales)}</b> &nbsp;vs&nbsp; ${lbl2} <b>${compactMoney(a.prev_sales)}</b>`;
-    } else if(type==='low_avg'){
-      const lbl1=state.lang==='th'?'avg/บิล':'avg/bill',lbl2=state.lang==='th'?'ค่าเฉลี่ยรวม':'overall avg',lbl3=state.lang==='th'?'ต่ำกว่า':'below by';
-      detail=`${lbl1} <b>${compactMoney(a.avg_bill)}</b> &nbsp;|&nbsp; ${lbl2} <b>${compactMoney(a.overall_avg)}</b> &nbsp;(${lbl3} <b>${Number(a.pct_below).toFixed(1)}%</b>)`;
     } else if(type==='missing'){
       detail=state.lang==='th'?'ไม่มีข้อมูลในช่วงที่เลือก &nbsp;|&nbsp; มีข้อมูลในช่วงก่อนหน้า':'No data in selected range &nbsp;|&nbsp; Had data in previous period';
     }
@@ -953,10 +940,10 @@ async function toggleCompare(){
   redrawCharts()
 }
 let _branchModalTrigger=null;
-function openBranchModal(shopId,shopName,totalSales,bills,avg){
+function openBranchModal(shopId,shopName,totalSales){
   _branchModalTrigger=document.activeElement;
   $('branchModalTitle').textContent=shopName;
-  $('bmTotal').textContent=money(totalSales);$('bmBills').textContent=intfmt(bills);$('bmAvg').textContent=money(avg);
+  $('bmTotal').textContent=money(totalSales);
   $('branchModal').classList.remove('hidden');document.body.style.overflow='hidden';
   $('branchModalClose')?.focus();
   // lazy-init tooltip (canvas not in DOM when <script> executed)
@@ -1002,7 +989,7 @@ function initChartTooltip(canvasId,tipId){
     let left=p.x+12;if(left+150>cw)left=p.x-162;
     let top=Math.max(p.y-36,4);
     tip.style.cssText=`display:block;left:${left}px;top:${top}px`;
-    tip.innerHTML=`<div class="ct-date">${fmtDateThai(r.sale_date)}</div><div class="ct-val">${money(Number(r.sales_total||0))}</div><div class="ct-sub">${intfmt(r.bill_count)} ${t('billUnit')} &nbsp;·&nbsp; avg ${compactMoney(r.avg_bill||0)}</div>`;
+    tip.innerHTML=`<div class="ct-date">${fmtDateThai(r.sale_date)}</div><div class="ct-val">${money(Number(r.sales_total||0))}</div>`;
   });
   canvas.addEventListener('mouseleave',()=>{tip.style.display='none'});
 }
@@ -1015,8 +1002,7 @@ function renderRankingBar(rows,containerId){
     const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
     let badge='';
     if(r.status==='watch'){const dp=Math.abs(Math.round(Number(r.sales_diff_pct||0)));badge=`<span class="rank-badge rank-badge-warn" title="${t('watch')}">▼ ${dp}%</span>`}
-    else if(r.status==='low_avg'){badge=`<span class="rank-badge rank-badge-warn" title="${t('rankBadgeLowTitle')}">${t('lowAvg')}</span>`}
-    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}" data-bills="${escapeHtml(String(r.bill_count||0))}" data-avg="${escapeHtml(String(r.avg_bill||0))}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div>${badge}<div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${r.status==='low_avg'?' rank-fill-alert':i<3?' rank-fill-top3':''}" data-w="${pct}%"></div></div></div></div>`;
+    return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div>${badge}<div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${i<3?' rank-fill-top3':''}" data-w="${pct}%"></div></div></div></div>`;
   }).join('')+'</div>';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
     el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
@@ -1024,7 +1010,7 @@ function renderRankingBar(rows,containerId){
 }
 function redrawCharts(){const cmp=state.compareMode?state.compareTrendRows:null;drawTrend(state.trendRows,'trendCanvas',cmp);drawTrend(state.trendRows,'trendCanvasDesktop',cmp)}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel));if(panel==='overview')requestAnimationFrame(redrawCharts)}
-async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=fmtDateThai(state.latestDate)||'-';const sum=data.summary||{};$('salesTotal').textContent=money(sum.sales_total);$('billCount').textContent=intfmt(sum.bill_count);$('avgBill').textContent=money(sum.avg_bill);['billCount','avgBill'].forEach(id=>{const el=$(id);if(el)autoSizeKpi(el)});$('bestWorst').textContent=`${sum.best_branch_name||'-'} / ${sum.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(sum.best_branch_sales)} | ${t('lowest')} ${compactMoney(sum.worst_branch_sales)}`;
+async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=fmtDateThai(state.latestDate)||'-';const sum=data.summary||{};$('salesTotal').textContent=money(sum.sales_total);$('bestWorst').textContent=`${sum.best_branch_name||'-'} / ${sum.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`${t('best')} ${compactMoney(sum.best_branch_sales)} | ${t('lowest')} ${compactMoney(sum.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
   const $sc=$('salesCmp');
@@ -1048,7 +1034,7 @@ const cmp=data.comparison||{};
   badge('cmpWeek',cmp.last_week,state.lang==='th'?'vs 7 วันที่แล้ว':'vs last week');
 })();
 state._lastCmp=cmp;
-renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0&&Number(data.summary.bill_count||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
+renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(data.summary.sales_total||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent='ERROR'}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);setQuickSel('custom');loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);setQuickSel('custom');loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});
@@ -1093,7 +1079,7 @@ initChartTooltip('trendCanvasDesktop','tipDesktop');
 // ── Branch drill-down (delegated) ──
 ['rankingBars','rankingBarsDesktop'].forEach(cid=>{
   const c=$(cid);if(!c)return;
-  function openRow(e){const row=e.target.closest('.rank-row[data-shop-id]');if(!row||!row.dataset.shopId||row.dataset.shopId==='0')return;openBranchModal(row.dataset.shopId,row.dataset.shopName,Number(row.dataset.sales||0),Number(row.dataset.bills||0),Number(row.dataset.avg||0))}
+  function openRow(e){const row=e.target.closest('.rank-row[data-shop-id]');if(!row||!row.dataset.shopId||row.dataset.shopId==='0')return;openBranchModal(row.dataset.shopId,row.dataset.shopName,Number(row.dataset.sales||0))}
   c.addEventListener('click',openRow);
   c.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openRow(e)}});
 });
@@ -1134,8 +1120,6 @@ document.getElementById('installDismiss')?.addEventListener('click',()=>{
     </div>
     <div class="bm-stats">
       <div class="bm-stat"><div class="bm-lbl" id="bmLblTotal">Total</div><div class="bm-val" id="bmTotal">—</div></div>
-      <div class="bm-stat"><div class="bm-lbl" id="bmLblBills">Bills</div><div class="bm-val" id="bmBills">—</div></div>
-      <div class="bm-stat"><div class="bm-lbl" id="bmLblAvg">Avg/Bill</div><div class="bm-val" id="bmAvg">—</div></div>
     </div>
     <div class="bm-chart-wrap"><canvas id="branchModalChart"></canvas><div class="bm-tip" id="branchModalTip"></div></div>
   </div>
