@@ -68,7 +68,7 @@ function safe_execute(mysqli_stmt $stmt, array &$data): ?mysqli_result {
     return $result;
 }
 
-function branch_status(float $currSales, float $pct): string {
+function branch_status(float $pct): string {
     if ($pct <= -15) return 'watch';
     return 'normal';
 }
@@ -219,7 +219,7 @@ try {
                 if ($prevSales > 0)       $pct = (($currSales - $prevSales) / $prevSales) * 100;
                 elseif ($currSales > 0)   $pct = 100.0;
 
-                $status   = branch_status($currSales, $pct);
+                $status   = branch_status($pct);
                 $shopName = $row['ShopName'] ?? ('Shop #' . (int)($row['ShopID'] ?? 0));
                 $shopId   = (int)($row['ShopID'] ?? 0);
 

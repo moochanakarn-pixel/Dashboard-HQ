@@ -464,7 +464,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .app{padding-bottom:24px}
   .topbar{position:static;margin:0;padding:0}
   .hero{display:grid;grid-template-columns:360px 1fr;align-items:start;gap:28px;padding:24px 26px}
-  .kpi-grid{grid-template-columns:repeat(4,1fr)}
+  .kpi-grid{grid-template-columns:repeat(2,1fr)}
   .kpi .value{font-size:21px}
   .kpi[data-kpi="sales"] .value{font-size:28px}
   .mobile-tabs,.filter-sheet,.panel,.panel.active{display:none!important}
@@ -496,7 +496,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 @media(min-width:640px){.bm-box{border-radius:var(--r);border-bottom:1px solid var(--line);margin-bottom:24px}}
 .bm-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:14px}
 .bm-head h3{font-size:15px;font-weight:700;color:var(--text);line-height:1.3}
-.bm-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.bm-stats{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:14px}
 .bm-stat{text-align:center;padding:10px 8px;background:var(--glass);border-radius:var(--r-xs);border:1px solid var(--line)}
 .bm-stat .bm-lbl{font-size:9px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;font-weight:500}
 .bm-stat .bm-val{font-size:17px;font-weight:700;color:var(--text);margin-top:3px;letter-spacing:-.02em}
@@ -810,7 +810,7 @@ function fmtPeriodThai(from,to){
   return`${parseInt(fd)} ${THAI_MONTHS[parseInt(fm)]}${fy!==ty?' '+fyys:''} – ${parseInt(td)} ${THAI_MONTHS[parseInt(tm)]} ${yys}`;
 }
 function compactMoney(n){const v=Number(n||0);if(v>=1e6)return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/1e6)+' M';if(v>=1e3)return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e3)+' K';return money(v)}
-function autoSizeKpi(el){const len=(el.textContent||'').replace(/\s/g,'').length;el.style.fontSize=len<=8?'':''+( len<=10?'20px':len<=12?'17px':'15px')}
+
 function intfmt(n){return new Intl.NumberFormat(locale(),{maximumFractionDigits:0}).format(Number(n||0))}
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
 function syncPrefsInputs(){[mobile,desk].forEach(g=>{if(!g.lang)return;g.lang.value=state.lang;g.theme.value=state.theme})}
