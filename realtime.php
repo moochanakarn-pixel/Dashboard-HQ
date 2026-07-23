@@ -636,13 +636,13 @@ function filteredBranches() {
     if (S.sort.col === 'today')      { av = a.daily?.[today]||0; bv = b.daily?.[today]||0; }
     else if (S.sort.col === 'this')  { av = a.this_month;         bv = b.this_month; }
     else if (S.sort.col === 'last')  { av = a.last_month;         bv = b.last_month; }
-    else if (S.sort.col === 'name')  { return S.sort.dir * a.name.localeCompare(b.name,'th'); }
+    else if (S.sort.col === 'name')  { return S.sort.dir * (a.name||'').localeCompare(b.name||'','th'); }
     else { av = a.daily?.[S.sort.col]||0; bv = b.daily?.[S.sort.col]||0; }
     return S.sort.dir * (bv - av);
   });
 
   if (!q) return branches;
-  return branches.filter(b => b.name.toLowerCase().includes(q) || b.code.toLowerCase().includes(q));
+  return branches.filter(b => (b.name||'').toLowerCase().includes(q) || (b.code||'').toLowerCase().includes(q));
 }
 
 function applyFilter() {
@@ -667,7 +667,7 @@ function renderTable() {
   const branches = filteredBranches();
 
   // --- head ---
-  const sortCls = col => S.sort.col===col ? (S.sort.dir<0?'sort-desc':'sort-asc') : '';
+  const sortCls = col => S.sort.col===col ? (col==='name'?(S.sort.dir>0?'sort-asc':'sort-desc'):(S.sort.dir>0?'sort-desc':'sort-asc')) : '';
   let th = '<tr>';
   th += `<th class="c-rank" style="cursor:default">#</th>`;
   th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}<button class="col-exp" onclick="toggleNameCol(event)" title="ขยาย/ย่อ">⇔</button></th>`;
@@ -794,6 +794,11 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('installDismiss')?.addEventListener('click', () => {
     document.getElementById('installBanner').style.display = 'none';
   });
+  applyI18n();
+});
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) { stopCd(); if (_fetchController) _fetchController.abort(); }
+  else { fetchData(); }
 });
 </script>
 
