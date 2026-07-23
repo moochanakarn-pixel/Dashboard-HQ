@@ -299,7 +299,12 @@ html,body{
   .rt-tbl tbody td{padding:8.5px 7px}
   .rt-tbl tbody td.c-rank{padding:8.5px 3px}
   .rt-tbl tbody td.c-name{padding-left:8px}
+  #tblWrap.name-wide .rt-tbl th.c-name,
+  #tblWrap.name-wide .rt-tbl td.c-name{min-width:200px!important;width:200px!important;max-width:200px!important}
 }
+.col-exp{background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:1px 3px;border-radius:3px;margin-left:3px;vertical-align:middle;transition:color .15s,background .15s;line-height:1}
+.col-exp:hover{color:var(--text)}
+#tblWrap.name-wide .col-exp{color:var(--accent)}
 
 /* ── PWA Install Banner ── */
 #installBanner{
@@ -452,6 +457,7 @@ const S = {
   raw:   null,
   cd:    300,
   cdTimer: null,
+  nameExp: false,
 };
 
 const t = k => (I18N[S.lang] && I18N[S.lang][k]) || k;
@@ -664,7 +670,7 @@ function renderTable() {
   const sortCls = col => S.sort.col===col ? (S.sort.dir<0?'sort-desc':'sort-asc') : '';
   let th = '<tr>';
   th += `<th class="c-rank" style="cursor:default">#</th>`;
-  th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}</th>`;
+  th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}<button class="col-exp" onclick="toggleNameCol(event)" title="ขยาย/ย่อ">⇔</button></th>`;
   cols.forEach(c => {
     const isTd = c === today;
     th += `<th class="${isTd?'c-today':'c-date'} ${sortCls(c)}" onclick="sortBy('${c}')">${fmtDateCol(c)}</th>`;
@@ -757,6 +763,13 @@ function hideError()    { document.getElementById('errorEl').style.display='none
 document.documentElement.dataset.theme = S.theme;
 applyI18n();
 fetchData();
+
+// ── Name column expand toggle ──
+function toggleNameCol(e) {
+  e.stopPropagation();
+  S.nameExp = !S.nameExp;
+  document.getElementById('tblWrap')?.classList.toggle('name-wide', S.nameExp);
+}
 
 // ── PWA Install ──
 let _deferredInstall = null;
