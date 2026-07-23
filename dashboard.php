@@ -214,9 +214,6 @@ select.control option{background:var(--bg);color:var(--text)}
 .kpi[data-kpi="watch"]::before{background:linear-gradient(90deg,#f59e0b,#fb923c)}
 .kpi:hover{transform:translateY(-4px);box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(59,130,246,.18),0 0 36px rgba(59,130,246,.08)}
 .kpi[data-kpi="watch"]:hover{box-shadow:0 28px 72px rgba(0,0,0,.55),0 0 0 1px rgba(245,158,11,.18),0 0 36px rgba(245,158,11,.08)}
-.kpi-icon{width:38px;height:38px;border-radius:var(--r-xs);border:1px solid transparent;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
-.kpi[data-kpi="sales"] .kpi-icon{background:linear-gradient(135deg,rgba(59,130,246,.18),rgba(96,165,250,.06));border-color:rgba(59,130,246,.28);color:#60a5fa}
-.kpi[data-kpi="watch"] .kpi-icon{background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(251,146,60,.06));border-color:rgba(245,158,11,.28);color:#fbbf24}
 .kpi .label{font-size:11px;font-weight:500;color:var(--muted);letter-spacing:.03em;text-transform:uppercase;margin-bottom:5px}
 .kpi .value{font-size:26px;font-weight:700;letter-spacing:-.04em;line-height:1;word-break:break-word;font-variant-numeric:tabular-nums}
 .kpi .sub{font-size:12px;color:var(--muted);margin-top:7px;line-height:1.4;font-weight:400}
@@ -265,7 +262,6 @@ select.control option{background:var(--bg);color:var(--text)}
 }
 .alert-item[data-type="missing"]{border-left-color:var(--muted);border-color:var(--line);background:rgba(255,255,255,.02)}
 .alert-item:hover{filter:brightness(1.08)}
-.alert-icon{font-size:15px;flex-shrink:0;line-height:1;margin-top:1px}
 .alert-body{flex:1;min-width:0}
 .alert-name{font-size:13.5px;font-weight:600;color:var(--text);line-height:1.3}
 .alert-detail{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
@@ -293,7 +289,6 @@ body[data-theme="light"] .chart-tip{background:rgba(245,249,255,.97)}
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:28px 16px;gap:6px;
 }
-.no-alerts-icon{font-size:36px;line-height:1}
 .no-alerts-title{font-size:14px;font-weight:700;color:var(--good);margin-top:4px}
 .no-alerts-sub{font-size:11px;color:var(--muted);text-align:center;line-height:1.5}
 .alert-show-more{
@@ -326,9 +321,7 @@ body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-co
   font-size:10px;font-weight:700;transition:all .2s;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;letter-spacing:.02em;
 }
-.tab-btn .tab-icon{font-size:17px;transition:transform .22s;display:block}
 .tab-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 4px 20px var(--primary-glow),0 1px 0 rgba(255,255,255,.2) inset}
-.tab-btn.active .tab-icon{transform:scale(1.15)}
 
 .panel{display:none}
 .panel.active{display:block;animation:fadeUp .24s cubic-bezier(.22,1,.36,1)}
@@ -397,7 +390,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 .alert-verdict.av-good{background:var(--good-bg);border:1px solid var(--good-border);color:var(--good)}
 .alert-verdict.av-warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn)}
 .alert-verdict.av-bad{background:var(--bad-bg);border:1px solid var(--bad-border);color:var(--bad)}
-.alert-verdict .av-icon{font-size:15px;flex-shrink:0}
 .alert-verdict .av-body{flex:1;min-width:0}
 .alert-verdict .av-sub{font-size:10px;font-weight:500;opacity:.8;margin-top:2px}
 
@@ -415,7 +407,6 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .hero-badge{margin-bottom:5px;padding:3px 9px;font-size:8.5px}
   .kpi-grid{gap:6px}
   .kpi[data-kpi="sales"]{grid-column:1/-1;display:flex;align-items:center;gap:14px;padding:14px 16px}
-  .kpi[data-kpi="sales"] .kpi-icon{margin-bottom:0;flex-shrink:0}
   .kpi[data-kpi="sales"] .kpi-text{flex:1;min-width:0}
   .kpi[data-kpi="sales"] .value{font-size:32px}
   .kpi{padding:13px 12px}
@@ -423,9 +414,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .kpi[data-kpi="sales"]{grid-column:1/-1;background:linear-gradient(135deg,rgba(59,130,246,.1) 0%,rgba(6,214,160,.04) 100%)}
   .kpi[data-kpi="sales"] .value{font-size:34px;letter-spacing:-.04em}
   .kpi[data-kpi="sales"] .label{font-size:10px}
-  .kpi[data-kpi="sales"] .kpi-icon{width:34px;height:34px}
   .kpi[data-kpi="watch"]{grid-column:1/-1}
-  .kpi-icon{width:28px;height:28px;margin-bottom:8px}
   .kpi .label{font-size:9px}
   .kpi .sub{font-size:10px}
   .section,.priority-card{padding:14px}
@@ -444,10 +433,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .kpi .value{font-size:17px}
   .kpi .label{font-size:8.5px}
   .kpi .sub{font-size:9px;margin-top:4px}
-  .kpi-icon{width:22px;height:22px;margin-bottom:5px}
   .kpi[data-kpi="sales"]{gap:10px;padding:10px 12px}
   .kpi[data-kpi="sales"] .value{font-size:26px}
-  .kpi[data-kpi="sales"] .kpi-icon{width:28px;height:28px}
   /* hide print — useless on phone */
   #printBtn{display:none!important}
   /* compact ยอดสด button: icon only */
@@ -605,7 +592,6 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
   <!-- ── KPI CARDS ── -->
   <div class="kpi-grid">
     <div class="card kpi" data-kpi="sales">
-      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
       <div class="kpi-text">
         <div class="label" id="kpiSalesLabel">ยอดขายรวม</div>
         <div class="value" id="salesTotal">—</div>
@@ -617,7 +603,6 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
       </div>
     </div>
     <div class="card kpi" data-kpi="watch">
-      <div class="kpi-icon"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg></div>
       <div class="label" id="kpiWatchLabel">สาขา สูงสุด · ต่ำสุด</div>
       <div class="value" id="bestWorst" style="font-size:13px">—</div>
       <div class="sub" id="bestWorstSub">—</div>
@@ -643,7 +628,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
         <div class="priority-head-title">
           <h2 id="alertsTitle2">แจ้งเตือน / ความผิดปกติ</h2>
           <div class="desc" id="alertsDesc2">สาขาและสัญญาณที่ควรติดตาม</div>
-          <div class="alert-verdict" id="alertVerdictMobile"><span class="av-icon" id="alertVerdictIconM"></span><div class="av-body"><div id="alertVerdictMainM"></div><div class="av-sub" id="alertVerdictSubM"></div></div></div>
+          <div class="alert-verdict" id="alertVerdictMobile"><div class="av-body"><div id="alertVerdictMainM"></div><div class="av-sub" id="alertVerdictSubM"></div></div></div>
         </div>
       </div>
       <div class="list" id="alertListOnly"><div class="empty">กำลังโหลด…</div></div>
@@ -683,7 +668,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           <div class="priority-head-title">
             <h2 id="alertsTitleDesktop">แจ้งเตือน</h2>
             <div class="desc" id="alertsDescDesktop">สิ่งที่ HQ ต้องดูทันที</div>
-            <div class="alert-verdict" id="alertVerdictDesktop"><span class="av-icon" id="alertVerdictIconD"></span><div class="av-body"><div id="alertVerdictMainD"></div><div class="av-sub" id="alertVerdictSubD"></div></div></div>
+            <div class="alert-verdict" id="alertVerdictDesktop"><div class="av-body"><div id="alertVerdictMainD"></div><div class="av-sub" id="alertVerdictSubD"></div></div></div>
           </div>
           <span class="priority-count" id="alertCountDesktop">0</span>
         </div>
@@ -714,13 +699,13 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 <div class="mobile-tabs">
   <div class="tab-row">
     <button class="tab-btn" data-panel="overview" id="tabOverview">
-      <span class="tab-icon">📈</span><span id="tabOverviewLabel">ภาพรวม</span>
+      <span id="tabOverviewLabel">ภาพรวม</span>
     </button>
     <button class="tab-btn active" data-panel="branches" id="tabBranches">
-      <span class="tab-icon">🏪</span><span id="tabBranchesLabel">สาขา</span>
+      <span id="tabBranchesLabel">สาขา</span>
     </button>
-<button class="tab-btn" data-panel="alerts" id="tabAlerts">
-      <span class="tab-icon" style="position:relative">⚠️<span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span></span><span id="tabAlertsLabel">แจ้งเตือน</span>
+    <button class="tab-btn" data-panel="alerts" id="tabAlerts" style="position:relative">
+      <span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span><span id="tabAlertsLabel">แจ้งเตือน</span>
     </button>
   </div>
 </div>
@@ -842,35 +827,31 @@ function renderAlerts(rows,meta,summary){
     const yday=cmp.yesterday;
     const hasCmp=cmp.is_single_day&&yday&&yday.pct!==null&&yday.pct!==undefined;
     const pct=hasCmp?yday.pct:null;
-    let cls,icon,main,sub;
+    let cls,main,sub;
     if(count>0){
       cls='alert-verdict '+(count>=3?'av-bad':'av-warn');
-      icon=count>=3?'🚨':'⚠️';
       main=state.lang==='th'?`มี ${count} สาขาที่ต้องติดตาม`:`${count} branch${count!==1?'es':''} need attention`;
       sub=hasCmp?(pct>=0?(state.lang==='th'?`ยอดรวม ▲ +${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`Total ▲ +${Math.abs(pct).toFixed(1)}% vs yesterday`):(state.lang==='th'?`ยอดรวม ▼ ${Math.abs(pct).toFixed(1)}% vs เมื่อวาน`:`Total ▼ ${Math.abs(pct).toFixed(1)}% vs yesterday`)):(summary.best_branch_name?(state.lang==='th'?`สาขาดีสุด: ${summary.best_branch_name}`:`Top branch: ${summary.best_branch_name}`):'');
     }else if(hasCmp){
       const pos=pct>=0;
       cls='alert-verdict '+(pos?'av-good':'av-warn');
-      icon=pos?'✅':'📉';
       main=(pos?(state.lang==='th'?'▲ ดีขึ้น +':'▲ Up +'):(state.lang==='th'?'▼ ลดลง ':'▼ Down '))+Math.abs(pct).toFixed(1)+(state.lang==='th'?'% เทียบเมื่อวาน':'% vs yesterday');
       sub=summary.best_branch_name?(state.lang==='th'?`สาขาดีสุด: ${summary.best_branch_name}`:`Top branch: ${summary.best_branch_name}`):'';
     }else{
       cls='alert-verdict av-good';
-      icon='✅';main=state.lang==='th'?'ภาพรวมปกติ':'All Clear';
+      main=state.lang==='th'?'ภาพรวมปกติ':'All Clear';
       sub=summary.best_branch_name?(state.lang==='th'?`สาขาดีสุด: ${summary.best_branch_name}`:`Top branch: ${summary.best_branch_name}`):'';
     }
-    [['alertVerdictMobile','alertVerdictIconM','alertVerdictMainM','alertVerdictSubM'],
-     ['alertVerdictDesktop','alertVerdictIconD','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,iId,mId,sId])=>{
+    [['alertVerdictMobile','alertVerdictMainM','alertVerdictSubM'],
+     ['alertVerdictDesktop','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,mId,sId])=>{
       const w=$(wId);if(!w)return;
       w.className=cls;w.style.display='flex';
-      $(iId).textContent=icon;$(mId).textContent=main;$(sId).textContent=sub;
+      $(mId).textContent=main;$(sId).textContent=sub;
     });
   })();
   function alertHtml(a){
-    if(typeof a==='string')return`<div class="alert-item"><span class="alert-icon">⚠</span><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
+    if(typeof a==='string')return`<div class="alert-item"><div class="alert-body"><div class="alert-name">${escapeHtml(a)}</div></div></div>`;
     const type=a.type||'watch';
-    const icons={watch:'📉',missing:'❔'};
-    const icon=icons[type]||'⚠';
     let detail='';
     if(type==='watch'){
       const dir=Number(a.pct)<0?(state.lang==='th'?'▼ ลดลง':'▼ Down'):(state.lang==='th'?'▲ เพิ่มขึ้น':'▲ Up');
@@ -879,10 +860,10 @@ function renderAlerts(rows,meta,summary){
     } else if(type==='missing'){
       detail=state.lang==='th'?'ไม่มีข้อมูลในช่วงที่เลือก &nbsp;|&nbsp; มีข้อมูลในช่วงก่อนหน้า':'No data in selected range &nbsp;|&nbsp; Had data in previous period';
     }
-    return`<div class="alert-item" data-type="${escapeHtml(type)}"><span class="alert-icon">${icon}</span><div class="alert-body"><div class="alert-name">${escapeHtml(a.shop_name||'-')}</div>${detail?`<div class="alert-detail">${detail}</div>`:''}</div></div>`;
+    return`<div class="alert-item" data-type="${escapeHtml(type)}"><div class="alert-body"><div class="alert-name">${escapeHtml(a.shop_name||'-')}</div>${detail?`<div class="alert-detail">${detail}</div>`:''}</div></div>`;
   }
   const ALERT_MAX=5;
-  const noAlertHtml=`<div class="no-alerts-state"><div class="no-alerts-icon">✅</div><div class="no-alerts-title">${state.lang==='th'?'ทุกสาขาปกติ':'All Clear'}</div><div class="no-alerts-sub">${t('noAlerts')}</div></div>`;
+  const noAlertHtml=`<div class="no-alerts-state"><div class="no-alerts-title">${state.lang==='th'?'ทุกสาขาปกติ':'All Clear'}</div><div class="no-alerts-sub">${t('noAlerts')}</div></div>`;
   const moreLabel=state.lang==='th'?`▼ แสดงเพิ่มอีก ${count-ALERT_MAX} สาขา`:`▼ Show ${count-ALERT_MAX} more`;
   const html=(!rows||!rows.length)?noAlertHtml:rows.slice(0,ALERT_MAX).map(alertHtml).join('')+(count>ALERT_MAX?`<div class="alert-more-wrap" style="display:none">${rows.slice(ALERT_MAX).map(alertHtml).join('')}</div><button class="alert-show-more" onclick="this.previousElementSibling.style.display='';this.style.display='none'">${moreLabel}</button>`:'');
   ['alertListOnly','alertListDesktop'].forEach(id=>{$(id)&&($(id).innerHTML=html)});
