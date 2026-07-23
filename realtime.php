@@ -231,6 +231,7 @@ html,body{
 .rt-tbl tbody td{padding:9.5px 10px;text-align:right;font-variant-numeric:tabular-nums}
 .rt-tbl tbody td.c-rank{font-size:11.5px;color:var(--muted2);padding:9.5px 6px}
 .rt-tbl tbody td.c-name{font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-left:12px}
+#nameTip{display:none;position:fixed;z-index:9999;background:var(--bg3);color:var(--text);border:1px solid var(--line2);border-radius:var(--r2);padding:8px 12px;font-size:13px;font-weight:500;max-width:240px;box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none;white-space:normal;line-height:1.4;text-align:left}
 .rt-tbl .zero{color:var(--muted2)}
 .rt-tbl .today-val{color:var(--gold);font-weight:700}
 
@@ -705,7 +706,7 @@ function renderTable() {
     const rankCls = i===0?' rank-gold':i===1?' rank-silver':i===2?' rank-bronze':'';
     rows += '<tr>';
     rows += `<td class="c-rank${rankCls}">${i+1}</td>`;
-    rows += `<td class="c-name" title="${esc(b.name)}">${esc(b.name)}</td>`;
+    rows += `<td class="c-name" title="${esc(b.name)}" onclick="showNameTip(event,this)">${esc(b.name)}</td>`;
     cols.forEach(c => {
       const v = b.daily?.[c] || 0;
       const isTd = c === today;
@@ -758,6 +759,33 @@ document.documentElement.dataset.theme = S.theme;
 applyI18n();
 fetchData();
 
+// ── Name tooltip (tap truncated name to reveal full) ──
+let _tipTimer = null;
+function showNameTip(e, td) {
+  if (td.scrollWidth <= td.clientWidth) return;
+  const tip = document.getElementById('nameTip');
+  if (!tip) return;
+  tip.textContent = td.title || td.textContent;
+  tip.style.display = 'block';
+  const rect = td.getBoundingClientRect();
+  const tipH = tip.offsetHeight, tipW = tip.offsetWidth;
+  let top = rect.top - tipH - 8;
+  if (top < 6) top = rect.bottom + 6;
+  let left = rect.left;
+  if (left + tipW > window.innerWidth - 8) left = window.innerWidth - tipW - 8;
+  if (left < 8) left = 8;
+  tip.style.top = top + 'px';
+  tip.style.left = left + 'px';
+  clearTimeout(_tipTimer);
+  _tipTimer = setTimeout(() => { tip.style.display = 'none'; }, 2500);
+  e.stopPropagation();
+}
+document.addEventListener('click', () => {
+  clearTimeout(_tipTimer);
+  const tip = document.getElementById('nameTip');
+  if (tip) tip.style.display = 'none';
+});
+
 // ── PWA Install ──
 let _deferredInstall = null;
 window.addEventListener('beforeinstallprompt', e => {
@@ -784,6 +812,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 </script>
 
+<div id="nameTip"></div>
 <div id="installBanner">
   <img class="ib-icon" src="icons/icon-192.png" alt="">
   <div class="ib-text">
