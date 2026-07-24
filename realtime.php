@@ -450,7 +450,7 @@ html,body{
 // ── i18n ────────────────────────────────────────────
 const I18N = {
   th: {
-    back:'Dashboard', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
+    back:'หน้าหลัก', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
     loading:'กำลังโหลดข้อมูล…', noData:'ไม่พบข้อมูล', noResult:'ไม่พบสาขาที่ค้นหา',
     errorPrefix:'โหลดข้อมูลไม่สำเร็จ: ',
     days:'วัน',
@@ -503,7 +503,7 @@ const t = k => (I18N[S.lang] && I18N[S.lang][k]) || k;
 
 // ── Format helpers ─────────────────────────────────────
 const fmtN  = n => Number(n||0).toLocaleString(S.lang==='th'?'th-TH':'en-US',{maximumFractionDigits:0});
-const fmtS  = n => { n=Number(n||0); if(n>=1e6)return(n/1e6).toFixed(1).replace(/\.0$/,'')+'M'; if(n>=1e3)return Math.round(n/1e3)+'K'; return fmtN(n); };
+const fmtS  = n => { n=Number(n||0); const sfx=S.lang==='th'; if(n>=1e6)return(n/1e6).toFixed(1).replace(/\.0$/,'')+(sfx?' ล้าน':'M'); if(n>=1e3)return Math.round(n/1e3)+(sfx?' พัน':'K'); return fmtN(n); };
 
 function parseLocalDate(s) {
   // Parse YYYY-MM-DD as local date (not UTC) to avoid timezone offset shifting the day
@@ -539,7 +539,7 @@ function fmtThaiDate(ds) {
 function updBadge(status, ts) {
   const time  = fmtTime(ts);
   const label = t(status) || status;
-  return `<span class="upd upd-${esc(status)}" title="${esc(label)}">${time}</span>`;
+  return `<span class="upd upd-${esc(status)}" title="${esc(label)}">${esc(label)} ${time}</span>`;
 }
 
 
@@ -656,8 +656,9 @@ function renderAll() {
   const sub4 = document.getElementById('sv4sub');
   if (mom !== null && mom !== undefined) {
     const sign = mom >= 0 ? '+' : '';
-    sub4.textContent  = `${sign}${mom}%`;
-    sub4.style.color  = mom >= 0 ? 'var(--green)' : 'var(--red)';
+    const cmpLbl = S.lang === 'th' ? 'vs เดือนก่อน' : 'vs prev month';
+    sub4.textContent = `${sign}${mom}% ${cmpLbl}`;
+    sub4.style.color = mom >= 0 ? 'var(--green)' : 'var(--red)';
   } else { sub4.textContent = ''; }
 
   applyFilter();
@@ -714,8 +715,8 @@ function renderTable() {
     const isTd = c === today;
     th += `<th class="${isTd?'c-today':'c-date'} ${sortCls(c)}" onclick="sortBy('${c}')">${fmtDateCol(c)}</th>`;
   });
-  th += `<th class="c-month ${sortCls('this')}" onclick="sortBy('this')">${t('thisMonth')}</th>`;
-  th += `<th class="c-month ${sortCls('last')}" onclick="sortBy('last')">${t('lastMonth')}</th>`;
+  th += `<th class="c-month ${sortCls('this')}" onclick="sortBy('this')">${t('thisMonth')} (${d.month_labels?.this||''})</th>`;
+  th += `<th class="c-month ${sortCls('last')}" onclick="sortBy('last')">${t('lastMonth')} (${d.month_labels?.last||''})</th>`;
   th += `<th class="c-upd">${t('colUpdated')}</th>`;
   th += '</tr>';
   document.getElementById('tblHead').innerHTML = th;
