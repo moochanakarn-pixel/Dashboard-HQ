@@ -235,7 +235,7 @@ try {
     if (function_exists('apcu_store')) {
         apcu_store($cacheKey, $payload, $cacheTtl);
     } else {
-        @file_put_contents($cacheFile, json_encode($payload), LOCK_EX);
+        @file_put_contents($cacheFile, json_encode($payload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE), LOCK_EX);
     }
 
     json_output($payload);

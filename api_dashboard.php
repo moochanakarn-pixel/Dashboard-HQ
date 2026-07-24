@@ -111,6 +111,7 @@ $cacheTtl  = max(0, $isTodayRange
     : (int)($DASHBOARD_CACHE_TTL_HISTORY ?? 1800));
 
 if (!$forceRefresh && $cacheTtl > 0 && is_file($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
+    ob_end_clean(); // discard any buffered warnings before sending cached JSON
     header('Content-Type: application/json; charset=utf-8');
     readfile($cacheFile);
     exit;
@@ -327,8 +328,8 @@ try {
 
 $bufferOutput = trim((string)ob_get_clean());
 if ($bufferOutput !== '') {
+    // Log unexpected output but don't fail the request — data may still be valid
     error_log('[api_dashboard] Unexpected output: ' . preg_replace('/\s+/', ' ', $bufferOutput));
-    set_error_once($data, 'เกิดข้อผิดพลาดภายใน / Internal error');
 }
 
 if ($cacheTtl > 0) {
