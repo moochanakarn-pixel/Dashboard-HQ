@@ -17,6 +17,8 @@ $dateFrom = $_GET['date_from'] ?? $range['date_from'];
 $dateTo = $_GET['date_to'] ?? $range['date_to'];
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) $dateFrom = $range['date_from'];
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
+require __DIR__ . '/log_access.php';
+log_access('dashboard', ['date_from' => $dateFrom, 'date_to' => $dateTo]);
 ?>
 <!doctype html>
 <html lang="th">

@@ -1,4 +1,8 @@
-<?php require __DIR__ . '/dashboard_config.php'; ?>
+<?php
+require __DIR__ . '/dashboard_config.php';
+require __DIR__ . '/log_access.php';
+log_access('realtime', ['days' => (int)($_GET['days'] ?? 7)]);
+?>
 <!DOCTYPE html>
 <html lang="th" data-theme="dark">
 <head>
