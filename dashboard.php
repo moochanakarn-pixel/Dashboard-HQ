@@ -34,7 +34,7 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --bg:#070f20;
@@ -66,7 +66,7 @@ body[data-theme="light"]{
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%}
 body{
-  font-family:'Plus Jakarta Sans','Inter',system-ui,sans-serif;background:var(--bg);color:var(--text);
+  font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--bg);color:var(--text);
   -webkit-font-smoothing:antialiased;
   background-image:
     radial-gradient(ellipse 85% 55% at 12% -8%,rgba(59,130,246,.09),transparent),
@@ -874,7 +874,7 @@ function drawTrend(rows,canvasId,cmpRows){
   const canvas=$(canvasId);if(!canvas||canvas.offsetParent===null)return;
   const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1,w=Math.max(parent.clientWidth-20,200),h=Math.max(parent.clientHeight-20,140);
   canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-  if(!rows||!rows.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted');ctx.font='11px Inter,sans-serif';ctx.fillText(t('noTrend'),12,20);canvas._chart=null;return}
+  if(!rows||!rows.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted');ctx.font='11px "Plus Jakarta Sans",sans-serif';ctx.fillText(t('noTrend'),12,20);canvas._chart=null;return}
   const cs=getComputedStyle(document.body),pad={l:54,r:16,t:26,b:26},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
   const values=rows.map(r=>Number(r.sales_total||0));
   const mainMax=Math.max(...values,1);
@@ -897,9 +897,9 @@ function drawTrend(rows,canvasId,cmpRows){
   pts.forEach((p,i)=>{if(i===peakIdx)return;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary');ctx.fill()});
   ctx.beginPath();ctx.arc(pk.x,pk.y,6,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();
   ctx.beginPath();ctx.arc(pk.x,pk.y,3.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-  ctx.fillStyle='#f59e0b';ctx.font='700 9px "Plus Jakarta Sans",Inter,sans-serif';ctx.textAlign='center';
+  ctx.fillStyle='#f59e0b';ctx.font='700 9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='center';
   ctx.fillText(compactMoney(values[peakIdx]),pk.x,pk.y-13);
-  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",Inter,sans-serif';ctx.textAlign='right';
+  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='right';
   for(let i=0;i<=4;i++){ctx.fillText(compactMoney((effectiveMax/4)*(4-i)),pad.l-6,pad.t+(ch/4)*i+3)}
   ctx.textAlign='center';const skip=rows.length>10?Math.ceil(rows.length/8):1;
   rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;ctx.fillText((r.sale_date||'').slice(5),pts[i].x,h-6)})
@@ -938,7 +938,7 @@ function drawBranchModalChart(daily){
   const w=Math.max(par.clientWidth,200),h=Math.max(par.clientHeight,100);
   canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';
   ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
-  if(!daily||!daily.length){const cs2=getComputedStyle(document.body);ctx.fillStyle=cs2.getPropertyValue('--muted');ctx.font='11px Inter,sans-serif';ctx.fillText(t('noTrend'),12,20);return}
+  if(!daily||!daily.length){const cs2=getComputedStyle(document.body);ctx.fillStyle=cs2.getPropertyValue('--muted');ctx.font='11px "Plus Jakarta Sans",sans-serif';ctx.fillText(t('noTrend'),12,20);return}
   const cs=getComputedStyle(document.body),pad={l:54,r:12,t:18,b:22},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
   const values=daily.map(r=>Number(r.sales_total||0)),max=Math.max(...values,1),stepX=daily.length>1?cw/(daily.length-1):0;
   const pts=daily.map((r,i)=>({x:pad.l+stepX*i,y:pad.t+ch-(Number(r.sales_total||0)/max)*ch}));
@@ -951,7 +951,7 @@ function drawBranchModalChart(daily){
   ctx.beginPath();curve(pts);ctx.lineTo(pts[pts.length-1].x,pad.t+ch);ctx.lineTo(pts[0].x,pad.t+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
   ctx.strokeStyle=cs.getPropertyValue('--primary2');ctx.lineWidth=2;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(pts);ctx.stroke();
   pts.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary2');ctx.fill()});
-  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",Inter,sans-serif';ctx.textAlign='right';
+  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='right';
   for(let i=0;i<=3;i++){ctx.fillText(compactMoney((max/3)*(3-i)),pad.l-4,pad.t+(ch/3)*i+3)}
   ctx.textAlign='center';const skip=daily.length>8?Math.ceil(daily.length/6):1;
   daily.forEach((r,i)=>{if(i%skip!==0&&i!==daily.length-1)return;ctx.fillText((r.sale_date||'').slice(5),pts[i].x,h-4)})
