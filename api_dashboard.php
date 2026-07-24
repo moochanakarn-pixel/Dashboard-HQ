@@ -184,6 +184,29 @@ try {
         }
     }
 
+    // Previous-period total (all ranges — powers the "vs ช่วงก่อนหน้า" badge)
+    $sqlPrevTotal = "
+        SELECT COALESCE(SUM(TotalPrice), 0) AS sales_total
+        FROM summarysalebydate
+        WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
+    ";
+    if ($stmt = safe_prepare($conn, $data, $sqlPrevTotal)) {
+        $stmt->bind_param('ss', $previousFrom, $previousTo);
+        if ($res = safe_execute($stmt, $data)) {
+            $row       = $res->fetch_assoc() ?: [];
+            $prevTotal = (float)($row['sales_total'] ?? 0);
+            $currTotal = (float)$data['summary']['sales_total'];
+            $prevPct   = $prevTotal > 0 ? round((($currTotal - $prevTotal) / $prevTotal) * 100, 1) : null;
+            $data['comparison']['prev_period'] = [
+                'sales_total' => $prevTotal,
+                'pct'         => $prevPct,
+                'date_from'   => $previousFrom,
+                'date_to'     => $previousTo,
+            ];
+        }
+        $stmt->close();
+    }
+
     // Branch ranking: summarysalebydate + name lookup from summary_tranreport
     $sqlRanking = "
         SELECT
