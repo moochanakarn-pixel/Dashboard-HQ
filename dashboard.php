@@ -319,11 +319,14 @@ body[data-theme="light"] .chart-tip{background:rgba(245,249,255,.97)}
 body[data-theme="light"] .mobile-tabs{background:rgba(235,242,252,.96);border-color:rgba(30,60,130,.1)}
 .tab-row{display:grid;grid-template-columns:repeat(3,1fr);gap:4px}
 .tab-btn{
-  height:46px;border-radius:18px;border:none;background:transparent;color:var(--muted);
+  height:46px;border-radius:18px;border:none;background:transparent;color:rgba(200,216,238,.55);
   font-size:10px;font-weight:700;transition:all .2s;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;letter-spacing:.02em;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;letter-spacing:.02em;
 }
+body[data-theme="light"] .tab-btn{color:rgba(28,47,74,.45)}
+.tab-btn svg{width:17px;height:17px;flex-shrink:0;transition:opacity .2s}
 .tab-btn.active{background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;box-shadow:0 4px 20px var(--primary-glow),0 1px 0 rgba(255,255,255,.2) inset}
+.tab-btn.active svg{opacity:1}
 
 .panel{display:none}
 .panel.active{display:block;animation:fadeUp .24s cubic-bezier(.22,1,.36,1)}
@@ -701,12 +704,15 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 <div class="mobile-tabs">
   <div class="tab-row">
     <button class="tab-btn" data-panel="overview" id="tabOverview">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 17 8 10 12 14 16 6 22 9"/></svg>
       <span id="tabOverviewLabel">ภาพรวม</span>
     </button>
     <button class="tab-btn active" data-panel="branches" id="tabBranches">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
       <span id="tabBranchesLabel">สาขา</span>
     </button>
     <button class="tab-btn" data-panel="alerts" id="tabAlerts" style="position:relative">
+      <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
       <span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span><span id="tabAlertsLabel">แจ้งเตือน</span>
     </button>
   </div>

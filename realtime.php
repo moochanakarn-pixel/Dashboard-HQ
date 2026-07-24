@@ -92,6 +92,7 @@ html,body{
   display:flex;align-items:center;gap:5px;
   color:var(--muted);text-decoration:none;font-size:12.5px;font-weight:500;
   padding:5px 9px;border-radius:var(--r2);transition:all .15s;white-space:nowrap;
+  border:1px solid var(--line);
 }
 .back-btn:hover{background:var(--bg2);color:var(--text)}
 .rt-title-wrap{flex:1;min-width:0}
@@ -326,6 +327,7 @@ html,body{
 #installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
 /* ── View toggle ── */
 .seg-btn-icon{padding:5px 9px}
+.seg-btn-icon.active{background:var(--accent);color:#fff}
 /* ── Card Grid ── */
 .card-grid{display:flex;flex-direction:column;gap:6px;padding:10px 10px 24px}
 .rt-card{display:grid;grid-template-columns:28px 1fr;gap:0 10px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:11px 13px 11px 10px;border-left:3px solid var(--muted2)}
@@ -351,8 +353,8 @@ html,body{
 <!-- ── Header ── -->
 <header class="rt-hd">
   <a href="dashboard.php" class="back-btn">
-    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/><line x1="2" y1="20" x2="22" y2="20"/></svg>
-    <span data-i="back">Analytics</span>
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+    <span data-i="back">Dashboard</span>
   </a>
   <div class="rt-title-wrap">
     <div class="rt-title">
@@ -448,7 +450,7 @@ html,body{
 // ── i18n ────────────────────────────────────────────
 const I18N = {
   th: {
-    back:'Analytics', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
+    back:'Dashboard', pageTitle:'ยอดขาย Real-time', refresh:'รีเฟรช',
     loading:'กำลังโหลดข้อมูล…', noData:'ไม่พบข้อมูล', noResult:'ไม่พบสาขาที่ค้นหา',
     errorPrefix:'โหลดข้อมูลไม่สำเร็จ: ',
     days:'วัน',
@@ -465,7 +467,7 @@ const I18N = {
     installSub:'เพิ่มลงหน้าจอหลัก', installBtn:'ติดตั้ง',
   },
   en: {
-    back:'Analytics', pageTitle:'Real-time Sales', refresh:'Refresh',
+    back:'Dashboard', pageTitle:'Real-time Sales', refresh:'Refresh',
     loading:'Loading data…', noData:'No data available', noResult:'No branches found',
     errorPrefix:'Failed to load: ',
     days:'Days',
