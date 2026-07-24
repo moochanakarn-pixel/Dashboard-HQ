@@ -8,7 +8,7 @@
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070f20">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
@@ -41,7 +41,7 @@
   --yellow-g:rgba(245,166,35,.09);
   --r:  10px;
   --r2:  7px;
-  --font:'Plus Jakarta Sans','Inter',system-ui,sans-serif;
+  --font:'Plus Jakarta Sans',system-ui,sans-serif;
   --hh: 56px;
 }
 [data-theme="light"]{
@@ -320,6 +320,26 @@ html,body{
 #installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
 #installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff;white-space:nowrap;flex-shrink:0}
 #installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
+/* ── View toggle ── */
+.seg-btn-icon{padding:5px 9px}
+/* ── Card Grid ── */
+.card-grid{display:flex;flex-direction:column;gap:6px;padding:10px 10px 24px}
+.rt-card{display:grid;grid-template-columns:28px 1fr;gap:0 10px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:var(--r);padding:11px 13px 11px 10px;border-left:3px solid var(--muted2)}
+.rt-card.card-fresh{border-left-color:var(--green)}
+.rt-card.card-stale{border-left-color:var(--gold)}
+.rt-card.card-offline{border-left-color:var(--red)}
+.card-rank-n{font-size:11px;font-weight:700;color:var(--muted2);text-align:center;align-self:start;padding-top:2px}
+.card-rank-n.rank-gold{color:var(--gold)!important}
+.card-rank-n.rank-silver{color:#8a9db8!important}
+.card-rank-n.rank-bronze{color:#b07845!important}
+.card-body{min-width:0}
+.card-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:4px}
+.card-name{font-size:13px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.card-sales{font-size:20px;font-weight:800;color:var(--gold);font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1;margin-bottom:3px}
+.card-sales.zero{color:var(--muted2);font-size:16px}
+.card-bot{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.card-mtd{font-size:11px;color:var(--muted)}
+.card-mtd b{color:var(--text2);font-weight:600;font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -370,6 +390,16 @@ html,body{
     <button class="seg-btn" data-days="14" onclick="setDays(14)">14 <span data-i="days">วัน</span></button>
     <button class="seg-btn" data-days="30" onclick="setDays(30)">30 <span data-i="days">วัน</span></button>
   </div>
+  <div class="ctrl-right">
+    <div class="seg">
+      <button class="seg-btn seg-btn-icon view-btn" data-view="cards" onclick="setView('cards')" title="การ์ด">
+        <svg width="13" height="13" fill="currentColor" viewBox="0 0 14 14"><rect x="0" y="0" width="6" height="6" rx="1"/><rect x="8" y="0" width="6" height="6" rx="1"/><rect x="0" y="8" width="6" height="6" rx="1"/><rect x="8" y="8" width="6" height="6" rx="1"/></svg>
+      </button>
+      <button class="seg-btn seg-btn-icon view-btn" data-view="table" onclick="setView('table')" title="ตาราง">
+        <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 14 14"><path d="M0 3.5h14M0 7h14M0 10.5h14M4.5 0v14"/></svg>
+      </button>
+    </div>
+  </div>
 </div>
 
 <!-- ── Summary strip ── -->
@@ -406,6 +436,8 @@ html,body{
 <div class="tbl-wrap" id="tblWrap" style="display:none">
   <table class="rt-tbl"><thead id="tblHead"></thead><tbody id="tblBody"></tbody></table>
 </div>
+<!-- Cards -->
+<div class="card-grid" id="cardGrid" style="display:none"></div>
 
 
 <script>
@@ -458,6 +490,7 @@ const S = {
   cd:    300,
   cdTimer: null,
   nameExp: false,
+  view: localStorage.getItem('hq_view') || (window.innerWidth < 641 ? 'cards' : 'table'),
 };
 
 const t = k => (I18N[S.lang] && I18N[S.lang][k]) || k;
@@ -647,7 +680,8 @@ function filteredBranches() {
 
 function applyFilter() {
   S.search = document.getElementById('searchInput')?.value || '';
-  renderTable();
+  if (S.view === 'table') renderTable();
+  else renderCards();
 }
 
 // ── Table ──────────────────────────────────────────────
@@ -759,9 +793,53 @@ function showLoading(v) { document.getElementById('loadingEl').style.display = v
 function showError(m)   { const e=document.getElementById('errorEl'); e.textContent=m; e.style.display=''; }
 function hideError()    { document.getElementById('errorEl').style.display='none'; }
 
+// ── Card view ──────────────────────────────────────────
+function renderCards() {
+  const d = S.raw;
+  if (!d) return;
+  const branches = filteredBranches();
+  const cg = document.getElementById('cardGrid');
+  if (!cg) return;
+  if (!branches.length) {
+    cg.innerHTML = `<div class="rt-empty">${S.search.trim() ? t('noResult') : t('noData')}</div>`;
+    return;
+  }
+  cg.innerHTML = branches.map((b, i) => {
+    const todayVal = b.daily?.[d.today] || 0;
+    const status   = b.update_status || 'no_data';
+    const rankCls  = i===0?' rank-gold':i===1?' rank-silver':i===2?' rank-bronze':'';
+    return `<div class="rt-card card-${esc(status)}">
+      <div class="card-rank-n${rankCls}">${i+1}</div>
+      <div class="card-body">
+        <div class="card-top">
+          <div class="card-name" title="${esc(b.name)}">${esc(b.name)}</div>
+          ${updBadge(status, b.last_update)}
+        </div>
+        <div class="card-sales${todayVal?'':' zero'}">${todayVal ? fmtN(todayVal) : '—'}</div>
+        <div class="card-bot">
+          <div class="card-mtd">${t('thisMonth')} <b>${b.this_month ? fmtS(b.this_month) : '—'}</b></div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function setView(v) {
+  S.view = v;
+  localStorage.setItem('hq_view', v);
+  const tw = document.getElementById('tblWrap');
+  const cg = document.getElementById('cardGrid');
+  if (tw) tw.style.display = v === 'table' ? '' : 'none';
+  if (cg) cg.style.display = v === 'cards' ? '' : 'none';
+  document.querySelectorAll('.view-btn').forEach(b => b.classList.toggle('active', b.dataset.view === v));
+  if (S.raw) applyFilter();
+  if (v === 'table') requestAnimationFrame(fitTableHeight);
+}
+
 // ── Init ───────────────────────────────────────────────
 document.documentElement.dataset.theme = S.theme;
 applyI18n();
+setView(S.view);
 fetchData();
 
 // ── Name column expand toggle ──
