@@ -694,7 +694,6 @@ function sortBy(col) {
 function renderTable() {
   const d = S.raw;
   if (!d) return;
-  document.getElementById('tblWrap').style.display = '';
 
   const cols  = [...(d.date_columns || [])].reverse(); // today first, oldest last
   const today = d.today;
@@ -776,7 +775,8 @@ function fitTableHeight() {
   w.style.height = Math.max(200, window.innerHeight - top - 4) + 'px';
 }
 
-window.addEventListener('resize', fitTableHeight, { passive: true });
+let _fitTimer;
+window.addEventListener('resize', () => { clearTimeout(_fitTimer); _fitTimer = setTimeout(fitTableHeight, 150); }, { passive: true });
 
 function setDays(n) {
   S.days = n;

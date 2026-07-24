@@ -84,13 +84,20 @@ try {
     sort($dateCols);
     $branchIds = array_keys($dailyMap);
 
-    // --- 2. Branch names — long-lived APCu cache (1 h) to avoid 90-day scan every 2 min ---
-    $nameCacheKey = 'realtime_names_v2';
-    $nameMap      = [];
+    // --- 2. Branch names — long-lived cache (1 h) to avoid 90-day scan every 2 min ---
+    $nameCacheKey   = 'realtime_names_v2';
+    $namesCacheFile = sys_get_temp_dir() . '/hq_rt_names.json';
+    $nameMap        = [];
 
     if (function_exists('apcu_fetch')) {
         $fetched = apcu_fetch($nameCacheKey, $nameOk);
         if ($nameOk) $nameMap = $fetched;
+    } elseif (file_exists($namesCacheFile) && (time() - filemtime($namesCacheFile) < 3600)) {
+        $rawNames = @file_get_contents($namesCacheFile);
+        if ($rawNames !== false) {
+            $decodedNames = @json_decode($rawNames, true);
+            if (is_array($decodedNames) && !empty($decodedNames)) $nameMap = $decodedNames;
+        }
     }
 
     if (empty($nameMap) && !empty($branchIds)) {
@@ -118,8 +125,12 @@ try {
             ];
         }
         $stmt->close();
-        if (function_exists('apcu_store') && !empty($nameMap)) {
-            apcu_store($nameCacheKey, $nameMap, 3600); // 1-hour TTL
+        if (!empty($nameMap)) {
+            if (function_exists('apcu_store')) {
+                apcu_store($nameCacheKey, $nameMap, 3600); // 1-hour TTL
+            } else {
+                @file_put_contents($namesCacheFile, json_encode($nameMap), LOCK_EX);
+            }
         }
     }
 
