@@ -13,12 +13,22 @@ function log_access(string $page, array $context = []): void {
         }
     }
 
+    $ua = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 150); // substr: no extension needed
+
     $entry = json_encode([
         'ts'   => date('Y-m-d H:i:s'),
         'ip'   => $ip,
         'page' => $page,
-        'ua'   => mb_substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 150, 'UTF-8'),
-    ] + $context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) . "\n";
+        'ua'   => $ua,
+    ] + $context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
 
-    @file_put_contents($logFile, $entry, FILE_APPEND | LOCK_EX);
+    if ($entry === false) return; // json_encode failed even with substitute — skip
+
+    $fp = @fopen($logFile, 'a');
+    if ($fp) {
+        flock($fp, LOCK_EX);
+        fwrite($fp, $entry . "\n");
+        flock($fp, LOCK_UN);
+        fclose($fp);
+    }
 }
