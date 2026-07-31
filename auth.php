@@ -22,8 +22,9 @@ function auth_require_api(): void {
 // For HTML pages: redirect to login
 function auth_require_page(): void {
     if (empty($_SESSION['staff_id'])) {
-        $back = urlencode($_SERVER['REQUEST_URI'] ?? '');
-        header('Location: login.php' . ($back ? '?next=' . $back : ''));
+        // Strip leading slash so basename matches the allowlist in login.php
+        $back = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '');
+        header('Location: login.php' . ($back ? '?next=' . urlencode($back) : ''));
         exit;
     }
 }

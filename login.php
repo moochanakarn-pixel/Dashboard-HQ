@@ -51,20 +51,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $ok = $row && hash_equals($storedHash, $passHash);
 
             if ($ok) {
-                // Regenerate session ID to prevent fixation
-                session_regenerate_id(true);
+                // Regenerate session ID to prevent fixation; restart cleanly on failure
+                if (!session_regenerate_id(true)) {
+                    error_log('[login] session_regenerate_id failed for staff ' . $row['StaffID']);
+                    session_destroy();
+                    session_start();
+                }
                 $_SESSION['staff_id']   = (int) $row['StaffID'];
                 $_SESSION['staff_code'] = $row['StaffCode'];
                 $_SESSION['login_time'] = date('Y-m-d H:i:s');
 
-                // Write access log
+                // Sanitize UA before writing to tab-delimited log (strip tab/newline/null)
+                $ua = str_replace(["\t", "\r", "\n", "\0"], ' ', substr($_SERVER['HTTP_USER_AGENT'] ?? '-', 0, 200));
                 $logLine = implode("\t", [
                     date('Y-m-d H:i:s'),
                     'LOGIN',
                     $row['StaffID'],
                     $row['StaffCode'],
                     $_SERVER['REMOTE_ADDR'] ?? '-',
-                    $_SERVER['HTTP_USER_AGENT'] ?? '-',
+                    $ua,
                 ]) . "\n";
                 @file_put_contents(
                     __DIR__ . '/logs/access_log.txt',

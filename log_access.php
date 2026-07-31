@@ -5,13 +5,8 @@ function log_access(string $page, array $context = []): void {
 
     $logFile = $logDir . '/access_' . date('Y-m-d') . '.log';
 
-    $ip = '-';
-    foreach (['HTTP_X_FORWARDED_FOR', 'HTTP_X_REAL_IP', 'REMOTE_ADDR'] as $hdr) {
-        if (!empty($_SERVER[$hdr])) {
-            $ip = trim(explode(',', $_SERVER[$hdr])[0]);
-            break;
-        }
-    }
+    // Use only REMOTE_ADDR — X-Forwarded-For is client-controlled on IIS without a trusted proxy
+    $ip = trim((string)($_SERVER['REMOTE_ADDR'] ?? '-'));
 
     $ua = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 150); // substr: no extension needed
 

@@ -16,7 +16,8 @@ if (!function_exists('db_connect')) {
         mysqli_report(MYSQLI_REPORT_OFF);
         $conn = @new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, (int)$DB_PORT);
         if ($conn->connect_error) {
-            throw new RuntimeException('Database connection failed: ' . $conn->connect_error);
+            error_log('DB connect error: ' . $conn->connect_error);
+            throw new RuntimeException('Database connection failed.');
         }
         if (!$conn->set_charset($DB_CHARSET)) {
             throw new RuntimeException('Unable to set charset: ' . $conn->error);
@@ -104,7 +105,9 @@ if (!function_exists('json_output')) {
         while (ob_get_level() > 0) {
             @ob_end_clean();
         }
-        if (!headers_sent()) {
+        if (headers_sent($hsFile, $hsLine)) {
+            error_log("json_output: headers already sent in $hsFile:$hsLine, status $statusCode lost");
+        } else {
             http_response_code($statusCode);
             header('Content-Type: application/json; charset=utf-8');
         }
@@ -130,6 +133,10 @@ if (!function_exists('latest_sale_date')) {
         ];
         if (!in_array($table, $allowedTables, true)) {
             $table = 'summary_tranreport';
+        }
+        $allowedColumns = ['SaleDate', 'UpdateDate'];
+        if (!in_array($dateColumn, $allowedColumns, true)) {
+            $dateColumn = 'SaleDate';
         }
         try {
             $conn = db_connect();

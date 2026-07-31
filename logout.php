@@ -27,6 +27,11 @@ if (!empty($_SESSION['staff_id'])) {
     );
 }
 
+// Expire the session cookie on the client so the browser doesn't retain the stale ID
+if (ini_get('session.use_cookies')) {
+    $p = session_get_cookie_params();
+    setcookie(session_name(), '', time() - 86400, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+}
 session_unset();
 session_destroy();
 header('Location: login.php');
