@@ -38,15 +38,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'คำขอไม่ถูกต้อง กรุณาลองใหม่';
     } else {
     $code = trim($_POST['staffcode'] ?? '');
-    $pass = $_POST['staffpass'] ?? '';
 
-    if ($code === '' || $pass === '') {
-        $error = 'กรุณากรอก StaffCode และรหัสผ่าน';
+    if ($code === '') {
+        $error = 'กรุณากรอก StaffCode';
     } else {
         try {
             $db   = db_connect();
             $stmt = $db->prepare(
-                "SELECT StaffID, StaffCode, StaffPassword FROM Staffs WHERE StaffCode = ? LIMIT 1"
+                "SELECT StaffID, StaffCode FROM Staffs WHERE StaffCode = ? LIMIT 1"
             );
             if (!$stmt) throw new RuntimeException($db->error);
             $stmt->bind_param('s', $code);
@@ -55,12 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
             $db->close();
 
-            // Compute hash unconditionally to prevent timing-based staff-code enumeration
-            $passHash = sha1($pass);
-            $storedHash = $row ? strtolower($row['StaffPassword']) : str_repeat('0', 40);
-            $ok = $row && hash_equals($storedHash, $passHash);
-
-            if ($ok) {
+            if ($row) {
                 // Regenerate session ID to prevent fixation; restart cleanly on failure
                 if (!session_regenerate_id(true)) {
                     error_log('[login] session_regenerate_id failed for staff ' . $row['StaffID']);
@@ -90,7 +84,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 header('Location: ' . $next);
                 exit;
             } else {
-                $error = 'StaffCode หรือรหัสผ่านไม่ถูกต้อง';
+                $error = 'ไม่พบ StaffCode นี้ในระบบ';
                 // Log failed attempt
                 $logLine = implode("\t", [
                     date('Y-m-d H:i:s'),
@@ -260,16 +254,6 @@ input::placeholder{color:#344d68}
       value="<?= h($_POST['staffcode'] ?? '') ?>"
       autocomplete="username"
       autofocus
-      required
-    >
-
-    <label for="staffpass">รหัสผ่าน</label>
-    <input
-      type="password"
-      id="staffpass"
-      name="staffpass"
-      placeholder="••••••••"
-      autocomplete="current-password"
       required
     >
 
