@@ -5,8 +5,6 @@ require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_api();
 ob_start();
-
-require __DIR__ . '/dashboard_config.php';
 mysqli_report(MYSQLI_REPORT_OFF);
 
 register_shutdown_function(function () {
@@ -45,8 +43,8 @@ try {
     $thisMonthStart  = date('Y-m-01');
     $lastMonthStart  = date('Y-m-01', strtotime('-1 month'));
     $lastMonthEnd    = date('Y-m-t',  strtotime('-1 month'));
-    $dateTo          = $today . ' 23:59:59';
-    $lastMonthEndFull = $lastMonthEnd . ' 23:59:59';
+    $dateTo           = $today;
+    $lastMonthEndFull = $lastMonthEnd;
 
     // --- 1. Daily sales per branch per day ---
     // GROUP BY uses the alias (not DATE() function) to avoid blocking index-only grouping
@@ -58,7 +56,7 @@ try {
             MAX(UpdateDate) AS last_update
         FROM summarysalebydate
         WHERE SaleDate >= ?
-          AND SaleDate <= ?
+          AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
         GROUP BY ProductLevelID, sale_date
         ORDER BY ProductLevelID, sale_date
     ";
@@ -143,11 +141,11 @@ try {
         $sqlMonthly = "
             SELECT
                 ProductLevelID,
-                SUM(CASE WHEN SaleDate >= ? AND SaleDate <= ? THEN TotalPrice ELSE 0 END) AS this_month,
-                SUM(CASE WHEN SaleDate >= ? AND SaleDate <= ? THEN TotalPrice ELSE 0 END) AS last_month
+                SUM(CASE WHEN SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY) THEN TotalPrice ELSE 0 END) AS this_month,
+                SUM(CASE WHEN SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY) THEN TotalPrice ELSE 0 END) AS last_month
             FROM summarysalebydate
             WHERE SaleDate >= ?
-              AND SaleDate <= ?
+              AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
             GROUP BY ProductLevelID
         ";
         $stmt = $conn->prepare($sqlMonthly);

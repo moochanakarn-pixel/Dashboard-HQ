@@ -5,8 +5,6 @@ require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_api();
 ob_start();
-
-require __DIR__ . '/dashboard_config.php';
 mysqli_report(MYSQLI_REPORT_OFF);
 
 if (!function_exists('api_base_payload')) {

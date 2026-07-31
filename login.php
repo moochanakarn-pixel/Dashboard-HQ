@@ -10,8 +10,10 @@ if (!empty($_SESSION['staff_id'])) {
 }
 
 $error   = '';
-$next    = preg_replace('/[^a-zA-Z0-9\/_\-\.]/', '', $_GET['next'] ?? '');
-$next    = $next ?: 'realtime.php';
+// Allowlist redirect — only permit known local page names, no path traversal or protocol-relative URLs
+$nextRaw = $_GET['next'] ?? '';
+$allowed  = ['realtime.php', 'dashboard.php'];
+$next     = in_array($nextRaw, $allowed, true) ? $nextRaw : 'realtime.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $code = trim($_POST['staffcode'] ?? '');

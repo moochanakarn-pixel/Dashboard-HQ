@@ -1,5 +1,7 @@
 <?php
 require __DIR__ . '/dashboard_config.php';
+require __DIR__ . '/auth.php';
+auth_require_api();
 mysqli_report(MYSQLI_REPORT_OFF);
 
 $shopId   = isset($_GET['shop_id']) ? (int)$_GET['shop_id'] : 0;
