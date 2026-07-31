@@ -116,7 +116,11 @@ try {
         ";
         $stmt = $conn->prepare($sqlNames);
         if (!$stmt) throw new \RuntimeException('Q2 prepare failed');
-        $stmt->bind_param($types, ...$branchIds);
+        // build by-reference array for PHP 7 compat (spread passes values, not refs)
+        $bindArgs = [&$types];
+        foreach ($branchIds as &$v) { $bindArgs[] = &$v; }
+        unset($v);
+        call_user_func_array([$stmt, 'bind_param'], $bindArgs);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) {

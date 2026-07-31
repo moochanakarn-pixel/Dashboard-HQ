@@ -63,6 +63,8 @@ log_access('realtime', ['days' => (int)($_GET['days'] ?? 7)]);
   --text2:   #2a3d5a;
   --muted:   #4a6080;
   --muted2:  #7890b5;
+  --accent:  #2563eb;
+  --accent-g:rgba(37,99,235,.10);
   --gold:    #b45309;
   --gold-g:  rgba(180,83,9,.07);
   --green:   #16a34a;
@@ -283,6 +285,7 @@ html,body{
   .btn-lang{padding:0 7px}
   .rt-title{font-size:13px}
   .desktop-only{display:none}
+  .btn-refresh{padding:0 7px}
 
   /* controls: single row, search + day buttons side by side */
   .rt-ctrl{flex-wrap:nowrap;gap:6px;padding:6px 10px}
@@ -588,13 +591,15 @@ function toggleTheme() {
 
 // ── Fetch ──────────────────────────────────────────────
 let _fetchController = null;
+let _fetchGen = 0;
 
 async function fetchData() {
-  // Abort any in-flight request before starting a new one
+  const gen = ++_fetchGen;
   if (_fetchController) _fetchController.abort();
   _fetchController = new AbortController();
   const { signal } = _fetchController;
-  const timeoutId  = setTimeout(() => _fetchController?.abort(), 30000);
+  let _timedOut = false;
+  const timeoutId = setTimeout(() => { _timedOut = true; _fetchController?.abort(); }, 30000);
 
   showLoading(true);
   hideError();
@@ -610,11 +615,14 @@ async function fetchData() {
   } catch(e) {
     clearTimeout(timeoutId);
     if (e.name !== 'AbortError') showError(t('errorPrefix') + e.message);
+    else if (_timedOut) showError(t('errorPrefix') + 'Timeout');
   } finally {
-    showLoading(false);
-    document.getElementById('btnRefresh').classList.remove('spinning');
-    startCd(); // always restart countdown, even after error or abort
-    _fetchController = null;
+    if (gen === _fetchGen) {
+      showLoading(false);
+      document.getElementById('btnRefresh').classList.remove('spinning');
+      startCd();
+      _fetchController = null;
+    }
   }
 }
 
@@ -725,10 +733,10 @@ function renderTable() {
   th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}<button class="col-exp" onclick="toggleNameCol(event)" title="ขยาย/ย่อ">⇔</button></th>`;
   cols.forEach(c => {
     const isTd = c === today;
-    th += `<th class="${isTd?'c-today':'c-date'} ${sortCls(c)}" onclick="sortBy('${c}')">${fmtDateCol(c)}</th>`;
+    th += `<th class="${isTd?'c-today':'c-date'} ${sortCls(c)}" onclick="sortBy('${esc(c)}')">${fmtDateCol(c)}</th>`;
   });
-  th += `<th class="c-month ${sortCls('this')}" onclick="sortBy('this')">${t('thisMonth')} (${d.month_labels?.this||''})</th>`;
-  th += `<th class="c-month ${sortCls('last')}" onclick="sortBy('last')">${t('lastMonth')} (${d.month_labels?.last||''})</th>`;
+  th += `<th class="c-month ${sortCls('this')}" onclick="sortBy('this')">${t('thisMonth')} (${esc(d.month_labels?.this||'')})</th>`;
+  th += `<th class="c-month ${sortCls('last')}" onclick="sortBy('last')">${t('lastMonth')} (${esc(d.month_labels?.last||'')})</th>`;
   th += `<th class="c-upd">${t('colUpdated')}</th>`;
   th += '</tr>';
   document.getElementById('tblHead').innerHTML = th;
@@ -796,6 +804,7 @@ function fitTableHeight() {
 
 let _fitTimer;
 window.addEventListener('resize', () => { clearTimeout(_fitTimer); _fitTimer = setTimeout(fitTableHeight, 150); }, { passive: true });
+window.addEventListener('orientationchange', () => { setTimeout(fitTableHeight, 300); });
 
 function setDays(n) {
   S.days = n;

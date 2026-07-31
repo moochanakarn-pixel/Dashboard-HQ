@@ -1,5 +1,12 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Strict',
+        'secure'   => isset($_SERVER['HTTPS']),
+    ]);
     session_start();
 }
 
@@ -22,9 +29,17 @@ function auth_require_api(): void {
 // For HTML pages: redirect to login
 function auth_require_page(): void {
     if (empty($_SESSION['staff_id'])) {
-        // Strip leading slash so basename matches the allowlist in login.php
-        $back = basename(parse_url($_SERVER['REQUEST_URI'] ?? '', PHP_URL_PATH) ?? '');
-        header('Location: login.php' . ($back ? '?next=' . urlencode($back) : ''));
+        $uri      = $_SERVER['REQUEST_URI'] ?? '';
+        $filename = basename(parse_url($uri, PHP_URL_PATH) ?? '');
+        $allowed  = ['realtime.php', 'dashboard.php'];
+        if (in_array($filename, $allowed, true)) {
+            // Preserve query string so the user returns to the exact URL they were on
+            $qs   = parse_url($uri, PHP_URL_QUERY);
+            $back = $filename . ($qs ? '?' . $qs : '');
+            header('Location: login.php?next=' . urlencode($back));
+        } else {
+            header('Location: login.php');
+        }
         exit;
     }
 }

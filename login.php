@@ -10,10 +10,11 @@ if (!empty($_SESSION['staff_id'])) {
 }
 
 $error   = '';
-// Allowlist redirect — only permit known local page names, no path traversal or protocol-relative URLs
-$nextRaw = $_GET['next'] ?? '';
+// Allowlist redirect — only permit known local page names (+ their query strings)
+$nextRaw  = $_GET['next'] ?? '';
+$nextFile = basename(parse_url($nextRaw, PHP_URL_PATH) ?? '');
 $allowed  = ['realtime.php', 'dashboard.php'];
-$next     = in_array($nextRaw, $allowed, true) ? $nextRaw : 'realtime.php';
+$next     = in_array($nextFile, $allowed, true) ? $nextRaw : 'realtime.php';
 
 // CSRF token — generate once per session, validate on POST
 if (empty($_SESSION['csrf_token'])) {

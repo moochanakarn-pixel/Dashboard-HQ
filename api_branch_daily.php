@@ -1,8 +1,18 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', '0');
 require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_api();
+ob_start();
 mysqli_report(MYSQLI_REPORT_OFF);
+
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        json_output(['error' => 'Fatal error', 'daily' => []], 500);
+    }
+});
 
 $shopId   = isset($_GET['shop_id']) ? (int)$_GET['shop_id'] : 0;
 $dateFrom = $_GET['date_from'] ?? '';
