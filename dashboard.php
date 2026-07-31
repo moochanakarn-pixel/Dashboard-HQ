@@ -2,8 +2,6 @@
 require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_page();
-require __DIR__ . '/log_access.php';
-log_access('dashboard');
 $range = default_dashboard_range();
 // Override with live table's latest date so the initial view shows realtime data
 try {
@@ -23,6 +21,7 @@ if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateFrom)) $dateFrom = $range['date_fr
 if (!preg_match('/^\d{4}-\d{2}-\d{2}$/', $dateTo)) $dateTo = $range['date_to'];
 require __DIR__ . '/log_access.php';
 log_access('dashboard', ['date_from' => $dateFrom, 'date_to' => $dateTo]);
+
 ?>
 <!doctype html>
 <html lang="th">
@@ -931,7 +930,7 @@ async function toggleCompare(){
   const diff=Math.round((td-fd)/86400000)+1;
   const prevTo=new Date(fd);prevTo.setDate(prevTo.getDate()-1);
   const prevFrom=new Date(prevTo);prevFrom.setDate(prevTo.getDate()-diff+1);
-  try{const r=await fetch(`api_dashboard.php?date_from=${toLocalDateStr(prevFrom)}&date_to=${toLocalDateStr(prevTo)}&_=${Date.now()}`,{cache:'no-store'});if(!r.ok)throw new Error('HTTP '+r.status);const d=await r.json();state.compareTrendRows=d.sales_trend||[]}catch(e){state.compareTrendRows=[];showError(t('invalidJson')+' (compare)')}
+  try{const url=`api_dashboard.php?date_from=${toLocalDateStr(prevFrom)}&date_to=${toLocalDateStr(prevTo)}&_=${Date.now()}`;const{res,text}=await fetchText(url);if(!res.ok)throw new Error('HTTP '+res.status);const d=JSON.parse(text);state.compareTrendRows=d.sales_trend||[]}catch(e){if(e.name==='AbortError')return;state.compareTrendRows=[];showError(t('invalidJson')+' (compare)')}
   redrawCharts()
 }
 let _branchModalTrigger=null;

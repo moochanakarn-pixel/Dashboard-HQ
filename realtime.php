@@ -282,6 +282,7 @@ html,body{
   #langLabel{display:none}
   .btn-lang{padding:0 7px}
   .rt-title{font-size:13px}
+  .desktop-only{display:none}
 
   /* controls: single row, search + day buttons side by side */
   .rt-ctrl{flex-wrap:nowrap;gap:6px;padding:6px 10px}
@@ -386,7 +387,7 @@ html,body{
     <!-- Logout -->
     <form method="POST" action="logout.php" style="display:inline">
       <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token'] ?? '') ?>">
-      <button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s;font-family:inherit" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad-border)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--line)'">
+      <button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s;font-family:inherit" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--line)'">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span class="desktop-only"><?= h($_SESSION['staff_code'] ?? 'ออกจากระบบ') ?></span>
       </button>
@@ -625,6 +626,7 @@ function manualRefresh() {
 // ── Countdown ──────────────────────────────────────────
 const REFRESH_S = 300;
 function startCd() {
+  if (document.hidden) return;
   stopCd();
   S.cd = REFRESH_S;
   tickCd();
