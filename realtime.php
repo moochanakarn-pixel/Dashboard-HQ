@@ -1,5 +1,7 @@
 <?php
 require __DIR__ . '/dashboard_config.php';
+require __DIR__ . '/auth.php';
+auth_require_page();
 require __DIR__ . '/log_access.php';
 log_access('realtime', ['days' => (int)($_GET['days'] ?? 7)]);
 ?>
@@ -381,6 +383,11 @@ html,body{
       <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M23 4v6h-6M1 20v-6h6"/><path d="M3.51 9a9 9 0 0114.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0020.49 15"/></svg>
       <span data-i="refresh">รีเฟรช</span>
     </button>
+    <!-- Logout -->
+    <a href="logout.php" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;text-decoration:none;transition:color .15s,border-color .15s" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad-border)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--line)'">
+      <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      <span class="desktop-only"><?= h($_SESSION['staff_code'] ?? 'ออกจากระบบ') ?></span>
+    </a>
   </div>
 </header>
 

@@ -15,11 +15,16 @@ function log_access(string $page, array $context = []): void {
 
     $ua = substr((string)($_SERVER['HTTP_USER_AGENT'] ?? ''), 0, 150); // substr: no extension needed
 
+    $staffId   = $_SESSION['staff_id']   ?? null;
+    $staffCode = $_SESSION['staff_code'] ?? null;
+
     $entry = json_encode([
-        'ts'   => date('Y-m-d H:i:s'),
-        'ip'   => $ip,
-        'page' => $page,
-        'ua'   => $ua,
+        'ts'         => date('Y-m-d H:i:s'),
+        'ip'         => $ip,
+        'staff_id'   => $staffId,
+        'staff_code' => $staffCode,
+        'page'       => $page,
+        'ua'         => $ua,
     ] + $context, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
 
     if ($entry === false) return; // json_encode failed even with substitute — skip

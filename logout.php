@@ -1,0 +1,25 @@
+<?php
+require __DIR__ . '/dashboard_config.php';
+
+if (session_status() === PHP_SESSION_NONE) session_start();
+
+// Log the logout before destroying session
+if (!empty($_SESSION['staff_id'])) {
+    $logLine = implode("\t", [
+        date('Y-m-d H:i:s'),
+        'LOGOUT',
+        $_SESSION['staff_id'],
+        $_SESSION['staff_code'] ?? '-',
+        $_SERVER['REMOTE_ADDR'] ?? '-',
+    ]) . "\n";
+    @file_put_contents(
+        __DIR__ . '/logs/access_log.txt',
+        $logLine,
+        FILE_APPEND | LOCK_EX
+    );
+}
+
+session_unset();
+session_destroy();
+header('Location: login.php');
+exit;
