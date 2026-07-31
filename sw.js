@@ -25,7 +25,7 @@ self.addEventListener('fetch', e => {
   // fall back to cache only when offline
   if (e.request.mode === 'navigate') {
     e.respondWith(
-      fetch(e.request).catch(() => caches.match(e.request))
+      fetch(e.request).catch(() => caches.match(e.request).then(r => r || Response.error()))
     );
     return;
   }

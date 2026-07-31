@@ -3,6 +3,14 @@ require __DIR__ . '/dashboard_config.php';
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
+// Require POST + CSRF to prevent logout via <img src="logout.php"> on external pages
+if ($_SERVER['REQUEST_METHOD'] !== 'POST'
+    || !isset($_POST['csrf_token'], $_SESSION['csrf_token'])
+    || !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])) {
+    header('Location: realtime.php');
+    exit;
+}
+
 // Log the logout before destroying session
 if (!empty($_SESSION['staff_id'])) {
     $logLine = implode("\t", [

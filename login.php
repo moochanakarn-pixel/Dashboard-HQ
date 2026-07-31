@@ -15,7 +15,18 @@ $nextRaw = $_GET['next'] ?? '';
 $allowed  = ['realtime.php', 'dashboard.php'];
 $next     = in_array($nextRaw, $allowed, true) ? $nextRaw : 'realtime.php';
 
+// CSRF token — generate once per session, validate on POST
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // CSRF check
+    $csrfOk = isset($_POST['csrf_token'])
+        && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
+    if (!$csrfOk) {
+        $error = 'คำขอไม่ถูกต้อง กรุณาลองใหม่';
+    } else {
     $code = trim($_POST['staffcode'] ?? '');
     $pass = $_POST['staffpass'] ?? '';
 
@@ -34,7 +45,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmt->close();
             $db->close();
 
-            $ok = $row && strtolower($row['StaffPassword']) === sha1($pass);
+            // Compute hash unconditionally to prevent timing-based staff-code enumeration
+            $passHash = sha1($pass);
+            $storedHash = $row ? strtolower($row['StaffPassword']) : str_repeat('0', 40);
+            $ok = $row && hash_equals($storedHash, $passHash);
 
             if ($ok) {
                 // Regenerate session ID to prevent fixation
@@ -81,6 +95,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $error = 'เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่';
         }
     }
+    } // end CSRF else
 }
 ?><!DOCTYPE html>
 <html lang="th">
@@ -220,6 +235,7 @@ input::placeholder{color:#344d68}
   <?php endif; ?>
 
   <form method="POST" action="login.php<?= $next !== 'realtime.php' ? '?next=' . h($next) : '' ?>" autocomplete="off">
+    <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
     <label for="staffcode">Staff Code</label>
     <input
       type="text"
