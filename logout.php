@@ -1,7 +1,16 @@
 <?php
 require __DIR__ . '/dashboard_config.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Strict',
+        'secure'   => isset($_SERVER['HTTPS']),
+    ]);
+    session_start();
+}
 
 // Require POST + CSRF to prevent logout via <img src="logout.php"> on external pages
 if ($_SERVER['REQUEST_METHOD'] !== 'POST'

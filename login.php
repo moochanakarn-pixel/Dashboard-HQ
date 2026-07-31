@@ -1,7 +1,16 @@
 <?php
 require __DIR__ . '/dashboard_config.php';
 
-if (session_status() === PHP_SESSION_NONE) session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_set_cookie_params([
+        'lifetime' => 0,
+        'path'     => '/',
+        'httponly' => true,
+        'samesite' => 'Strict',
+        'secure'   => isset($_SERVER['HTTPS']),
+    ]);
+    session_start();
+}
 
 // Already logged in → go straight to app
 if (!empty($_SESSION['staff_id'])) {
