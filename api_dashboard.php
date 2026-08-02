@@ -112,10 +112,15 @@ $cacheTtl  = max(0, $isTodayRange
     : (int)($DASHBOARD_CACHE_TTL_HISTORY ?? 1800));
 
 if (!$forceRefresh && $cacheTtl > 0 && is_file($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
-    ob_end_clean(); // discard any buffered warnings before sending cached JSON
-    header('Content-Type: application/json; charset=utf-8');
-    readfile($cacheFile);
-    exit;
+    $raw = @file_get_contents($cacheFile);
+    if ($raw !== false && is_array(@json_decode($raw, true))) {
+        ob_end_clean();
+        header('Content-Type: application/json; charset=utf-8');
+        echo $raw;
+        exit;
+    }
+    // Corrupt or empty cache — delete and fall through to live query
+    @unlink($cacheFile);
 }
 
 // Cache miss — load default range lazily if not already loaded above

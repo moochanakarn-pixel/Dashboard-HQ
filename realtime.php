@@ -593,7 +593,7 @@ function toggleTheme() {
 let _fetchController = null;
 let _fetchGen = 0;
 
-async function fetchData() {
+async function fetchData(force = false) {
   const gen = ++_fetchGen;
   if (_fetchController) _fetchController.abort();
   _fetchController = new AbortController();
@@ -605,8 +605,10 @@ async function fetchData() {
   hideError();
   stopCd();
   try {
-    const r = await fetch(`api_realtime.php?days=${S.days}&t=${Date.now()}`, { signal });
+    const url = `api_realtime.php?days=${S.days}&t=${Date.now()}${force ? '&force=1' : ''}`;
+    const r = await fetch(url, { signal });
     clearTimeout(timeoutId);
+    if (r.status === 401) { window.location.href = 'login.php'; return; }
     if (!r.ok) throw new Error(`HTTP ${r.status}`);
     const data = await r.json();
     if (data.error) throw new Error(data.error);
@@ -628,7 +630,7 @@ async function fetchData() {
 
 function manualRefresh() {
   document.getElementById('btnRefresh').classList.add('spinning');
-  fetchData(); // fetchData already calls stopCd() before requesting
+  fetchData(true); // force=1 bypasses 120s cache
 }
 
 // ── Countdown ──────────────────────────────────────────

@@ -14,23 +14,26 @@ register_shutdown_function(function () {
     }
 });
 
-$days     = max(3, min(30, (int)($_GET['days'] ?? 3)));
-$cacheKey = "realtime_v4_{$days}"; // TTL=120s governs freshness — no timestamp in key
-$cacheTtl = 120;
+$days         = max(3, min(30, (int)($_GET['days'] ?? 3)));
+$forceRefresh = isset($_GET['force']) && $_GET['force'] === '1';
+$cacheKey     = "realtime_v4_{$days}"; // TTL=120s governs freshness — no timestamp in key
+$cacheTtl     = 120;
 
 // File-based fallback (used when APCu is unavailable)
 $cacheFile = sys_get_temp_dir() . "/hq_rt_{$days}.json";
 
-// --- Cache read ---
-if (function_exists('apcu_fetch')) {
-    $cached = apcu_fetch($cacheKey, $ok);
-    if ($ok) { json_output($cached); }
-} else {
-    if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
-        $raw = @file_get_contents($cacheFile);
-        if ($raw !== false) {
-            $decoded = @json_decode($raw, true);
-            if ($decoded) { json_output($decoded); }
+// --- Cache read (skipped when force=1) ---
+if (!$forceRefresh) {
+    if (function_exists('apcu_fetch')) {
+        $cached = apcu_fetch($cacheKey, $ok);
+        if ($ok) { json_output($cached); }
+    } else {
+        if (file_exists($cacheFile) && (time() - filemtime($cacheFile) < $cacheTtl)) {
+            $raw = @file_get_contents($cacheFile);
+            if ($raw !== false) {
+                $decoded = @json_decode($raw, true);
+                if ($decoded) { json_output($decoded); }
+            }
         }
     }
 }
