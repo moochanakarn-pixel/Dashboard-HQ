@@ -2,6 +2,7 @@
 require __DIR__ . '/dashboard_config.php';
 
 if (session_status() === PHP_SESSION_NONE) {
+    ini_set('session.use_strict_mode', '1');
     session_set_cookie_params([
         'lifetime' => 0,
         'path'     => '/',
@@ -39,7 +40,14 @@ if (!empty($_SESSION['staff_id'])) {
 // Expire the session cookie on the client so the browser doesn't retain the stale ID
 if (ini_get('session.use_cookies')) {
     $p = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 86400, $p['path'], $p['domain'], $p['secure'], $p['httponly']);
+    setcookie(session_name(), '', [
+        'expires'  => time() - 86400,
+        'path'     => $p['path'],
+        'domain'   => $p['domain'],
+        'secure'   => $p['secure'],
+        'httponly' => $p['httponly'],
+        'samesite' => 'Strict',
+    ]);
 }
 session_unset();
 session_destroy();

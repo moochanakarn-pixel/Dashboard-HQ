@@ -1,6 +1,7 @@
 <?php
 require __DIR__ . '/dashboard_config.php';
 
+ini_set('session.use_strict_mode', '1');
 if (session_status() === PHP_SESSION_NONE) {
     session_set_cookie_params([
         'lifetime' => 0,
@@ -21,16 +22,27 @@ if (!empty($_SESSION['staff_id'])) {
 $error   = '';
 // Allowlist redirect — only permit known local page names (+ their query strings)
 $nextRaw  = $_GET['next'] ?? '';
-$nextFile = basename(parse_url($nextRaw, PHP_URL_PATH) ?? '');
 $allowed  = ['realtime.php', 'dashboard.php'];
-$next     = in_array($nextFile, $allowed, true) ? $nextRaw : 'realtime.php';
+// Match full value (not just basename) to prevent protocol-relative bypass e.g. //evil.com/realtime.php
+$nextFile = basename(parse_url($nextRaw, PHP_URL_PATH) ?? '');
+$qs       = parse_url($nextRaw, PHP_URL_QUERY);
+$next     = in_array($nextFile, $allowed, true) ? ($nextFile . ($qs ? '?' . $qs : '')) : 'realtime.php';
 
 // CSRF token — generate once per session, validate on POST
 if (empty($_SESSION['csrf_token'])) {
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+// Rate limiting: max 5 attempts per session, 60-second lockout
+$_SESSION['login_attempts'] = $_SESSION['login_attempts'] ?? 0;
+$_SESSION['login_locked_until'] = $_SESSION['login_locked_until'] ?? 0;
+$isLocked = (time() < $_SESSION['login_locked_until']);
+if ($isLocked) {
+    $waitSec = $_SESSION['login_locked_until'] - time();
+    $error = "ลองใหม่อีก {$waitSec} วินาที";
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
     // CSRF check
     $csrfOk = isset($_POST['csrf_token'])
         && hash_equals($_SESSION['csrf_token'], $_POST['csrf_token']);
@@ -65,6 +77,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['staff_code'] = $row['StaffCode'];
                 $_SESSION['login_time'] = date('Y-m-d H:i:s');
 
+                $_SESSION['login_attempts'] = 0;
+                $_SESSION['login_locked_until'] = 0;
                 // Sanitize UA before writing to tab-delimited log (strip tab/newline/null)
                 $ua = str_replace(["\t", "\r", "\n", "\0"], ' ', substr($_SERVER['HTTP_USER_AGENT'] ?? '-', 0, 200));
                 $logLine = implode("\t", [
@@ -85,12 +99,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 exit;
             } else {
                 $error = 'ไม่พบ StaffCode นี้ในระบบ';
-                // Log failed attempt
+                $_SESSION['login_attempts']++;
+                if ($_SESSION['login_attempts'] >= 5) {
+                    $_SESSION['login_locked_until'] = time() + 60;
+                    $_SESSION['login_attempts'] = 0;
+                    $error = 'พยายามเข้าสู่ระบบผิดหลายครั้ง กรุณารอ 60 วินาที';
+                }
+                // Log failed attempt — strip tab/newline to prevent log injection
+                $safeCode = str_replace(["\t", "\r", "\n", "\0"], ' ', substr($code, 0, 50));
                 $logLine = implode("\t", [
                     date('Y-m-d H:i:s'),
                     'FAIL',
                     '-',
-                    h($code),
+                    $safeCode,
                     $_SERVER['REMOTE_ADDR'] ?? '-',
                 ]) . "\n";
                 @file_put_contents(

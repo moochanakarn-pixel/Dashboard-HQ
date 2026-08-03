@@ -365,7 +365,7 @@ if ($bufferOutput !== '') {
 }
 
 if ($cacheTtl > 0) {
-    if (!is_dir($cacheDir)) @mkdir($cacheDir, 0777, true);
+    if (!is_dir($cacheDir)) @mkdir($cacheDir, 0755, true);
     $json = json_encode(normalize_utf8($data), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE);
     if ($json !== false && is_dir($cacheDir) && is_writable($cacheDir)) {
         @file_put_contents($cacheFile, $json, LOCK_EX);
