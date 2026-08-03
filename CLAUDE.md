@@ -13,10 +13,16 @@ Hosted on IIS (`web.config` present). PWA manifest + service worker.
 | File | Role |
 |---|---|
 | `dashboard_config.php` | DB credentials, shared helpers — **never modify directly** |
+| `auth.php` | Session start, CSRF token init, `auth_require_api()`, `auth_require_page()` |
+| `login.php` | Login form — StaffCode lookup, rate limiting, CSRF, session fixation protection |
+| `logout.php` | POST + CSRF protected logout; expires session cookie |
+| `log_access.php` | Logs page visits to `logs/access_log.txt` |
 | `dashboard.php` | Main single-page dashboard (date picker, KPIs, charts) |
 | `api_dashboard.php` | JSON API for `dashboard.php` — heavy, multi-table query |
 | `realtime.php` | Real-time sales matrix page (card view mobile / table view desktop) |
 | `api_realtime.php` | JSON API for `realtime.php` — queries `summarysalebydate` |
+| `web.config` | IIS config: default doc, security headers (CSP, X-Frame-Options…), hiddenSegments |
+| `logs/web.config` | Blocks HTTP access to `.log`, `.json`, `.txt` files under `/logs/` |
 | `manifest.json` / `sw.js` | PWA shell |
 | `icons/` | PWA icons |
 
@@ -25,10 +31,11 @@ Hosted on IIS (`web.config` present). PWA manifest + service worker.
 ## Database
 
 ```
-Host : 127.0.0.1:3307
-DB   : skz_hq
-User : root
-Pass : pospwnet
+Host    : 127.0.0.1:3307
+DB      : skz_hq
+User    : root
+Pass    : pospwnet
+Charset : utf8mb4  (requires MySQL ≥ 5.5.3)
 ```
 
 ### Key tables
@@ -48,7 +55,7 @@ Pass : pospwnet
 `ReceiptSalePrice`, `ReceiptSalePriceBeforeVAT`, `ReceiptSalePriceVAT`, `UpdateDate`
 
 **Important:** `SaleDate` may be DATETIME — always query as  
-`WHERE SaleDate >= ? AND SaleDate <= ?` (range, not `DATE(SaleDate) = ?`)  
+`WHERE SaleDate >= ? AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)` (range, not `DATE(SaleDate) = ?`)  
 to allow index use. Avoid `DATE()` in WHERE or GROUP BY.
 
 ### Branch name lookup
@@ -70,12 +77,69 @@ GROUP BY ShopID
 ```php
 db_connect()             // → mysqli; throws RuntimeException on failure
 json_output($arr, $code) // flushes output buffer, sets Content-Type, exits
-h($value)                // htmlspecialchars(UTF-8)
-money_fmt($amount)       // number_format to 2 dp
+h($value)                // htmlspecialchars(UTF-8) — use in HTML output, NOT in URLs
 normalize_utf8($mixed)   // recursive TIS-620 → UTF-8 fallback
 latest_sale_date($tbl)   // DATE(MAX(SaleDate)) from given table
 default_dashboard_range()// returns ['date_from', 'date_to', 'latest_date']
 ```
+
+---
+
+## Security architecture
+
+### Session handling
+All three entry points (`login.php`, `auth.php`, `logout.php`) use the same cookie params:
+```php
+ini_set('session.use_strict_mode', '1');   // must be before session_start()
+session_set_cookie_params([
+    'lifetime' => 0,
+    'path'     => '/',
+    'httponly' => true,
+    'samesite' => 'Strict',
+    'secure'   => isset($_SERVER['HTTPS']),
+]);
+session_start();
+```
+Requires **PHP ≥ 7.3** (array form of `setcookie()` and `session_set_cookie_params()`).
+
+### CSRF protection
+- Token stored in `$_SESSION['csrf_token']` (32 random bytes, hex-encoded)
+- Generated in `auth.php` on every authenticated request; also in `login.php` on GET
+- Verified with `hash_equals()` on POST (login.php + logout.php)
+- Logout requires POST + CSRF — GET requests to `logout.php` redirect to `realtime.php`
+
+### Login rate limiting
+- Max 5 failed attempts per session → 60-second lockout
+- `$_SESSION['login_attempts']` and `$_SESSION['login_locked_until']` track state
+- Reset to 0 on successful login
+- Lockout check runs on every GET too (shows countdown error)
+
+### Session fixation
+On successful login, `session_regenerate_id(true)` is called before writing session vars.  
+On regenerate failure: destroy + restart session, then set session vars fresh.
+
+### IIS security headers (`web.config`)
+```
+X-Frame-Options: DENY
+X-Content-Type-Options: nosniff
+X-XSS-Protection: 1; mode=block
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: geolocation=(), camera=(), microphone=()
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'unsafe-inline';
+  style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+  img-src 'self' data:;
+  font-src 'self' data: https://fonts.gstatic.com;
+  connect-src 'self' https://fonts.googleapis.com https://fonts.gstatic.com;
+  frame-ancestors 'none'
+```
+**Note:** Google Fonts domains are explicitly allowed — both pages load "Plus Jakarta Sans" from the CDN. Do not remove them from the CSP without also removing the `<link>` tags in `realtime.php` (lines 16–17) and `dashboard.php` (lines 40–42).
+
+### Directory access
+- `hiddenSegments` in `web.config` blocks HTTP access to `/cache/` and `/logs/` paths
+- `logs/web.config` additionally blocks `.log`, `.json`, `.txt` files under `/logs/`
+- These are **HTTP-only** filters — PHP's own `file_put_contents()` is unaffected
 
 ---
 
@@ -85,6 +149,7 @@ default_dashboard_range()// returns ['date_from', 'date_to', 'latest_date']
 - File-based cache: `./cache/hq_YYYYMMDDYYYYMMDD.json`
 - TTL: `$DASHBOARD_CACHE_TTL_TODAY` (120 s) for today, `$DASHBOARD_CACHE_TTL_HISTORY` (1800 s) for history
 - Bypass: `?force=1`
+- Cache dir permissions: `0755` (not 0777)
 
 ### api_realtime.php
 - **Main payload** — APCu key `"realtime_v4_{$days}"`, TTL 120 s
@@ -143,6 +208,17 @@ const t = k => I18N[S.lang][k] || k;
 //       today, mtd, vsPrev, fresh, stale, offline, no_data, cdPrefix, genAt,
 //       days_th (array), months_th (array), momPos, momNeg, branchUnit
 ```
+Update status labels: `fresh` = 'อัพเดท' (th) / 'Live' (en); `stale` = 'ล่าช้า' (th) / 'Delayed' (en).
+
+### Month/year formatting
+```js
+function fmtMonthYear(dt) {
+  const mos = t('months_th');   // language-aware — reads S.lang via t()
+  const y   = S.lang === 'th' ? dt.getFullYear() + 543 : dt.getFullYear();
+  return `${mos[dt.getMonth() + 1]} ${y}`;
+}
+```
+Month header labels are computed client-side from `d.today` (API field), NOT from PHP `date('M Y')` which always returns English.
 
 ### Date handling
 ```js
@@ -212,16 +288,62 @@ After `renderAll()`, `S.sort.col` is synced from `'today'` → `d.today` (actual
 Uses `safe_prepare()` / `safe_execute()` helpers that write errors into `$data['error']`  
 without throwing, so partial results are still returned.
 
-Key queries (all filter `DocType=8, TransactionStatusID=2`):
-- **Summary**: `summary_tranreport` — sales total, bill count, guest count, branch count
-- **Comparison**: yesterday + last week single-day deltas
-- **Branch ranking**: per-branch sales + % vs previous period
+Key queries (all on `summarysalebydate` for live data):
+- **Summary**: total sales from `summarysalebydate`
+- **Comparison**: yesterday + last-week single-day deltas; previous-period total
+- **Branch ranking**: per-branch sales + % vs previous period (name lookup from `summary_tranreport`)
+- **Alerts**: branches with ≥15% drop vs previous period; branches absent this period
 - **Sales trend**: daily totals for the selected date range
-- **Payment mix**: `summary_paymentreport`
-- **Top products**: tries `summary_productreport` first, falls back to `summary_productreport_stockonly`
-- **Alerts**: branches with ≥15% drop OR low avg-bill
 
 File cache: `./cache/` directory (must be writable). Historical ranges cached 30 min.
+
+### API response shape
+```js
+{
+  filters:        { date_from, date_to },
+  summary:        { sales_total, best_branch_name, best_branch_sales, worst_branch_name, worst_branch_sales },
+  branch_ranking: [{ rank, shop_id, shop_name, sales_total, sales_diff_pct, status }],
+  sales_trend:    [{ sale_date, sales_total }],
+  alerts:         [{ type:'watch'|'missing', shop_name, pct?, curr_sales?, prev_sales? }],
+  comparison: {
+    is_single_day,
+    yesterday:   { date, sales_total, pct },   // single-day only
+    last_week:   { date, sales_total, pct },   // single-day only
+    prev_period: { sales_total, pct, date_from, date_to },
+  },
+  meta: { latest_data_date, previous_from, previous_to },
+  error: null | string,
+}
+```
+
+---
+
+## dashboard.php — JavaScript patterns
+
+### Comparison date helpers
+```js
+const THAI_MONTHS = ['','ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'];
+const EN_MONTHS   = ['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+function fmtCmpDate(ds)       // full date: "3 ส.ค. 68" or "3 Aug 2026"
+function fmtCmpDateShort(ds)  // no year: "3 ส.ค." or "3 Aug"
+function fmtCmpRangeShort(f,t2) // range: "1–3 ส.ค." or "1–3 Aug"
+function rankBadgeCmpLabel()  // reads state._lastCmp, returns "vs 3 ส.ค." etc.
+```
+
+`state._lastCmp` must be set from the API response **before** calling `renderRankingBar()`:
+```js
+state._lastCmp = d.comparison;   // set this first
+renderRankingBar(d);              // then render
+```
+
+### Date picker buttons (desktop)
+Buttons in order: ล่าสุด, **เมื่อวาน**, MTD, date range picker.  
+`goYesterday()` sets both `date_from` and `date_to` to yesterday's date.
+
+### Range pill
+`id="rangePill"` is hidden (`display:none`) when `date_from === date_to`.  
+`updateSelectedText()` shows/hides it and formats dates via `fmtPeriodThai()` or `fmtCmpRangeShort()` based on `state.lang`.
 
 ---
 
@@ -243,6 +365,7 @@ git push -u origin claude/busy-ramanujan-vqsqE
 
 ### Coding conventions
 - PHP: MySQLi prepared statements only; `mysqli_report(MYSQLI_REPORT_OFF)` at top of every API file; check `prepare()` return and throw on `false`; log errors with `error_log()`, return generic message to client
+- **URLs in PHP**: use `urlencode()` when embedding a URL as a query parameter value (e.g. `?next=` in form actions). Use `h()` for HTML text content only — `h()` encodes `&` as `&amp;` which breaks query string parsing when used in URL contexts.
 - JS: no framework, ES2020+; `esc()` on all server strings injected into HTML; `parseLocalDate()` for all YYYY-MM-DD strings; optional chaining on API response fields (`d.totals?.xxx`)
 - CSS: CSS custom properties in `:root` / `[data-theme="light"]`; dark theme is default; use `var(--...)` everywhere, avoid hardcoded colors except in specificity-override rules; `!important` only when overriding nth-child rules
 - i18n: always add keys to **both** `I18N.th` and `I18N.en`; use `typeof v === 'string'` check in `applyI18n()` to skip array values
@@ -255,12 +378,16 @@ git push -u origin claude/busy-ramanujan-vqsqE
 5. **Thai character encoding** — DB may return TIS-620; `normalize_utf8()` in `json_output()` handles it
 6. **`new Date('YYYY-MM-DD')`** parses as UTC midnight — use `parseLocalDate()` in all JS date handling
 7. **Specificity (0,3,3) trap** — see CSS section above for `.tr-tot` fix pattern
+8. **CSP includes Google Fonts** — `style-src` allows `fonts.googleapis.com`, `font-src` allows `fonts.gstatic.com`. Removing them breaks the font on all pages.
+9. **`h()` vs `urlencode()` in form actions** — form `action="...?next=<?= h($next) ?>"` breaks multi-param `?date_from=X&date_to=Y` because `&amp;` splits the query on POST. Always `urlencode()` for URL parameter values.
+10. **Session strict mode** — `ini_set('session.use_strict_mode', '1')` must run before `session_start()`. In `login.php` it's outside the `if(session_status())` block (correct). In `auth.php` / `logout.php` it's inside (safe because they always start fresh in practice).
+11. **PHP ≥ 7.3 required** — array form of `setcookie()` and `session_set_cookie_params()` with `samesite` key needs PHP 7.3+.
 
 ---
 
 ## Environment
 
-- PHP + MySQLi; APCu for in-memory cache (may or may not be available)
-- IIS (Windows) — `web.config` configures URL rewriting; file paths use `__DIR__`
+- PHP ≥ 7.3 + MySQLi; APCu for in-memory cache (may or may not be available); MySQL ≥ 5.5.3 for utf8mb4
+- IIS (Windows) — `web.config` configures security headers and directory blocking; file paths use `__DIR__`
 - PWA: `manifest.json` + `sw.js` (cache-first strategy)
 - No build step, no npm, no TypeScript — plain PHP + vanilla JS
