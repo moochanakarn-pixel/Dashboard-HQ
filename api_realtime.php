@@ -50,7 +50,6 @@ try {
     $lastMonthStart  = date('Y-m-01', strtotime('-1 month'));
     $lastMonthEnd    = date('Y-m-t',  strtotime('-1 month'));
     $dateTo           = $today;
-    $lastMonthEndFull = $lastMonthEnd;
 
     // --- 1. Daily sales per branch per day ---
     // GROUP BY uses the alias (not DATE() function) to avoid blocking index-only grouping
@@ -163,7 +162,7 @@ try {
         $stmt->bind_param(
             'ssssss',
             $thisMonthStart, $dateTo,
-            $lastMonthStart, $lastMonthEndFull,
+            $lastMonthStart, $lastMonthEnd,
             $lastMonthStart, $dateTo
         );
         $stmt->execute();

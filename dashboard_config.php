@@ -32,25 +32,7 @@ if (!function_exists('h')) {
     }
 }
 
-if (!function_exists('money_fmt')) {
-    function money_fmt($amount): string {
-        return number_format((float)$amount, 2);
-    }
-}
 
-if (!function_exists('payment_type_display')) {
-    function payment_type_display(?string $displayName, ?string $payType): string {
-        $displayName = trim((string)$displayName);
-        $payType = trim((string)$payType);
-        if ($displayName !== '') {
-            return $displayName;
-        }
-        if ($payType !== '') {
-            return $payType;
-        }
-        return '-';
-    }
-}
 
 if (!function_exists('is_valid_utf8_string')) {
     function is_valid_utf8_string(string $value): bool {
