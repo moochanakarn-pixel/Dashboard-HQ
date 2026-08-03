@@ -810,6 +810,11 @@ function fmtPeriodThai(from,to){
   const fyy=(parseInt(fy)+543)%100,fyys=fyy<10?'0'+fyy:fyy;
   return`${parseInt(fd)} ${THAI_MONTHS[parseInt(fm)]}${fy!==ty?' '+fyys:''} – ${parseInt(td)} ${THAI_MONTHS[parseInt(tm)]} ${yys}`;
 }
+const EN_MONTHS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtCmpDate(ds){if(!ds)return'';const[y,m,d]=ds.split('-').map(Number);if(state.lang==='th'){const yy=(y+543)%100;return`${d} ${THAI_MONTHS[m]} ${yy<10?'0'+yy:yy}`}return`${d} ${EN_MONTHS[m]} ${y}`}
+function fmtCmpDateShort(ds){if(!ds)return'';const[,m,d]=ds.split('-').map(Number);return state.lang==='th'?`${d} ${THAI_MONTHS[m]}`:`${d} ${EN_MONTHS[m]}`}
+function fmtCmpRangeShort(f,t2){if(!f)return'';if(!t2||f===t2)return fmtCmpDateShort(f);return`${fmtCmpDateShort(f)}–${fmtCmpDateShort(t2)}`}
+function rankBadgeCmpLabel(){const cmp=state._lastCmp;if(!cmp)return state.lang==='th'?'vs ก่อน':'vs prior';if(cmp.is_single_day&&cmp.yesterday?.date)return'vs '+fmtCmpDateShort(cmp.yesterday.date);if(cmp.prev_period?.date_from)return'vs '+fmtCmpRangeShort(cmp.prev_period.date_from,cmp.prev_period.date_to);return state.lang==='th'?'vs ช่วงก่อน':'vs prior'}
 function compactMoney(n){const v=Number(n||0);if(v>=1e6){const sfx=state.lang==='th'?' ล้าน':' M';return new Intl.NumberFormat(locale(),{minimumFractionDigits:2,maximumFractionDigits:2}).format(v/1e6)+sfx;}if(v>=1e3&&state.lang!=='th')return new Intl.NumberFormat(locale(),{minimumFractionDigits:1,maximumFractionDigits:1}).format(v/1e3)+' K';return money(v)}
 
 function escapeHtml(v){return String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[ch]))}
@@ -833,7 +838,9 @@ async function fetchText(url,timeout=15000){if(activeController)activeController
 function renderAlerts(rows,meta,summary){
   const count=rows?rows.length:0;
   if(meta&&meta.previous_from){
-    const label=(state.lang==='th'?'เทียบกับ ':'vs ')+fmtPeriodThai(meta.previous_from,meta.previous_to);
+    const _pf=meta.previous_from,_pt=meta.previous_to;
+    const _pdStr=(_pf===_pt)?fmtCmpDate(_pf):(fmtCmpDate(_pf)+' – '+fmtCmpDate(_pt));
+    const label=(state.lang==='th'?'เทียบกับ ':'vs ')+_pdStr;
     ['alertsDesc2','alertsDescDesktop','branchDesc','branchDescDesktop'].forEach(id=>{$(id)&&($(id).textContent=label)});
   }
   // Alert tab glow
@@ -848,7 +855,7 @@ function renderAlerts(rows,meta,summary){
     const hasCmpPrev=!cmp.is_single_day&&prevP&&prevP.pct!==null&&prevP.pct!==undefined;
     const hasCmp=hasCmpYday||hasCmpPrev;
     const pct=hasCmpYday?yday.pct:(hasCmpPrev?prevP.pct:null);
-    const cmpLbl=state.lang==='th'?(hasCmpYday?'vs เมื่อวาน':'vs ช่วงก่อนหน้า'):(hasCmpYday?'vs yesterday':'vs prior period');
+    const cmpLbl=(()=>{if(hasCmpYday&&yday?.date)return'vs '+fmtCmpDateShort(yday.date);if(hasCmpPrev&&prevP?.date_from)return'vs '+fmtCmpRangeShort(prevP.date_from,prevP.date_to);return state.lang==='th'?'vs ก่อนหน้า':'vs prior'})();
     let cls,main,sub;
     if(count>0){
       cls='alert-verdict '+(count>=3?'av-bad':'av-warn');
@@ -1002,7 +1009,7 @@ function renderRankingBar(rows,containerId){
   el.innerHTML='<div class="rank-list">'+items.map((r,i)=>{
     const val=Number(r.sales_total||0),pct=Math.round((val/maxVal)*100);
     let badge='';
-    if(r.status==='watch'){const dp=Math.abs(Math.round(Number(r.sales_diff_pct||0)));const wlbl=state.lang==='th'?`ลดลง ${dp}% vs ก่อนหน้า`:`Down ${dp}% vs prior`;badge=`<span class="rank-badge rank-badge-warn" title="${wlbl}">▼ ${dp}% ${state.lang==='th'?'vs ก่อน':'vs prior'}</span>`}
+    if(r.status==='watch'){const dp=Math.abs(Math.round(Number(r.sales_diff_pct||0)));const _rl=rankBadgeCmpLabel();badge=`<span class="rank-badge rank-badge-warn" title="ลดลง ${dp}% ${escapeHtml(_rl)}">▼ ${dp}% ${escapeHtml(_rl)}</span>`}
     return `<div class="rank-row" role="button" tabindex="0" style="cursor:pointer" data-shop-id="${escapeHtml(String(r.shop_id||0))}" data-shop-name="${escapeHtml(r.shop_name||'-')}" data-sales="${val}"><div class="rank-num" data-rank="${r.rank||i+1}">${r.rank||i+1}</div><div class="rank-body"><div class="rank-top"><div class="rank-name" title="${escapeHtml(r.shop_name||'-')}">${escapeHtml(r.shop_name||'-')}</div>${badge}<div class="rank-val">${compactMoney(val)}</div></div><div class="rank-track"><div class="rank-fill${i<3?' rank-fill-top3':''}" data-w="${pct}%"></div></div></div></div>`;
   }).join('')+'</div>';
   requestAnimationFrame(()=>requestAnimationFrame(()=>{
@@ -1032,12 +1039,12 @@ const cmp=data.comparison||{};
   }
   if(cmp.is_single_day){
     const prevEl=$('cmpPrev');if(prevEl){prevEl.textContent='';prevEl.style.display='none';}
-    badge('cmpYday',cmp.yesterday,state.lang==='th'?'vs เมื่อวาน':'vs yesterday');
-    badge('cmpWeek',cmp.last_week,state.lang==='th'?'vs 7 วันที่แล้ว':'vs last week');
+    badge('cmpYday',cmp.yesterday,cmp.yesterday?.date?'vs '+fmtCmpDateShort(cmp.yesterday.date):(state.lang==='th'?'vs เมื่อวาน':'vs yesterday'));
+    badge('cmpWeek',cmp.last_week,cmp.last_week?.date?'vs '+fmtCmpDateShort(cmp.last_week.date):(state.lang==='th'?'vs 7 วันที่แล้ว':'vs last week'));
   }else{
     const ydEl=$('cmpYday');if(ydEl){ydEl.textContent='';ydEl.style.display='none';}
     const wkEl=$('cmpWeek');if(wkEl){wkEl.textContent='';wkEl.style.display='none';}
-    badge('cmpPrev',cmp.prev_period,state.lang==='th'?'vs ช่วงก่อนหน้า':'vs prior period');
+    badge('cmpPrev',cmp.prev_period,cmp.prev_period?.date_from?'vs '+fmtCmpRangeShort(cmp.prev_period.date_from,cmp.prev_period.date_to):(state.lang==='th'?'vs ช่วงก่อนหน้า':'vs prior period'));
   }
 })();
 state._lastCmp=cmp;
