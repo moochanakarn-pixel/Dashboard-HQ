@@ -1,6 +1,7 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
+ini_set('max_execution_time', '30');
 require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_api();
@@ -27,6 +28,7 @@ if ($dateFrom > $dateTo) [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
 
 try {
     $conn = db_connect();
+    @$conn->query('SET SESSION max_execution_time = 20000'); // kill any single query > 20 s
 
     $sql = "
         SELECT DATE(sr.SaleDate)                                    AS sale_date,

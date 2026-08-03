@@ -1,6 +1,7 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', '0');
+ini_set('max_execution_time', '30');
 require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_api();
@@ -140,6 +141,7 @@ $data['meta']['previous_to']      = $previousTo;
 
 try {
     $conn = db_connect();
+    @$conn->query('SET SESSION max_execution_time = 25000'); // kill any single query > 25 s
 
     // Prefer the live table's latest date so the frontend navigates to realtime data
     $rtLatest = realtime_latest_date($conn);
