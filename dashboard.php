@@ -932,7 +932,7 @@ async function toggleCompare(){
   const prevTo=new Date(fd);prevTo.setDate(prevTo.getDate()-1);
   const prevFrom=new Date(prevTo);prevFrom.setDate(prevTo.getDate()-diff+1);
   let _cmpCtrl=new AbortController();const _cmpTimer=setTimeout(()=>_cmpCtrl.abort(),15000);
-  try{const url=`api_dashboard.php?date_from=${toLocalDateStr(prevFrom)}&date_to=${toLocalDateStr(prevTo)}&_=${Date.now()}`;const res=await fetch(url,{cache:'no-store',signal:_cmpCtrl.signal});clearTimeout(_cmpTimer);if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();state.compareTrendRows=d.sales_trend||[]}catch(e){clearTimeout(_cmpTimer);if(e.name==='AbortError')return;state.compareTrendRows=[];showError(t('invalidJson')+' (compare)')}
+  try{const url=`api_dashboard.php?date_from=${toLocalDateStr(prevFrom)}&date_to=${toLocalDateStr(prevTo)}&_=${Date.now()}`;const res=await fetch(url,{cache:'no-store',signal:_cmpCtrl.signal});clearTimeout(_cmpTimer);if(res.status===401){window.location.href='login.php';return}if(!res.ok)throw new Error('HTTP '+res.status);const d=await res.json();state.compareTrendRows=d.sales_trend||[]}catch(e){clearTimeout(_cmpTimer);if(e.name==='AbortError')return;state.compareTrendRows=[];showError(t('invalidJson')+' (compare)')}
   redrawCharts()
 }
 let _branchModalTrigger=null;
@@ -947,7 +947,7 @@ function openBranchModal(shopId,shopName,totalSales){
   if(c&&!c._tipBound){initChartTooltip('branchModalChart','branchModalTip');c._tipBound=true}
   if(c)c._chart=null;
   const f=mobile.from.value,to=mobile.to.value;
-  fetch(`api_branch_daily.php?shop_id=${encodeURIComponent(shopId)}&date_from=${encodeURIComponent(f)}&date_to=${encodeURIComponent(to)}&_=${Date.now()}`,{cache:'no-store'}).then(r=>r.json()).then(d=>drawBranchModalChart(d.daily||[])).catch(()=>drawBranchModalChart([]))
+  fetch(`api_branch_daily.php?shop_id=${encodeURIComponent(shopId)}&date_from=${encodeURIComponent(f)}&date_to=${encodeURIComponent(to)}&_=${Date.now()}`,{cache:'no-store'}).then(r=>{if(r.status===401){window.location.href='login.php';return null}return r.json()}).then(d=>{if(d)drawBranchModalChart(d.daily||[])}).catch(()=>drawBranchModalChart([]))
 }
 function closeBranchModal(){$('branchModal').classList.add('hidden');document.body.style.overflow='';if(_branchModalTrigger){_branchModalTrigger.focus();_branchModalTrigger=null}}
 function drawBranchModalChart(daily){

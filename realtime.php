@@ -902,7 +902,6 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('installDismiss')?.addEventListener('click', () => {
     document.getElementById('installBanner').style.display = 'none';
   });
-  applyI18n();
 });
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { stopCd(); if (_fetchController) _fetchController.abort(); }
