@@ -163,7 +163,7 @@ Content-Security-Policy:
 ## api_realtime.php — query flow
 
 ```
-Q1  summarysalebydate  WHERE SaleDate >= $dateFrom AND SaleDate <= $dateTo
+Q1  summarysalebydate  WHERE SaleDate >= $dateFrom AND SaleDate < DATE_ADD($dateTo, INTERVAL 1 DAY)
     GROUP BY ProductLevelID, sale_date          ← alias, not DATE() function
     → dailyMap[bid][date], lastUpdateMap[bid], allDates
 
@@ -203,10 +203,11 @@ const S = {
 const I18N = { th: {...}, en: {...} };
 const t = k => I18N[S.lang][k] || k;
 // Keys: back, pageTitle, refresh, loading, noData, noResult, errorPrefix,
-//       days, cardView, tableView, searchPh, sumToday, sumBranches,
-//       sumBranchesSub, colBranch, colTotal, colUpdated, thisMonth, lastMonth,
-//       today, mtd, vsPrev, fresh, stale, offline, no_data, cdPrefix, genAt,
-//       days_th (array), months_th (array), momPos, momNeg, branchUnit
+//       days, searchPh, sumToday, sumBranches, sumBranchesSub,
+//       colBranch, colTotal, colUpdated, thisMonth, lastMonth,
+//       fresh, stale, offline, no_data, cdPrefix, genAt,
+//       days_th (array), months_th (array), branchUnit,
+//       installSub, installBtn
 ```
 Update status labels: `fresh` = 'อัพเดท' (th) / 'Live' (en); `stale` = 'ล่าช้า' (th) / 'Delayed' (en).
 
