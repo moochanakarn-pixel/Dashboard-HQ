@@ -549,6 +549,11 @@ function fmtThaiDate(ds) {
   const y   = S.lang==='th' ? dt.getFullYear()+543 : dt.getFullYear();
   return `${dt.getDate()} ${mos[dt.getMonth()+1]} ${y}`;
 }
+function fmtMonthYear(dt) {
+  const mos = t('months_th');
+  const y   = S.lang==='th' ? dt.getFullYear()+543 : dt.getFullYear();
+  return `${mos[dt.getMonth()+1]} ${y}`;
+}
 
 function updBadge(status, ts) {
   const time  = fmtTime(ts);
@@ -670,8 +675,11 @@ function renderAll() {
   document.getElementById('sv1').textContent    = fmtN(todayTotal);
   document.getElementById('sv1sub').textContent = fmtThaiDate(d.today);
   document.getElementById('sv2').textContent    = `${todayBranches} ${t('branchUnit')}`;
-  document.getElementById('sv3lbl').textContent = `${t('thisMonth')} (${d.month_labels?.this||''})`;
-  document.getElementById('sv4lbl').textContent = `${t('lastMonth')} (${d.month_labels?.last||''})`;
+  const _todayDt   = parseLocalDate(d.today);
+  const _thisMoDt  = new Date(_todayDt.getFullYear(), _todayDt.getMonth(), 1);
+  const _lastMoDt  = new Date(_todayDt.getFullYear(), _todayDt.getMonth() - 1, 1);
+  document.getElementById('sv3lbl').textContent = `${t('thisMonth')} (${fmtMonthYear(_thisMoDt)})`;
+  document.getElementById('sv4lbl').textContent = `${t('lastMonth')} (${fmtMonthYear(_lastMoDt)})`;
   document.getElementById('sv3').textContent    = fmtN(d.totals?.this_month || 0);
   document.getElementById('sv4').textContent    = fmtN(d.totals?.last_month || 0);
   const mom = d.totals?.mom_pct;
@@ -737,8 +745,11 @@ function renderTable() {
     const isTd = c === today;
     th += `<th class="${isTd?'c-today':'c-date'} ${sortCls(c)}" onclick="sortBy('${esc(c)}')">${fmtDateCol(c)}</th>`;
   });
-  th += `<th class="c-month ${sortCls('this')}" onclick="sortBy('this')">${t('thisMonth')} (${esc(d.month_labels?.this||'')})</th>`;
-  th += `<th class="c-month ${sortCls('last')}" onclick="sortBy('last')">${t('lastMonth')} (${esc(d.month_labels?.last||'')})</th>`;
+  const _tDt  = parseLocalDate(d.today);
+  const _tmDt = new Date(_tDt.getFullYear(), _tDt.getMonth(), 1);
+  const _lmDt = new Date(_tDt.getFullYear(), _tDt.getMonth() - 1, 1);
+  th += `<th class="c-month ${sortCls('this')}" onclick="sortBy('this')">${t('thisMonth')} (${esc(fmtMonthYear(_tmDt))})</th>`;
+  th += `<th class="c-month ${sortCls('last')}" onclick="sortBy('last')">${t('lastMonth')} (${esc(fmtMonthYear(_lmDt))})</th>`;
   th += `<th class="c-upd">${t('colUpdated')}</th>`;
   th += '</tr>';
   document.getElementById('tblHead').innerHTML = th;
