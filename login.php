@@ -264,7 +264,7 @@ input::placeholder{color:#344d68}
   <div class="error"><?= h($error) ?></div>
   <?php endif; ?>
 
-  <form method="POST" action="login.php<?= $next !== 'realtime.php' ? '?next=' . h($next) : '' ?>" autocomplete="off">
+  <form method="POST" action="login.php<?= $next !== 'realtime.php' ? '?next=' . urlencode($next) : '' ?>" autocomplete="off">
     <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token']) ?>">
     <label for="staffcode">Staff Code</label>
     <input
