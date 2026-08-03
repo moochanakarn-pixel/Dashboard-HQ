@@ -141,7 +141,8 @@ $data['meta']['previous_to']      = $previousTo;
 
 try {
     $conn = db_connect();
-    @$conn->query('SET SESSION max_execution_time = 25000'); // kill any single query > 25 s
+    @$conn->query('SET SESSION max_execution_time = 25000');
+    @$conn->query('SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED');
 
     // Prefer the live table's latest date so the frontend navigates to realtime data
     $rtLatest = realtime_latest_date($conn);

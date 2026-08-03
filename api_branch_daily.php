@@ -28,7 +28,8 @@ if ($dateFrom > $dateTo) [$dateFrom, $dateTo] = [$dateTo, $dateFrom];
 
 try {
     $conn = db_connect();
-    @$conn->query('SET SESSION max_execution_time = 20000'); // kill any single query > 20 s
+    @$conn->query('SET SESSION max_execution_time = 20000');
+    @$conn->query('SET SESSION TRANSACTION ISOLATION LEVEL READ UNCOMMITTED');
 
     $sql = "
         SELECT DATE(sr.SaleDate)                                    AS sale_date,
