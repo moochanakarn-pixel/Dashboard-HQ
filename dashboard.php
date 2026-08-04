@@ -394,7 +394,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 /* visibility:hidden (not display:none) keeps the element in the accessibility
    tree so aria-live announcements fire when content changes */
 .alert-verdict{
-  margin-top:10px;padding:8px 11px;border-radius:var(--r-xs);
+  border-radius:var(--r-xs);
   display:flex;align-items:center;gap:8px;
   font-size:11.5px;font-weight:700;line-height:1.4;
   visibility:hidden;height:0;overflow:hidden;margin:0;padding:0;
@@ -891,7 +891,7 @@ function renderAlerts(rows,meta,summary){
     [['alertVerdictMobile','alertVerdictMainM','alertVerdictSubM'],
      ['alertVerdictDesktop','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,mId,sId])=>{
       const w=$(wId);if(!w)return;
-      w.className=cls;w.style.visibility='visible';w.style.height='';w.style.overflow='';w.style.margin='';w.style.padding='';
+      w.className=cls;w.style.visibility='visible';w.style.height='';w.style.overflow='';w.style.margin='10px 0 0';w.style.padding='8px 11px';
       $(mId).textContent=main;$(sId).textContent=sub;
     });
   })();

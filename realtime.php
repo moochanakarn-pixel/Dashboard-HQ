@@ -1,4 +1,10 @@
 <?php
+register_shutdown_function(function () {
+    $err = error_get_last();
+    if ($err && in_array($err['type'], [E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR], true)) {
+        error_log('[realtime] fatal: ' . $err['message'] . ' in ' . $err['file'] . ':' . $err['line']);
+    }
+});
 require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_page();
