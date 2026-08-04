@@ -333,8 +333,8 @@ html,body{
 #installBanner .ib-text{flex:1;min-width:0}
 #installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
 #installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
-#installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff;white-space:nowrap;flex-shrink:0}
-#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
+#installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff;white-space:nowrap;flex-shrink:0;min-height:44px}
+#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;min-height:44px;min-width:44px}
 /* ── View toggle ── */
 .seg-btn-icon{padding:5px 9px}
 .seg-btn-icon.active{background:var(--accent);color:#fff}
@@ -406,7 +406,7 @@ html,body{
 <div class="rt-ctrl">
   <div class="search-box">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input id="searchInput" type="search" autocomplete="off" autocorrect="off" autocapitalize="none" enterkeyhint="search" oninput="applyFilter()">
+    <input id="searchInput" type="search" autocomplete="off" autocorrect="off" autocapitalize="none" enterkeyhint="search" oninput="applyFilterDebounced()">
   </div>
   <div class="seg" id="daysSeg">
     <button class="seg-btn active" data-days="3"  onclick="setDays(3)">3 <span data-i="days">วัน</span></button>
@@ -721,6 +721,11 @@ function filteredBranches() {
   return branches.filter(b => (b.name||'').toLowerCase().includes(q) || (b.code||'').toLowerCase().includes(q));
 }
 
+let _searchTimer = null;
+function applyFilterDebounced() {
+  clearTimeout(_searchTimer);
+  _searchTimer = setTimeout(applyFilter, 150);
+}
 function applyFilter() {
   S.search = document.getElementById('searchInput')?.value || '';
   if (S.view === 'table') renderTable();

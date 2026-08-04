@@ -151,7 +151,7 @@ body[data-theme="light"] .kpi[data-kpi="watch"]:hover{box-shadow:0 8px 28px rgba
   width:7px;height:7px;border-radius:999px;background:var(--good);flex-shrink:0;
   animation:pulse-dot 2.5s ease-in-out infinite;
 }
-@keyframes pulse-dot{0%,100%{box-shadow:0 0 0 0 rgba(16,217,160,.6)}55%{box-shadow:0 0 0 6px rgba(16,217,160,0)}}
+@keyframes pulse-dot{0%,100%{opacity:1}55%{opacity:.2}}
 .rt-btn{
   text-decoration:none;display:inline-flex;align-items:center;gap:7px;
   padding:9px 18px;border-radius:12px;
@@ -386,8 +386,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 #installBanner .ib-text{flex:1;min-width:0}
 #installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
 #installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
-#installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;white-space:nowrap;flex-shrink:0}
-#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0}
+#installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;white-space:nowrap;flex-shrink:0;min-height:44px}
+#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;min-height:44px;min-width:44px}
 .gap{margin-top:8px}
 
 /* ── ALERT VERDICT SUMMARY ── */
@@ -403,7 +403,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 .alert-verdict .av-sub{font-size:10px;font-weight:500;opacity:.8;margin-top:2px}
 
 /* ── ALERT TAB GLOW ── */
-@keyframes tab-alert-glow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}55%{box-shadow:0 0 0 7px rgba(244,63,94,0)}}
+@keyframes tab-alert-glow{0%,100%{opacity:1}55%{opacity:.5}}
 .tab-btn-alert:not(.active){color:var(--bad)!important;animation:tab-alert-glow 2s ease-in-out infinite}
 @media(prefers-reduced-motion:reduce){
   .live-dot{animation:none}
@@ -651,7 +651,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
         <div class="priority-head-title">
           <h2 id="alertsTitle2">แจ้งเตือน / ความผิดปกติ</h2>
           <div class="desc" id="alertsDesc2">สาขาและสัญญาณที่ควรติดตาม</div>
-          <div class="alert-verdict" id="alertVerdictMobile"><div class="av-body"><div id="alertVerdictMainM"></div><div class="av-sub" id="alertVerdictSubM"></div></div></div>
+          <div class="alert-verdict" id="alertVerdictMobile" aria-live="polite"><div class="av-body"><div id="alertVerdictMainM"></div><div class="av-sub" id="alertVerdictSubM"></div></div></div>
         </div>
       </div>
       <div class="list" id="alertListOnly"><div class="empty">กำลังโหลด…</div></div>
@@ -691,7 +691,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           <div class="priority-head-title">
             <h2 id="alertsTitleDesktop">แจ้งเตือน</h2>
             <div class="desc" id="alertsDescDesktop">สิ่งที่ HQ ต้องดูทันที</div>
-            <div class="alert-verdict" id="alertVerdictDesktop"><div class="av-body"><div id="alertVerdictMainD"></div><div class="av-sub" id="alertVerdictSubD"></div></div></div>
+            <div class="alert-verdict" id="alertVerdictDesktop" aria-live="polite"><div class="av-body"><div id="alertVerdictMainD"></div><div class="av-sub" id="alertVerdictSubD"></div></div></div>
           </div>
           <span class="priority-count" id="alertCountDesktop">0</span>
         </div>
@@ -720,16 +720,16 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 
 <!-- ── MOBILE BOTTOM TABS ── -->
 <div class="mobile-tabs">
-  <div class="tab-row">
-    <button class="tab-btn" data-panel="overview" id="tabOverview">
+  <div class="tab-row" role="tablist">
+    <button class="tab-btn" data-panel="overview" id="tabOverview" role="tab" aria-selected="false" aria-controls="panel-overview">
       <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><polyline points="3 17 8 10 12 14 16 6 22 9"/></svg>
       <span id="tabOverviewLabel">ภาพรวม</span>
     </button>
-    <button class="tab-btn active" data-panel="branches" id="tabBranches">
+    <button class="tab-btn active" data-panel="branches" id="tabBranches" role="tab" aria-selected="true" aria-controls="panel-branches">
       <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
       <span id="tabBranchesLabel">สาขา</span>
     </button>
-    <button class="tab-btn" data-panel="alerts" id="tabAlerts" style="position:relative">
+    <button class="tab-btn" data-panel="alerts" id="tabAlerts" role="tab" aria-selected="false" aria-controls="panel-alerts" style="position:relative">
       <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg>
       <span class="tab-alert-badge" id="tabAlertBadge" style="display:none"></span><span id="tabAlertsLabel">แจ้งเตือน</span>
     </button>
@@ -799,7 +799,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 const I18N={
 en:{rtBtn:'Real-time Sales',apiError:'ERROR',latestLabel:'Latest',rangeLabel:'Range',reload:'Apply',latest:'Latest',mtd:'MTD',d7:'7D',yesterday:'Yesterday',qcustom:'Custom ›',kpiSalesLabel:'Total Sales',kpiSalesSub:'Selected range',kpiWatchLabel:'Top · Lowest Branch',alertsTitle:'Alerts',alertsDesc:'Review these first.',alertsDesc2:'Branches needing attention.',trendTitle:'Sales Trend',trendDesc:'Daily sales over selected period.',branchTitle:'Branch Rankings',branchDesc:'Sales compared by branch',tabOverview:'Overview',tabBranches:'Branches',tabAlerts:'Alerts',filterTitle:'Filters',noAlerts:'No alerts in selected range.',noBranch:'No branch data.',noTrend:'No trend data.',apiOk:'Live',best:'Best',lowest:'Lowest',autoRefresh:'Auto refresh every',disabledRefresh:'Auto refresh off (history view).',invalidJson:'API returned invalid JSON:',noDataRange:'No data for selected range.',labelLang:'Language',labelTheme:'Theme',labelDateFrom:'From',labelDateTo:'To',labelDateRange:'Date Range',loading:'Loading…',close:'Close',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'This Year',lastYear:'Last Year',compare:'Compare',compareOff:'Hide Compare',exportPdf:'Print',installSub:'Add to home screen',installBtn:'Install',bmTotal:'Total',trendLegendMain:'Current period',trendLegendCmp:'Previous period'},
 th:{rtBtn:'ยอดขาย Real-time',apiError:'ข้อผิดพลาด',latestLabel:'ล่าสุด',rangeLabel:'ช่วง',reload:'ใช้ตัวกรอง',latest:'ล่าสุด',mtd:'ต้นเดือน',d7:'7 วัน',yesterday:'เมื่อวาน',qcustom:'กำหนดเอง ›',kpiSalesLabel:'ยอดขายรวม',kpiSalesSub:'ช่วงที่เลือก',kpiWatchLabel:'สาขา สูงสุด · ต่ำสุด',alertsTitle:'แจ้งเตือน',alertsDesc:'สิ่งที่ต้องดูก่อน',alertsDesc2:'สาขาและสัญญาณที่ควรติดตาม',trendTitle:'แนวโน้มยอดขาย',trendDesc:'ยอดขายรายวันตามช่วงที่เลือก',branchTitle:'อันดับสาขา Top 20',branchDesc:'ยอดขายเปรียบเทียบรายสาขา',tabOverview:'ภาพรวม',tabBranches:'สาขา',tabAlerts:'แจ้งเตือน',filterTitle:'ตัวกรอง',noAlerts:'ไม่พบรายการผิดปกติในช่วงที่เลือก',noBranch:'ยังไม่มีข้อมูลสาขา',noTrend:'ยังไม่มีข้อมูล trend',apiOk:'Live',best:'สูงสุด',lowest:'ต่ำสุด',autoRefresh:'รีเฟรชอัตโนมัติทุก',disabledRefresh:'ปิดรีเฟรชอัตโนมัติ (กำลังดูข้อมูลย้อนหลัง)',invalidJson:'API ไม่ได้ส่ง JSON กลับมา:',noDataRange:'ช่วงวันที่ที่เลือกไม่มีข้อมูล หรือเงื่อนไขกรองแคบเกินไป',labelLang:'ภาษา',labelTheme:'ธีม',labelDateFrom:'วันที่เริ่ม',labelDateTo:'วันที่สิ้นสุด',labelDateRange:'ช่วงวันที่',loading:'กำลังโหลด…',close:'ปิด',q1:'Q1',q2:'Q2',q3:'Q3',q4:'Q4',thisYear:'ปีนี้',lastYear:'ปีก่อน',compare:'เปรียบเทียบ',compareOff:'ซ่อนเปรียบ',exportPdf:'พิมพ์',installSub:'เพิ่มลงหน้าจอหลัก',installBtn:'ติดตั้ง',bmTotal:'ยอดรวม',trendLegendMain:'ช่วงปัจจุบัน',trendLegendCmp:'ช่วงก่อนหน้า'}};
-const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',latestDate:<?php echo json_encode($range['latest_date']); ?>,trendRows:[],rankingRows:[],compareMode:false,compareTrendRows:[]};
+const state={lang:localStorage.getItem('hq_lang')||'th',theme:localStorage.getItem('hq_theme')||'dark',latestDate:<?php echo json_encode($range['latest_date'] ?? date('Y-m-d')); ?>,trendRows:[],rankingRows:[],compareMode:false,compareTrendRows:[]};
 const $=id=>document.getElementById(id);
 const mobile={lang:$('langSelect'),theme:$('themeSelect'),from:$('dateFrom'),to:$('dateTo')};
 const desk={lang:$('langSelectDesktop'),theme:$('themeSelectDesktop'),from:$('dateFromDesktop'),to:$('dateToDesktop')};
@@ -1025,7 +1025,7 @@ function renderRankingBar(rows,containerId){
   }));
 }
 function redrawCharts(){const cmp=state.compareMode?state.compareTrendRows:null;drawTrend(state.trendRows,'trendCanvas',cmp);drawTrend(state.trendRows,'trendCanvasDesktop',cmp)}
-function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>btn.classList.toggle('active',btn.dataset.panel===panel));if(panel==='overview')requestAnimationFrame(redrawCharts)}
+function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>{const active=btn.dataset.panel===panel;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',active?'true':'false')});if(panel==='overview')requestAnimationFrame(redrawCharts)}
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(res.status===401){window.location.href='login.php';return;}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=fmtDateThai(state.latestDate)||'-';const sum=data.summary||{};$('salesTotal').textContent=money(sum.sales_total);$('bestWorst').textContent=`${sum.best_branch_name||'-'} / ${sum.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`↑ ${t('best')} ${compactMoney(sum.best_branch_sales)}  ·  ↓ ${t('lowest')} ${compactMoney(sum.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
