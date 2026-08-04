@@ -121,11 +121,7 @@ try {
         ";
         $stmt = $conn->prepare($sqlNames);
         if (!$stmt) throw new \RuntimeException('Q2 prepare failed');
-        // build by-reference array for PHP 7 compat (spread passes values, not refs)
-        $bindArgs = [&$types];
-        foreach ($branchIds as &$v) { $bindArgs[] = &$v; }
-        unset($v);
-        call_user_func_array([$stmt, 'bind_param'], $bindArgs);
+        $stmt->bind_param($types, ...$branchIds);
         $stmt->execute();
         $res = $stmt->get_result();
         while ($row = $res->fetch_assoc()) {
@@ -147,6 +143,7 @@ try {
     // --- 3. Monthly totals (skipped when no branches; bounded upper range) ---
     $monthlyMap = [];
     if (!empty($branchIds)) {
+        $ph3        = implode(',', array_fill(0, count($branchIds), '?'));
         $sqlMonthly = "
             SELECT
                 ProductLevelID,
@@ -155,15 +152,17 @@ try {
             FROM summarysalebydate
             WHERE SaleDate >= ?
               AND SaleDate < DATE_ADD(?, INTERVAL 1 DAY)
+              AND ProductLevelID IN ($ph3)
             GROUP BY ProductLevelID
         ";
         $stmt = $conn->prepare($sqlMonthly);
         if (!$stmt) throw new \RuntimeException('Q3 prepare failed');
         $stmt->bind_param(
-            'ssssss',
+            'ssssss' . str_repeat('i', count($branchIds)),
             $thisMonthStart, $dateTo,
             $lastMonthStart, $lastMonthEnd,
-            $lastMonthStart, $dateTo
+            $lastMonthStart, $dateTo,
+            ...$branchIds
         );
         $stmt->execute();
         $res = $stmt->get_result();
