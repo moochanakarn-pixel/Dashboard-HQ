@@ -334,7 +334,7 @@ html,body{
 #installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
 #installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
 #installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--accent),var(--violet));color:#fff;white-space:nowrap;flex-shrink:0;min-height:44px}
-#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;min-height:44px;min-width:44px}
+#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}
 /* ── View toggle ── */
 .seg-btn-icon{padding:5px 9px}
 .seg-btn-icon.active{background:var(--accent);color:#fff}

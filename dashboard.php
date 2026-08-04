@@ -387,14 +387,17 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 #installBanner .ib-title{font-size:12px;font-weight:600;color:var(--text)}
 #installBanner .ib-sub{font-size:10.5px;color:var(--muted);margin-top:2px}
 #installBanner .ib-btn{padding:7px 16px;border-radius:999px;border:none;cursor:pointer;font-size:11px;font-weight:700;background:linear-gradient(135deg,var(--primary),var(--primary2));color:#fff;white-space:nowrap;flex-shrink:0;min-height:44px}
-#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;min-height:44px;min-width:44px}
+#installBanner .ib-close{background:none;border:none;color:var(--muted);font-size:16px;cursor:pointer;padding:4px;line-height:1;flex-shrink:0;min-height:44px;min-width:44px;display:inline-flex;align-items:center;justify-content:center}
 .gap{margin-top:8px}
 
 /* ── ALERT VERDICT SUMMARY ── */
+/* visibility:hidden (not display:none) keeps the element in the accessibility
+   tree so aria-live announcements fire when content changes */
 .alert-verdict{
   margin-top:10px;padding:8px 11px;border-radius:var(--r-xs);
-  display:none;align-items:center;gap:8px;
+  display:flex;align-items:center;gap:8px;
   font-size:11.5px;font-weight:700;line-height:1.4;
+  visibility:hidden;height:0;overflow:hidden;margin:0;padding:0;
 }
 .alert-verdict.av-good{background:var(--good-bg);border:1px solid var(--good-border);color:var(--good)}
 .alert-verdict.av-warn{background:var(--warn-bg);border:1px solid var(--warn-border);color:var(--warn)}
@@ -403,11 +406,17 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 .alert-verdict .av-sub{font-size:10px;font-weight:500;opacity:.8;margin-top:2px}
 
 /* ── ALERT TAB GLOW ── */
-@keyframes tab-alert-glow{0%,100%{opacity:1}55%{opacity:.5}}
-.tab-btn-alert:not(.active){color:var(--bad)!important;animation:tab-alert-glow 2s ease-in-out infinite}
+/* Animate ::after overlay so button text/badge stay at full opacity (GPU-composited) */
+@keyframes tab-alert-glow{0%,100%{opacity:0}55%{opacity:1}}
+.tab-btn-alert:not(.active){color:var(--bad)!important;position:relative}
+.tab-btn-alert:not(.active)::after{
+  content:'';position:absolute;inset:0;border-radius:inherit;
+  background:rgba(244,63,94,.18);pointer-events:none;
+  animation:tab-alert-glow 2s ease-in-out infinite;
+}
 @media(prefers-reduced-motion:reduce){
   .live-dot{animation:none}
-  .tab-btn-alert:not(.active){animation:none}
+  .tab-btn-alert:not(.active)::after{animation:none}
   .panel.active{animation:none}
 }
 
@@ -882,7 +891,7 @@ function renderAlerts(rows,meta,summary){
     [['alertVerdictMobile','alertVerdictMainM','alertVerdictSubM'],
      ['alertVerdictDesktop','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,mId,sId])=>{
       const w=$(wId);if(!w)return;
-      w.className=cls;w.style.display='flex';
+      w.className=cls;w.style.visibility='visible';w.style.height='';w.style.overflow='';w.style.margin='';w.style.padding='';
       $(mId).textContent=main;$(sId).textContent=sub;
     });
   })();
