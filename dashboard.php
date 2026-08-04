@@ -891,7 +891,7 @@ function renderAlerts(rows,meta,summary){
     [['alertVerdictMobile','alertVerdictMainM','alertVerdictSubM'],
      ['alertVerdictDesktop','alertVerdictMainD','alertVerdictSubD']].forEach(([wId,mId,sId])=>{
       const w=$(wId);if(!w)return;
-      w.className=cls;w.style.visibility='visible';w.style.height='';w.style.overflow='';w.style.margin='10px 0 0';w.style.padding='8px 11px';
+      w.className=cls;w.style.visibility='visible';w.style.height='auto';w.style.overflow='';w.style.margin='10px 0 0';w.style.padding='8px 11px';
       $(mId).textContent=main;$(sId).textContent=sub;
     });
   })();
