@@ -76,8 +76,11 @@ function branch_status(float $pct): string {
 }
 
 function realtime_latest_date(mysqli $conn): ?string {
-    $res = @$conn->query('SELECT DATE(MAX(SaleDate)) AS d FROM summarysalebydate');
-    if (!$res) return null;
+    $res = $conn->query('SELECT DATE(MAX(SaleDate)) AS d FROM summarysalebydate');
+    if (!$res) {
+        error_log('[api_dashboard] realtime_latest_date failed: ' . $conn->error);
+        return null;
+    }
     $row = $res->fetch_assoc();
     $d = trim((string)($row['d'] ?? ''));
     return preg_match('/^\d{4}-\d{2}-\d{2}$/', $d) ? $d : null;
@@ -324,12 +327,7 @@ try {
         $stmt->close();
     }
 
-    $seen = []; $unique = [];
-    foreach ($data['alerts'] as $a) {
-        $key = ($a['type'] ?? '') . '|' . ($a['shop_name'] ?? '');
-        if (!isset($seen[$key])) { $seen[$key] = true; $unique[] = $a; }
-    }
-    $data['alerts'] = array_slice($unique, 0, 15);
+    $data['alerts'] = array_slice($data['alerts'], 0, 15);
 
     $sqlTrend = "
         SELECT DATE(SaleDate) AS sale_date,
