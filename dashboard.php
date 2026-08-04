@@ -272,7 +272,7 @@ select.control option{background:var(--bg);color:var(--text)}
 .alert-detail{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.5}
 .alert-detail b{color:var(--text);font-weight:600}
 
-.chart-shell{height:220px;border-radius:var(--r-sm);padding:8px 4px 2px;position:relative}
+.chart-shell{height:260px;border-radius:var(--r-sm);padding:8px 4px 2px;position:relative}
 .chart-tip{
   position:absolute;display:none;pointer-events:none;z-index:10;
   background:rgba(6,14,32,.96);border:1px solid var(--line);border-radius:var(--r-xs);
@@ -444,7 +444,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .meta-strip{gap:5px}
   .pill{padding:4px 9px;font-size:10px}
   .pill-range{display:none}
-  .chart-shell{height:190px}
+  .chart-shell{height:240px}
   body{background-attachment:scroll}
   .control{font-size:16px}
 }
@@ -921,33 +921,58 @@ function drawTrend(rows,canvasId,cmpRows){
   const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1,w=Math.max(parent.clientWidth-20,200),h=Math.max(parent.clientHeight-20,140);
   canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
   if(!rows||!rows.length){ctx.fillStyle=getComputedStyle(document.body).getPropertyValue('--muted');ctx.font='11px "Plus Jakarta Sans",sans-serif';ctx.fillText(t('noTrend'),12,20);canvas._chart=null;return}
-  const cs=getComputedStyle(document.body),pad={l:54,r:16,t:26,b:26},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
+  const cs=getComputedStyle(document.body),isDark=document.documentElement.dataset.theme!=='light';
+  const pad={l:62,r:18,t:32,b:30},cw=w-pad.l-pad.r,ch=h-pad.t-pad.b;
   const values=rows.map(r=>Number(r.sales_total||0));
   const mainMax=Math.max(...values,1);
   const cmpValues=(cmpRows&&cmpRows.length)?cmpRows.map(r=>Number(r.sales_total||0)):null;
-  const effectiveMax=cmpValues?Math.max(mainMax,...cmpValues,1):mainMax;
+  const rawMax=cmpValues?Math.max(mainMax,...cmpValues,1):mainMax;
+  // round up to a clean Y-axis ceiling
+  const mag=Math.pow(10,Math.floor(Math.log10(rawMax||1)));
+  const niceTop=Math.ceil(rawMax/mag)*mag;
   const stepX=rows.length>1?cw/(rows.length-1):0;
-  const pts=rows.map((r,i)=>({x:pad.l+stepX*i,y:pad.t+ch-(Number(r.sales_total||0)/effectiveMax)*ch}));
+  const pts=rows.map((r,i)=>({x:pad.l+stepX*i,y:pad.t+ch-(Number(r.sales_total||0)/niceTop)*ch}));
   let cmpPts=null;
-  if(cmpValues){const cs2=cmpRows.length>1?cw/(cmpRows.length-1):0;cmpPts=cmpRows.map((r,i)=>({x:pad.l+cs2*i,y:pad.t+ch-(Number(r.sales_total||0)/effectiveMax)*ch}))}
+  if(cmpValues){const s2=cmpRows.length>1?cw/(cmpRows.length-1):0;cmpPts=cmpRows.map((r,i)=>({x:pad.l+s2*i,y:pad.t+ch-(Number(r.sales_total||0)/niceTop)*ch}))}
   canvas._chart={pts,rows,values,pad,w,h,cmpPts,cmpRows:cmpRows||null};
   function curve(p){ctx.moveTo(p[0].x,p[0].y);for(let i=0;i<p.length-1;i++){const mx=(p[i].x+p[i+1].x)/2;ctx.bezierCurveTo(mx,p[i].y,mx,p[i+1].y,p[i+1].x,p[i+1].y)}}
-  ctx.strokeStyle='rgba(255,255,255,.04)';ctx.lineWidth=1;
+  // grid lines — theme-aware, clearly visible
+  const gridCol=isDark?'rgba(255,255,255,.09)':'rgba(0,0,0,.07)';
+  ctx.strokeStyle=gridCol;ctx.lineWidth=1;ctx.setLineDash([]);
   for(let i=0;i<=4;i++){const y=pad.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
-  if(cmpPts&&cmpPts.length>1){ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(167,139,250,.65)';ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(cmpPts);ctx.stroke();ctx.restore()}
-  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
-  grad.addColorStop(0,'rgba(59,130,246,.34)');grad.addColorStop(.5,'rgba(59,130,246,.09)');grad.addColorStop(1,'rgba(59,130,246,0)');
-  ctx.beginPath();curve(pts);ctx.lineTo(pts[pts.length-1].x,pad.t+ch);ctx.lineTo(pts[0].x,pad.t+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-  ctx.strokeStyle=cs.getPropertyValue('--primary');ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(pts);ctx.stroke();
-  const peakIdx=values.indexOf(Math.max(...values)),pk=pts[peakIdx];
-  pts.forEach((p,i)=>{if(i===peakIdx)return;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary');ctx.fill()});
-  ctx.beginPath();ctx.arc(pk.x,pk.y,6,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();
-  ctx.beginPath();ctx.arc(pk.x,pk.y,3.5,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-  ctx.fillStyle='#f59e0b';ctx.font='700 9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='center';
-  ctx.fillText(compactMoney(values[peakIdx]),pk.x,pk.y-13);
+  // y-axis labels
   ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='right';
-  for(let i=0;i<=4;i++){ctx.fillText(compactMoney((effectiveMax/4)*(4-i)),pad.l-6,pad.t+(ch/4)*i+3)}
-  ctx.textAlign='center';const skip=rows.length>10?Math.ceil(rows.length/8):1;
+  for(let i=0;i<=4;i++){ctx.fillText(compactMoney((niceTop/4)*(4-i)),pad.l-8,pad.t+(ch/4)*i+3.5)}
+  // compare line
+  if(cmpPts&&cmpPts.length>1){ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(167,139,250,.65)';ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(cmpPts);ctx.stroke();ctx.restore()}
+  ctx.setLineDash([]);
+  // gradient fill — match primary teal
+  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+  grad.addColorStop(0,'rgba(16,217,160,.38)');grad.addColorStop(.5,'rgba(16,217,160,.12)');grad.addColorStop(1,'rgba(16,217,160,0)');
+  ctx.beginPath();curve(pts);ctx.lineTo(pts[pts.length-1].x,pad.t+ch);ctx.lineTo(pts[0].x,pad.t+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+  // main line
+  ctx.strokeStyle=cs.getPropertyValue('--primary');ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(pts);ctx.stroke();
+  // dots + value labels
+  const peakIdx=values.indexOf(Math.max(...values));
+  const showAllLabels=rows.length<=10&&stepX>=28;
+  pts.forEach((p,i)=>{
+    const isPeak=i===peakIdx;
+    if(isPeak){
+      ctx.beginPath();ctx.arc(p.x,p.y,6,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();
+      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
+    } else {
+      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary');ctx.fill();
+    }
+    if(showAllLabels||isPeak){
+      ctx.fillStyle=isPeak?'#f59e0b':cs.getPropertyValue('--muted');
+      ctx.font=isPeak?'700 9.5px "Plus Jakarta Sans",sans-serif':'9px "Plus Jakarta Sans",sans-serif';
+      ctx.textAlign='center';
+      ctx.fillText(compactMoney(values[i]),p.x,p.y-(isPeak?16:13));
+    }
+  });
+  // x-axis date labels
+  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='center';
+  const skip=rows.length>10?Math.ceil(rows.length/8):1;
   rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;ctx.fillText((r.sale_date||'').slice(5),pts[i].x,h-6)})
 }
 async function toggleCompare(){
