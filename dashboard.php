@@ -405,6 +405,11 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 /* ── ALERT TAB GLOW ── */
 @keyframes tab-alert-glow{0%,100%{box-shadow:0 0 0 0 rgba(244,63,94,.55)}55%{box-shadow:0 0 0 7px rgba(244,63,94,0)}}
 .tab-btn-alert:not(.active){color:var(--bad)!important;animation:tab-alert-glow 2s ease-in-out infinite}
+@media(prefers-reduced-motion:reduce){
+  .live-dot{animation:none}
+  .tab-btn-alert:not(.active){animation:none}
+  .panel.active{animation:none}
+}
 
 
 .desktop-only{display:none}
@@ -431,6 +436,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .pill{padding:4px 9px;font-size:10px}
   .pill-range{display:none}
   .chart-shell{height:190px}
+  body{background-attachment:scroll}
+  .control{font-size:16px}
 }
 
 @media(max-width:640px){
@@ -479,6 +486,7 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 /* ── Print button ── */
 #printBtn{background:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;border-radius:8px;padding:6px 10px;font-size:11px;display:inline-flex;align-items:center;gap:4px;transition:border-color .15s,color .15s}
 #printBtn:hover{border-color:var(--muted2);color:var(--text)}
+#logoutBtn:hover{color:var(--bad)!important;border-color:var(--bad-border)!important}
 /* ── Branch modal ── */
 .bm-overlay{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;justify-content:center}
 .bm-overlay.hidden{display:none!important}
@@ -549,7 +557,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           </div>
         </div>
         <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
-<a href="realtime.php" class="rt-btn" title="ดูยอดขาย Real-time ทุกสาขา"><span class="live-dot"></span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="rtBtnLabel">ยอดขาย Real-time</span></a><button id="printBtn" onclick="window.print()">🖨️ <span id="printBtnLabel">พิมพ์</span></button><form method="POST" action="logout.php" style="display:inline"><input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token'] ?? '') ?>"><button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s" onmouseover="this.style.color='var(--bad)';this.style.borderColor='var(--bad-border)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--line)'"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form>
+<a href="realtime.php" class="rt-btn" title="ดูยอดขาย Real-time ทุกสาขา"><span class="live-dot"></span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="rtBtnLabel">ยอดขาย Real-time</span></a><button id="printBtn" onclick="window.print()">🖨️ <span id="printBtnLabel">พิมพ์</span></button><form method="POST" action="logout.php" style="display:inline"><input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token'] ?? '') ?>"><button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form>
 <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2.5" fill="var(--bg)"/><circle cx="15" cy="12" r="2.5" fill="var(--bg)"/><circle cx="9" cy="18" r="2.5" fill="var(--bg)"/></svg></button>
         </div>
       </div>

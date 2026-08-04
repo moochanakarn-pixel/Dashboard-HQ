@@ -13,7 +13,14 @@ log_access('realtime', ['days' => (int)($_GET['days'] ?? 7)]);
 <title>Sales HQ</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#070f20">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Sales HQ">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -136,6 +143,7 @@ html,body{
   font-family:var(--font);transition:all .15s;
 }
 .btn-refresh:hover{background:rgba(79,134,247,.16);color:var(--text)}
+#logoutBtn:hover{color:var(--red)!important;border-color:var(--red)!important}
 .btn-refresh.spinning svg{animation:spin .6s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
@@ -291,14 +299,15 @@ html,body{
   .rt-ctrl{flex-wrap:nowrap;gap:6px;padding:6px 10px}
   .search-box{min-width:0;max-width:none;flex:1}
   .seg-btn{padding:5px 7px;font-size:11px}
+  #searchInput{font-size:16px}
 
   /* summary strip: compact single horizontal row */
   .rt-sum{flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
   .rt-sum::-webkit-scrollbar{display:none}
   .sum-item{min-width:88px;padding:7px 10px;flex-shrink:0}
   .sum-val{font-size:15px}
-  .sum-lbl{font-size:8px;margin-bottom:2px}
-  .sum-sub{font-size:9px;margin-top:1px}
+  .sum-lbl{font-size:10px;margin-bottom:2px}
+  .sum-sub{font-size:11px;margin-top:1px}
 
   /* table: narrower columns so 3 date columns visible without scrolling */
   .rt-tbl th.c-rank,.rt-tbl td.c-rank{width:32px;min-width:32px;max-width:32px}
@@ -390,7 +399,7 @@ html,body{
     <!-- Logout -->
     <form method="POST" action="logout.php" style="display:inline">
       <input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token'] ?? '') ?>">
-      <button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s;font-family:inherit" onmouseover="this.style.color='var(--red)';this.style.borderColor='var(--red)'" onmouseout="this.style.color='var(--muted)';this.style.borderColor='var(--line)'">
+      <button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s;font-family:inherit">
         <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
         <span class="desktop-only"><?= h($_SESSION['staff_code'] ?? 'ออกจากระบบ') ?></span>
       </button>
@@ -402,7 +411,7 @@ html,body{
 <div class="rt-ctrl">
   <div class="search-box">
     <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
-    <input id="searchInput" type="search" autocomplete="off" oninput="applyFilter()">
+    <input id="searchInput" type="search" autocomplete="off" autocorrect="off" autocapitalize="none" enterkeyhint="search" oninput="applyFilter()">
   </div>
   <div class="seg" id="daysSeg">
     <button class="seg-btn active" data-days="3"  onclick="setDays(3)">3 <span data-i="days">วัน</span></button>
@@ -597,6 +606,7 @@ function toggleTheme() {
 // ── Fetch ──────────────────────────────────────────────
 let _fetchController = null;
 let _fetchGen = 0;
+let _lastFetchAt = 0;
 
 async function fetchData(force = false) {
   const gen = ++_fetchGen;
@@ -618,6 +628,7 @@ async function fetchData(force = false) {
     const data = await r.json();
     if (data.error) throw new Error(data.error);
     S.raw = data;
+    _lastFetchAt = Date.now();
     renderAll();
   } catch(e) {
     clearTimeout(timeoutId);
@@ -916,8 +927,11 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) { stopCd(); if (_fetchController) _fetchController.abort(); }
-  else { fetchData(); }
+  else { if (Date.now() - _lastFetchAt >= 30000) fetchData(); else startCd(); }
 });
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('sw.js').catch(() => {});
+}
 </script>
 
 <div id="installBanner">
