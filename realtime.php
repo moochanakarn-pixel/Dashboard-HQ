@@ -49,9 +49,6 @@ log_access('realtime', ['days' => (int)($_GET['days'] ?? 7)]);
   --violet-g:rgba(148,114,248,.09);
   --red:     #f04343;
   --red-g:   rgba(240,67,67,.09);
-  /* legacy alias so existing JS t('fresh') badge CSS works */
-  --yellow:  #f5a623;
-  --yellow-g:rgba(245,166,35,.09);
   --r:  10px;
   --r2:  7px;
   --font:'Plus Jakarta Sans',system-ui,sans-serif;
@@ -80,8 +77,6 @@ log_access('realtime', ['days' => (int)($_GET['days'] ?? 7)]);
   --violet-g:rgba(124,58,237,.07);
   --red:     #dc2626;
   --red-g:   rgba(220,38,38,.07);
-  --yellow:  #b45309;
-  --yellow-g:rgba(180,83,9,.07);
 }
 
 html,body{
@@ -322,7 +317,7 @@ html,body{
   #tblWrap.name-wide .rt-tbl th.c-name,
   #tblWrap.name-wide .rt-tbl td.c-name{min-width:200px!important;width:200px!important;max-width:200px!important}
 }
-.col-exp{background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:1px 3px;border-radius:3px;margin-left:3px;vertical-align:middle;transition:color .15s,background .15s;line-height:1}
+.col-exp{background:none;border:none;cursor:pointer;color:var(--muted);font-size:10px;padding:4px 6px;border-radius:3px;margin-left:3px;vertical-align:middle;transition:color .15s,background .15s;line-height:1}
 .col-exp:hover{color:var(--text)}
 #tblWrap.name-wide .col-exp{color:var(--accent)}
 
@@ -751,7 +746,7 @@ function renderTable() {
   const sortCls = col => S.sort.col===col ? (col==='name'?(S.sort.dir>0?'sort-asc':'sort-desc'):(S.sort.dir>0?'sort-desc':'sort-asc')) : '';
   let th = '<tr>';
   th += `<th class="c-rank" style="cursor:default">#</th>`;
-  th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}<button class="col-exp" onclick="toggleNameCol(event)" title="ขยาย/ย่อ">⇔</button></th>`;
+  th += `<th class="c-name ${sortCls('name')}" onclick="sortBy('name')">${t('colBranch')}<button class="col-exp" onclick="toggleNameCol(event)" title="ขยาย/ย่อ" aria-label="ขยาย/ย่อชื่อสาขา">⇔</button></th>`;
   cols.forEach(c => {
     const isTd = c === today;
     th += `<th class="${isTd?'c-today':'c-date'} ${sortCls(c)}" onclick="sortBy('${esc(c)}')">${fmtDateCol(c)}</th>`;
