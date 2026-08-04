@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
 require __DIR__ . '/dashboard_config.php';
 
 ini_set('session.use_strict_mode', '1');
@@ -126,8 +124,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
                 );
             }
         } catch (Throwable $e) {
-            error_log('[login] ' . $e->getMessage());
-            $error = 'เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่';
+            error_log('[login] DB error: ' . $e->getMessage());
+            $error = 'เชื่อมต่อฐานข้อมูลไม่สำเร็จ — กรุณาตรวจสอบการตั้งค่าระบบหรือติดต่อผู้ดูแล';
         }
     }
     } // end CSRF else
