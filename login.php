@@ -61,8 +61,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
             );
             if (!$stmt) throw new RuntimeException($db->error);
             $stmt->bind_param('s', $code);
-            $stmt->execute();
-            $row = $stmt->get_result()->fetch_assoc();
+            if (!$stmt->execute()) throw new RuntimeException($stmt->error);
+            // Use bind_result instead of get_result for compatibility with older MySQL/PHP
+            $staffId = null; $staffCode = null;
+            $stmt->bind_result($staffId, $staffCode);
+            $row = $stmt->fetch() ? ['StaffID' => $staffId, 'StaffCode' => $staffCode] : null;
             $stmt->close();
             $db->close();
 
@@ -120,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && !$isLocked) {
                     FILE_APPEND | LOCK_EX
                 );
             }
-        } catch (RuntimeException $e) {
+        } catch (Throwable $e) {
             error_log('[login] ' . $e->getMessage());
             $error = 'เชื่อมต่อฐานข้อมูลไม่ได้ กรุณาลองใหม่';
         }
