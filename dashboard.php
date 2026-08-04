@@ -1,6 +1,4 @@
 <?php
-ini_set('display_errors', '1');
-error_reporting(E_ALL);
 require __DIR__ . '/dashboard_config.php';
 require __DIR__ . '/auth.php';
 auth_require_page();
