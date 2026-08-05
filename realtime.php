@@ -547,7 +547,8 @@ function fmtDateCol(d) {
 
 function fmtTime(ts) {
   if (!ts) return '—';
-  const d = new Date(ts.replace(' ','T'));
+  const parts = ts.split(/[- :]/);
+  const d = new Date(+parts[0], +parts[1]-1, +parts[2], +parts[3]||0, +parts[4]||0, +parts[5]||0);
   if (isNaN(d)) return '—';
   return d.toLocaleTimeString(S.lang==='th'?'th-TH':'en-US',{hour:'2-digit',minute:'2-digit',hour12:false});
 }
@@ -829,12 +830,16 @@ function fitTableHeight() {
   const w = document.getElementById('tblWrap');
   if (!w || getComputedStyle(w).display === 'none') return;
   const top = w.getBoundingClientRect().top;
-  w.style.height = Math.max(200, window.innerHeight - top - 4) + 'px';
+  const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+  w.style.height = Math.max(200, vh - top - 4) + 'px';
 }
 
 let _fitTimer;
 window.addEventListener('resize', () => { clearTimeout(_fitTimer); _fitTimer = setTimeout(fitTableHeight, 150); }, { passive: true });
 window.addEventListener('orientationchange', () => { setTimeout(fitTableHeight, 300); });
+if (window.visualViewport) {
+  window.visualViewport.addEventListener('resize', () => { clearTimeout(_fitTimer); _fitTimer = setTimeout(fitTableHeight, 150); }, { passive: true });
+}
 
 function setDays(n) {
   S.days = n;
