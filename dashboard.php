@@ -458,8 +458,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
   .kpi .sub{font-size:9px;margin-top:4px}
   .kpi[data-kpi="sales"]{gap:10px;padding:10px 12px}
   .kpi[data-kpi="sales"] .value{font-size:26px}
-  /* hide print — useless on phone */
-  #printBtn{display:none!important}
+  /* hide print/export — useless on phone */
+  #printBtn,#exportCsvBtn{display:none!important}
   /* compact real-time button: icon only */
   .rt-btn{padding:7px 10px;font-size:0;gap:0}
   .rt-btn .live-dot{display:none}
@@ -493,8 +493,8 @@ body[data-theme="light"] .sheet-card{background:linear-gradient(180deg,rgba(243,
 .tl-dot-main{background:var(--primary)}
 .tl-dot-cmp{background:rgba(167,139,250,.65)}
 /* ── Print button ── */
-#printBtn{background:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;border-radius:8px;padding:6px 10px;font-size:11px;display:inline-flex;align-items:center;gap:4px;transition:border-color .15s,color .15s}
-#printBtn:hover{border-color:var(--muted2);color:var(--text)}
+#printBtn,#exportCsvBtn{background:none;border:1px solid var(--line);color:var(--muted);cursor:pointer;border-radius:8px;padding:6px 10px;font-size:11px;display:inline-flex;align-items:center;gap:4px;transition:border-color .15s,color .15s}
+#printBtn:hover,#exportCsvBtn:hover{border-color:var(--muted2);color:var(--text)}
 #logoutBtn:hover{color:var(--bad)!important;border-color:var(--bad-border)!important}
 /* ── Branch modal ── */
 .bm-overlay{position:fixed;inset:0;z-index:400;display:flex;align-items:flex-end;justify-content:center}
@@ -514,7 +514,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
 .bm-tip{position:absolute;pointer-events:none;display:none;background:var(--glass);border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:11px;line-height:1.5;-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);z-index:2}
 /* ── Print ── */
 @media print{
-  .mobile-tabs,.filter-sheet,.footer-note,#installBanner,#openFilterBtn,.hero-badge,.kpi-cmp,.sheet-quick,.sheet-quick-row2,#compareToggle,#compareToggleDesktop,#printBtn,.quick-bar{display:none!important}
+  .mobile-tabs,.filter-sheet,.footer-note,#installBanner,#openFilterBtn,.hero-badge,.kpi-cmp,.sheet-quick,.sheet-quick-row2,#compareToggle,#compareToggleDesktop,#printBtn,#exportCsvBtn,.quick-bar{display:none!important}
   .app{padding:0;max-width:100%}
   .hero{padding:10px 14px}
   body,html{background:#fff!important}
@@ -566,7 +566,7 @@ body[data-theme="light"] .bm-box{background:linear-gradient(160deg,rgba(255,255,
           </div>
         </div>
         <div class="hero-actions" style="display:flex;align-items:center;gap:8px">
-<a href="realtime.php" class="rt-btn" title="ดูยอดขาย Real-time ทุกสาขา"><span class="live-dot"></span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="rtBtnLabel">ยอดขาย Real-time</span></a><button id="printBtn" onclick="window.print()">🖨️ <span id="printBtnLabel">พิมพ์</span></button><form method="POST" action="logout.php" style="display:inline"><input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token'] ?? '') ?>"><button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form>
+<a href="realtime.php" class="rt-btn" title="ดูยอดขาย Real-time ทุกสาขา"><span class="live-dot"></span><svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg><span id="rtBtnLabel">ยอดขาย Real-time</span></a><button id="printBtn" onclick="window.print()">🖨️ <span id="printBtnLabel">พิมพ์</span></button><button id="exportCsvBtn" onclick="exportCsv()" title="Export CSV">⬇️ CSV</button><form method="POST" action="logout.php" style="display:inline"><input type="hidden" name="csrf_token" value="<?= h($_SESSION['csrf_token'] ?? '') ?>"><button type="submit" id="logoutBtn" title="ออกจากระบบ (<?= h($_SESSION['staff_code'] ?? '') ?>)" style="display:inline-flex;align-items:center;gap:5px;height:34px;padding:0 11px;border-radius:8px;border:1px solid var(--line);color:var(--muted);font-size:11px;font-weight:600;background:none;cursor:pointer;transition:color .15s,border-color .15s"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button></form>
 <button class="icon-btn" id="openFilterBtn" title="ตัวกรอง"><svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/><circle cx="9" cy="6" r="2.5" fill="var(--bg)"/><circle cx="15" cy="12" r="2.5" fill="var(--bg)"/><circle cx="9" cy="18" r="2.5" fill="var(--bg)"/></svg></button>
         </div>
       </div>
@@ -916,7 +916,7 @@ function renderAlerts(rows,meta,summary){
   $('alertCountDesktop')&&($('alertCountDesktop').textContent=count);
   const badge=$('tabAlertBadge');if(badge){badge.textContent=count;badge.style.display=count>0?'flex':'none'}
 }
-function drawTrend(rows,canvasId,cmpRows){
+function drawTrend(rows,canvasId,cmpRows,anim){
   const canvas=$(canvasId);if(!canvas||canvas.offsetParent===null)return;
   const ctx=canvas.getContext('2d'),parent=canvas.parentElement,dpr=window.devicePixelRatio||1,w=Math.max(parent.clientWidth-20,200),h=Math.max(parent.clientHeight-20,140);
   canvas.width=w*dpr;canvas.height=h*dpr;canvas.style.width=w+'px';canvas.style.height=h+'px';ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
@@ -927,7 +927,6 @@ function drawTrend(rows,canvasId,cmpRows){
   const mainMax=Math.max(...values,1);
   const cmpValues=(cmpRows&&cmpRows.length)?cmpRows.map(r=>Number(r.sales_total||0)):null;
   const rawMax=cmpValues?Math.max(mainMax,...cmpValues,1):mainMax;
-  // round up to a clean Y-axis ceiling
   const mag=Math.pow(10,Math.floor(Math.log10(rawMax||1)));
   const niceTop=Math.ceil(rawMax/mag)*mag;
   const stepX=rows.length>1?cw/(rows.length-1):0;
@@ -936,44 +935,55 @@ function drawTrend(rows,canvasId,cmpRows){
   if(cmpValues){const s2=cmpRows.length>1?cw/(cmpRows.length-1):0;cmpPts=cmpRows.map((r,i)=>({x:pad.l+s2*i,y:pad.t+ch-(Number(r.sales_total||0)/niceTop)*ch}))}
   canvas._chart={pts,rows,values,pad,w,h,cmpPts,cmpRows:cmpRows||null};
   function curve(p){ctx.moveTo(p[0].x,p[0].y);for(let i=0;i<p.length-1;i++){const mx=(p[i].x+p[i+1].x)/2;ctx.bezierCurveTo(mx,p[i].y,mx,p[i+1].y,p[i+1].x,p[i+1].y)}}
-  // grid lines — theme-aware, clearly visible
   const gridCol=isDark?'rgba(255,255,255,.09)':'rgba(0,0,0,.07)';
-  ctx.strokeStyle=gridCol;ctx.lineWidth=1;ctx.setLineDash([]);
-  for(let i=0;i<=4;i++){const y=pad.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
-  // y-axis labels
-  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='right';
-  for(let i=0;i<=4;i++){ctx.fillText(compactMoney((niceTop/4)*(4-i)),pad.l-8,pad.t+(ch/4)*i+3.5)}
-  // compare line
-  if(cmpPts&&cmpPts.length>1){ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(167,139,250,.65)';ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(cmpPts);ctx.stroke();ctx.restore()}
-  ctx.setLineDash([]);
-  // gradient fill — match primary teal
-  const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
-  grad.addColorStop(0,'rgba(16,217,160,.38)');grad.addColorStop(.5,'rgba(16,217,160,.12)');grad.addColorStop(1,'rgba(16,217,160,0)');
-  ctx.beginPath();curve(pts);ctx.lineTo(pts[pts.length-1].x,pad.t+ch);ctx.lineTo(pts[0].x,pad.t+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
-  // main line
-  ctx.strokeStyle=cs.getPropertyValue('--primary');ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(pts);ctx.stroke();
-  // dots + value labels
   const peakIdx=values.indexOf(Math.max(...values));
   const showAllLabels=rows.length<=10&&stepX>=28;
-  pts.forEach((p,i)=>{
-    const isPeak=i===peakIdx;
-    if(isPeak){
-      ctx.beginPath();ctx.arc(p.x,p.y,6,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();
-      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
-    } else {
-      ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary');ctx.fill();
-    }
-    if(showAllLabels||isPeak){
-      ctx.fillStyle=isPeak?'#f59e0b':cs.getPropertyValue('--muted');
-      ctx.font=isPeak?'700 9.5px "Plus Jakarta Sans",sans-serif':'9px "Plus Jakarta Sans",sans-serif';
-      ctx.textAlign='center';
-      ctx.fillText(compactMoney(values[i]),p.x,p.y-(isPeak?16:13));
-    }
-  });
-  // x-axis date labels
-  ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='center';
   const skip=rows.length>10?Math.ceil(rows.length/8):1;
-  rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;ctx.fillText((r.sale_date||'').slice(5),pts[i].x,h-6)})
+
+  function renderFrame(prog){
+    ctx.clearRect(0,0,w,h);
+    // static: grid + y-labels (always full)
+    ctx.strokeStyle=gridCol;ctx.lineWidth=1;ctx.setLineDash([]);
+    for(let i=0;i<=4;i++){const y=pad.t+(ch/4)*i;ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()}
+    ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='right';
+    for(let i=0;i<=4;i++){ctx.fillText(compactMoney((niceTop/4)*(4-i)),pad.l-8,pad.t+(ch/4)*i+3.5)}
+    // clip animated region
+    ctx.save();ctx.beginPath();ctx.rect(0,0,pad.l+cw*prog+20,h);ctx.clip();
+    // compare line
+    if(cmpPts&&cmpPts.length>1){ctx.save();ctx.setLineDash([5,4]);ctx.strokeStyle='rgba(167,139,250,.65)';ctx.lineWidth=1.8;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(cmpPts);ctx.stroke();ctx.restore()}
+    ctx.setLineDash([]);
+    // gradient fill
+    const grad=ctx.createLinearGradient(0,pad.t,0,pad.t+ch);
+    grad.addColorStop(0,'rgba(16,217,160,.38)');grad.addColorStop(.5,'rgba(16,217,160,.12)');grad.addColorStop(1,'rgba(16,217,160,0)');
+    ctx.beginPath();curve(pts);ctx.lineTo(pts[pts.length-1].x,pad.t+ch);ctx.lineTo(pts[0].x,pad.t+ch);ctx.closePath();ctx.fillStyle=grad;ctx.fill();
+    // main line
+    ctx.strokeStyle=cs.getPropertyValue('--primary');ctx.lineWidth=2.5;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();curve(pts);ctx.stroke();
+    // regression trend line (teal=up, red=down, shown only when fully drawn)
+    if(prog>=1&&values.length>=3){
+      const n=values.length,sx=values.reduce((_,__,i)=>_+i,0),sy=values.reduce((a,v)=>a+v,0),sxy=values.reduce((a,v,i)=>a+i*v,0),sx2=values.reduce((a,_,i)=>a+i*i,0);
+      const slope=(n*sxy-sx*sy)/(n*sx2-sx*sx),intercept=(sy-slope*sx)/n;
+      const ry0=pad.t+ch-(intercept/niceTop)*ch,ry1=pad.t+ch-((intercept+slope*(n-1))/niceTop)*ch;
+      ctx.save();ctx.setLineDash([4,4]);ctx.strokeStyle=slope>=0?'rgba(16,217,160,.3)':'rgba(248,113,113,.3)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(pts[0].x,ry0);ctx.lineTo(pts[pts.length-1].x,ry1);ctx.stroke();ctx.setLineDash([]);ctx.restore();
+    }
+    // dots + value labels
+    pts.forEach((p,i)=>{
+      const isPeak=i===peakIdx;
+      if(isPeak){ctx.beginPath();ctx.arc(p.x,p.y,6,0,Math.PI*2);ctx.fillStyle='#f59e0b';ctx.fill();ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill()}
+      else{ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fillStyle=cs.getPropertyValue('--primary');ctx.fill()}
+      if(showAllLabels||isPeak){ctx.fillStyle=isPeak?'#f59e0b':cs.getPropertyValue('--muted');ctx.font=isPeak?'700 9.5px "Plus Jakarta Sans",sans-serif':'9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='center';ctx.fillText(compactMoney(values[i]),p.x,p.y-(isPeak?16:13))}
+    });
+    ctx.restore(); // end clip
+    // x-axis labels (static, outside clip)
+    ctx.fillStyle=cs.getPropertyValue('--muted');ctx.font='9px "Plus Jakarta Sans",sans-serif';ctx.textAlign='center';
+    rows.forEach((r,i)=>{if(i%skip!==0&&i!==rows.length-1)return;ctx.fillText((r.sale_date||'').slice(5),pts[i].x,h-6)})
+  }
+
+  if(anim){
+    const t0=performance.now(),dur=650;
+    (function frame(now){const p=Math.min((now-t0)/dur,1);renderFrame(1-Math.pow(1-p,3));if(p<1)requestAnimationFrame(frame)})(performance.now());
+  } else {
+    renderFrame(1);
+  }
 }
 async function toggleCompare(){
   state.compareMode=!state.compareMode;
@@ -1030,18 +1040,21 @@ function drawBranchModalChart(daily){
 }
 function initChartTooltip(canvasId,tipId){
   const canvas=$(canvasId),tip=$(tipId);if(!canvas||!tip)return;
-  canvas.addEventListener('mousemove',e=>{
+  function showTip(clientX){
     const chart=canvas._chart;if(!chart)return;
-    const rect=canvas.getBoundingClientRect(),mx=e.clientX-rect.left;
+    const rect=canvas.getBoundingClientRect(),mx=clientX-rect.left;
     let ni=0,md=Infinity;
     chart.pts.forEach((p,i)=>{const d=Math.abs(p.x-mx);if(d<md){md=d;ni=i}});
     const p=chart.pts[ni],r=chart.rows[ni],cw=parseFloat(canvas.style.width);
     let left=p.x+12;if(left+150>cw)left=p.x-162;
-    let top=Math.max(p.y-36,4);
-    tip.style.cssText=`display:block;left:${left}px;top:${top}px`;
+    tip.style.cssText=`display:block;left:${left}px;top:${Math.max(p.y-36,4)}px`;
     tip.innerHTML=`<div class="ct-date">${fmtDateThai(r.sale_date)}</div><div class="ct-val">${money(Number(r.sales_total||0))}</div>`;
-  });
+  }
+  canvas.addEventListener('mousemove',e=>showTip(e.clientX));
   canvas.addEventListener('mouseleave',()=>{tip.style.display='none'});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();showTip(e.touches[0].clientX)},{passive:false});
+  let _tipHide;
+  canvas.addEventListener('touchend',()=>{clearTimeout(_tipHide);_tipHide=setTimeout(()=>{tip.style.display='none'},1400)});
 }
 function renderRankingBar(rows,containerId){
   const el=$(containerId);if(!el)return;
@@ -1058,7 +1071,16 @@ function renderRankingBar(rows,containerId){
     el.querySelectorAll('.rank-fill[data-w]').forEach(f=>{f.style.width=f.dataset.w});
   }));
 }
-function redrawCharts(){const cmp=state.compareMode?state.compareTrendRows:null;drawTrend(state.trendRows,'trendCanvas',cmp);drawTrend(state.trendRows,'trendCanvasDesktop',cmp)}
+function redrawCharts(anim){const cmp=state.compareMode?state.compareTrendRows:null;drawTrend(state.trendRows,'trendCanvas',cmp,anim);drawTrend(state.trendRows,'trendCanvasDesktop',cmp,anim)}
+function exportCsv(){
+  const rows=state.trendRows;if(!rows||!rows.length)return;
+  const f=mobile.from.value,to=mobile.to.value;
+  let csv='﻿Date,Sales\n';
+  rows.forEach(r=>{csv+=`${r.sale_date},${r.sales_total}\n`});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
+  a.download=`sales_${f}_${to}.csv`;a.click();URL.revokeObjectURL(a.href);
+}
 function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>{const active=btn.dataset.panel===panel;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',active?'true':'false')});if(panel==='overview')requestAnimationFrame(redrawCharts)}
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(res.status===401){window.location.href='login.php';return;}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=fmtDateThai(state.latestDate)||'-';const sum=data.summary||{};$('salesTotal').textContent=money(sum.sales_total);$('bestWorst').textContent=`${sum.best_branch_name||'-'} / ${sum.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`↑ ${t('best')} ${compactMoney(sum.best_branch_sales)}  ·  ↓ ${t('lowest')} ${compactMoney(sum.worst_branch_sales)}`;
 const cmp=data.comparison||{};
@@ -1090,7 +1112,7 @@ const cmp=data.comparison||{};
   }
 })();
 state._lastCmp=cmp;
-renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts();renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(sum.sales_total||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent=t('apiError')}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
+renderAlerts(data.alerts||[],data.meta||{},data.summary||{});state.trendRows=data.sales_trend||[];state.rankingRows=data.branch_ranking||[];redrawCharts(true);renderRankingBar(state.rankingRows,'rankingBars');renderRankingBar(state.rankingRows,'rankingBarsDesktop');$('apiStatusText').textContent=t('apiOk');if(Number(sum.sales_total||0)<=0)showError(t('noDataRange'))}catch(err){if(err.name==='AbortError')return;showError(err.message||'Load failed');$('apiStatusText').textContent=t('apiError')}finally{isLoading=false;_lastFetchAt=Date.now();startCd()}}
 function bindFilterGroup(group){if(!group.lang)return;group.lang.addEventListener('change',()=>{state.lang=group.lang.value;syncPrefsInputs();applyPrefs();loadDashboard(false)});group.theme.addEventListener('change',()=>{state.theme=group.theme.value;syncPrefsInputs();applyPrefs()});group.from.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);setQuickSel('custom');loadDashboard(true);startAutoRefresh()});group.to.addEventListener('change',()=>{syncDateInputs(group.from.value,group.to.value);setQuickSel('custom');loadDashboard(true);startAutoRefresh()})}
 bindFilterGroup(mobile);bindFilterGroup(desk);
 ['reloadBtn','reloadBtnDesktop'].forEach(id=>{$(id)&&$(id).addEventListener('click',()=>{closeSheet();loadDashboard(true);startAutoRefresh()})});

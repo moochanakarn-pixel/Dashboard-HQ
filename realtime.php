@@ -362,6 +362,7 @@ html,body{
 .card-bot{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .card-mtd{font-size:11px;color:var(--muted)}
 .card-mtd b{color:var(--text2);font-weight:600;font-variant-numeric:tabular-nums}
+.card-spark{display:block;width:100%;height:32px;margin-top:7px;border-radius:4px}
 </style>
 </head>
 <body>
@@ -856,6 +857,32 @@ function showLoading(v) { document.getElementById('loadingEl').style.display = v
 function showError(m)   { const e=document.getElementById('errorEl'); e.textContent=m; e.style.display=''; }
 function hideError()    { document.getElementById('errorEl').style.display='none'; }
 
+// ── Sparkline ──────────────────────────────────────────
+function drawSparkline(canvas, branch, d) {
+  const dates = d.date_columns || [];
+  const vals = dates.map(dt => branch.daily?.[dt] || 0);
+  if (!vals.some(v => v > 0)) { canvas.style.display = 'none'; return; }
+  const dpr = window.devicePixelRatio || 1;
+  const w = canvas.parentElement.clientWidth || 200;
+  const h = 32;
+  canvas.width = w * dpr; canvas.height = h * dpr;
+  canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+  const ctx = canvas.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const max = Math.max(...vals, 1);
+  const pad = { t: 3, b: 3 }, ch = h - pad.t - pad.b;
+  const stepX = vals.length > 1 ? w / (vals.length - 1) : 0;
+  const pts = vals.map((v, i) => ({ x: stepX * i, y: pad.t + ch - (v / max) * ch }));
+  function curve(p) { ctx.moveTo(p[0].x, p[0].y); for (let i = 0; i < p.length - 1; i++) { const mx = (p[i].x + p[i+1].x) / 2; ctx.bezierCurveTo(mx, p[i].y, mx, p[i+1].y, p[i+1].x, p[i+1].y); } }
+  const grad = ctx.createLinearGradient(0, pad.t, 0, pad.t + ch);
+  grad.addColorStop(0, 'rgba(16,217,160,.22)'); grad.addColorStop(1, 'rgba(16,217,160,0)');
+  ctx.beginPath(); curve(pts); ctx.lineTo(pts[pts.length-1].x, pad.t+ch); ctx.lineTo(pts[0].x, pad.t+ch); ctx.closePath(); ctx.fillStyle = grad; ctx.fill();
+  ctx.strokeStyle = 'rgba(16,217,160,.65)'; ctx.lineWidth = 1.5; ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.beginPath(); curve(pts); ctx.stroke();
+  const last = pts[pts.length - 1];
+  ctx.beginPath(); ctx.arc(last.x, last.y, 2.5, 0, Math.PI * 2); ctx.fillStyle = '#10d9a0'; ctx.fill();
+}
+
 // ── Card view ──────────────────────────────────────────
 function renderCards() {
   const d = S.raw;
@@ -882,9 +909,17 @@ function renderCards() {
         <div class="card-bot">
           <div class="card-mtd">${t('thisMonth')} <b>${b.this_month ? fmtS(b.this_month) : '—'}</b></div>
         </div>
+        <canvas class="card-spark"></canvas>
       </div>
     </div>`;
   }).join('');
+  // draw sparklines after DOM is ready
+  requestAnimationFrame(() => {
+    cg.querySelectorAll('.rt-card').forEach((card, i) => {
+      const sc = card.querySelector('.card-spark');
+      if (sc && branches[i]) drawSparkline(sc, branches[i], d);
+    });
+  });
 }
 
 function setView(v) {
