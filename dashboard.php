@@ -1079,9 +1079,11 @@ function exportCsv(){
   rows.forEach(r=>{csv+=`${r.sale_date},${r.sales_total}\n`});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));
-  a.download=`sales_${f}_${to}.csv`;a.click();URL.revokeObjectURL(a.href);
+  a.download=`sales_${f}_${to}.csv`;
+  document.body.appendChild(a);a.click();document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(a.href),100);
 }
-function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>{const active=btn.dataset.panel===panel;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',active?'true':'false')});if(panel==='overview')requestAnimationFrame(redrawCharts)}
+function setTab(panel){document.querySelectorAll('.panel').forEach(el=>el.classList.toggle('active',el.id===`panel-${panel}`));document.querySelectorAll('.tab-btn').forEach(btn=>{const active=btn.dataset.panel===panel;btn.classList.toggle('active',active);btn.setAttribute('aria-selected',active?'true':'false')});if(panel==='overview')requestAnimationFrame(()=>redrawCharts())}
 async function loadDashboard(forceRefresh=true){if(isLoading)return;isLoading=true;showError('');try{const filters=getCurrentFilters();const qs=new URLSearchParams(filters);if(forceRefresh)qs.set('force','1');qs.set('_',String(Date.now()));const{res,text}=await fetchText('api_dashboard.php?'+qs.toString());let data;try{data=JSON.parse(text)}catch(_){throw new Error(`${t('invalidJson')} ${text.slice(0,220)}`)}if(res.status===401){window.location.href='login.php';return;}if(!res.ok)throw new Error(data.error||('HTTP '+res.status));if(data.meta&&data.meta.latest_data_date)state.latestDate=data.meta.latest_data_date;$('latestDataDate').textContent=fmtDateThai(state.latestDate)||'-';const sum=data.summary||{};$('salesTotal').textContent=money(sum.sales_total);$('bestWorst').textContent=`${sum.best_branch_name||'-'} / ${sum.worst_branch_name||'-'}`;$('bestWorstSub').textContent=`↑ ${t('best')} ${compactMoney(sum.best_branch_sales)}  ·  ↓ ${t('lowest')} ${compactMoney(sum.worst_branch_sales)}`;
 const cmp=data.comparison||{};
 (function renderComparison(){
